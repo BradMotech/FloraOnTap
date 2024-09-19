@@ -1,0 +1,28 @@
+// src/types/IconTypes.ts
+
+export type IoniconName =
+  | 'key'
+  | 'push'
+  | 'map'
+  | 'filter'
+  | 'at'
+  | 'link'
+  | 'search'
+  | 'image'
+  | 'text'
+  | 'alert'
+  | 'checkbox'
+  | 'menu'
+  | 'radio'
+  | 'timer'
+  | 'close'
+  | 'book'
+  | 'pause'
+  | 'mail'
+  | 'home'
+  | 'person'
+  | 'settings'
+  | 'user'
+  | 'lock'
+  | 'mail-outline'
+;
