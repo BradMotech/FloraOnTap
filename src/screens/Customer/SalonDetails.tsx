@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import CustomTabView from "../../components/CustomTopTab";
 import tokens from "../../styles/tokens";
 import { useRoute } from "@react-navigation/native";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 
 const SalonDetails = ({ navigation }) => {
   const { hairstylesData } = useContext(AuthContext);

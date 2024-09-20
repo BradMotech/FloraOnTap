@@ -1,27 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Dimensions } from 'react-native';
+import globalStyles from '../../styles/globalStyles';
+import tokens from '../../styles/tokens';
 
 const PRICINGOPTIONS = [
+//   {
+//     id: 0,
+//     name: 'Free Plan - Trial',
+//     price: 0.0,
+//     features: ['10 credits pack', '2 appointment approval', 'Minimal Support'],
+//   },
   {
     id: 0,
-    name: 'Free Plan - Trial',
-    price: 0.0,
-    features: ['10 credits pack', '2 appointment approval', 'Minimal Support'],
-  },
-  {
-    id: 1,
     name: 'Basic Plan - 10% off',
     price: 439.99,
     features: ['20 credits pack', '4 appointment approval', '100MB Storage', 'Basic Support'],
   },
   {
-    id: 2,
+    id: 1,
     name: 'Starter Plan - 15% off',
     price: 839.99,
     features: ['40 credits pack', '8 appointment approval', '1GB Storage', 'Priority Support'],
   },
   {
-    id: 3,
+    id: 2,
     name: 'Business Plan - 20% off',
     price: 1499.99,
     features: [
@@ -70,9 +72,12 @@ const PriceList = () => {
         contentContainerStyle={styles.listContainer}
       />
       {selectedPlan !== null && (
+        <>
         <Text style={styles.selectedText}>
           Selected Plan: {PRICINGOPTIONS[selectedPlan].name}
         </Text>
+          <TouchableOpacity style={[globalStyles.button,{width:Dimensions.get('screen').width - 60,alignItems:'center',justifyContent:'center',marginTop:16}]}><Text style={{color:tokens.colors.background}}>Proceed</Text></TouchableOpacity>
+        </>
       )}
     </View>
   );

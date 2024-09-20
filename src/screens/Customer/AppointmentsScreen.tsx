@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, ScrollView, SafeAreaView } from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import CalendarComponent from "../../components/CalendarComponent";
 import { TITLES } from "../../utils/Constants/constantTexts";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 import { cancelBooking, fetchAppointmentsByCustomerId } from "../../firebase/dbFunctions";
 import AppointmentModal from "../../components/AppointmentModal";
 import { useToast } from "../../components/ToastContext";

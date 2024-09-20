@@ -17,7 +17,7 @@ import InputComponent from "../components/InputComponent";
 import tokens from "../styles/tokens";
 import ButtonComponent from "../components/buttonComponent";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import FontAwesome icons
-import { AuthContext } from "../auth /AuthContext";
+import { AuthContext } from "../auth/AuthContext";
 import Toast from "react-native-toast-message";
 import { useToast } from "../components/ToastContext";
 

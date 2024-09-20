@@ -36,7 +36,7 @@ const TabButton = ({ title, isActive, onPress }) => (
 );
 
 // Tab view component
-const CustomTabView = ({ salonData, ratingData, navigation, salonDetails,isProvider }) => {
+const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails,isProvider }) => {
   const [activeTab, setActiveTab] = useState("Details");
   const [editProfile, setEditProfile] = useState<boolean>(false);
   const [filterByFlag, setFilterByFlag] = useState<boolean>(false);
@@ -56,7 +56,7 @@ const CustomTabView = ({ salonData, ratingData, navigation, salonDetails,isProvi
       addedOn={formatDate(item.createdAt)}
       onViewDetails={() => {
         // Handle view details button press
-        navigation.navigate("BookAppointment", { hairstyleDetails: item });
+        navigation.navigate("EditProduct", { docId: item.id });
       }}
       phone={item.phone}
     />
@@ -158,15 +158,20 @@ const CustomTabView = ({ salonData, ratingData, navigation, salonDetails,isProvi
               {/* buttons */}
             </View>
           </View>
+          
           {isProvider ? <View
-            style={{ width: "100%", display: "flex", flexDirection: "column" }}
+            style={{ width: "100%", display: "flex", flexDirection: "row",justifyContent:'space-between' }}
           >
+            <View style={{width:Dimensions.get('screen').width/2 - 15}}>
             <ButtonComponent
               marginTop={10}
               text={"Edit profile"}
               onPress={() => setEditProfile(true)}
             />
+            </View>
+            <View style={{width:Dimensions.get('screen').width/2 - 15}}>
             <ButtonComponent marginTop={10} text={"Renew subscription"} />
+            </View>
           </View>:null}
           <View style={globalStyles.imageView}>
             <Text style={{ color: tokens.colors.textColor, padding: 6 }}>
@@ -436,5 +441,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomTabView;
+export default CustomTabViewProvider;
 

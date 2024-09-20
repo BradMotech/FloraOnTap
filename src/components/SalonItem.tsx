@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Image, TouchableOpacity, Dimensions } from 'rea
 import { Ionicons } from '@expo/vector-icons'; // Use Ionicons or any other preferred icon library
 import tokens from '../styles/tokens'; // Adjust the path to your tokens or styles
 import Rating from './Rating';
+import globalStyles from '../styles/globalStyles';
 
 interface SalonItemCardProps {
   image: string;
@@ -23,9 +24,10 @@ const SalonItemCard: React.FC<SalonItemCardProps> = ({
   phone,
   onViewDetails,
 }) => {
+    const firstLetter = title.charAt(0).toUpperCase();
   return (
     <TouchableOpacity onPress={onViewDetails} style={styles.card}>
-      <Image source={{ uri: image }} style={styles.image} />
+      {image ? <Image source={{ uri: image }} style={styles.image} />:<View style={[styles.image,{backgroundColor:tokens.colors.hairduMainColor,alignItems:'center',justifyContent:'center'}]}><Text style={[globalStyles.placeholderText,{fontSize:44}]}>{firstLetter}</Text></View>}
       <View style={styles.details}>
         <View style={styles.row}>
           <Ionicons name="person-outline" size={12} color={tokens.colors.iconColor} />

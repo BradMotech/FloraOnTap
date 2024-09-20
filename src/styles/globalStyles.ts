@@ -23,8 +23,8 @@ const globalStyles = StyleSheet.create({
     height: 60,
     paddingHorizontal: tokens.spacing.md,
     backgroundColor: tokens.colors.hairduMainColor,
-    borderBottomLeftRadius:16,
-    borderBottomRightRadius:16
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
   },
   title: {
     fontSize: tokens.fontSize.large,
@@ -63,7 +63,7 @@ const globalStyles = StyleSheet.create({
     shadowRadius: 10, // Shadow blur radius for iOS
     elevation: 5, // Shadow for Android
     padding: tokens.spacing.lg,
-    maxHeight:height * 0.65,
+    maxHeight: height * 0.65,
     // minHeight:height * 0.5
   },
   alignCenter: {
@@ -88,7 +88,7 @@ const globalStyles = StyleSheet.create({
     marginTop: tokens.spacing.xl,
   },
   buttonWrapper: {
-    width: '100%',
+    width: "100%",
     height: 45,
     backgroundColor: tokens.colors.hairduMainColor,
     borderRadius: tokens.borderRadius.medium,
@@ -110,7 +110,7 @@ const globalStyles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: '100%',
+    width: "100%",
     height: 45,
     borderWidth: 0.3,
     borderRadius: tokens.borderRadius.small,
@@ -139,11 +139,11 @@ const globalStyles = StyleSheet.create({
     flex: 1,
   },
   itemCalendarRender: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
@@ -152,71 +152,95 @@ const globalStyles = StyleSheet.create({
   bookingContainer: {
     marginTop: 20,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  scroll:{
+  scroll: {
     flexGrow: 1,
     padding: 10,
     backgroundColor: tokens.colors.background,
-    minHeight:'100%'
+    minHeight: "100%",
   },
   Storycontainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    overflow: 'hidden',
+    overflow: "hidden",
     margin: 5,
   },
   StorySvg: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
   },
   StoryImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 40,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   storyContainerHorizontal: {
-    flexDirection: 'row', // Align children horizontally
-    alignItems: 'center', // Center items vertically
+    flexDirection: "row", // Align children horizontally
+    alignItems: "center", // Center items vertically
   },
-  dashboard:{
-    padding:2,
+  dashboard: {
+    padding: 2,
   },
-  separatorNoColor:{
-    height:tokens.spacing.md
+  separatorNoColor: {
+    height: tokens.spacing.md,
   },
   gridContainer: {
-      // paddingHorizontal: 10,
-      display:'flex'
-    },
-    columnWrapper: {
-      justifyContent: 'space-between',
-      marginBottom: 20,
-    },
-    scrollInCardContainer:{
-      flexGrow: 1,
-      padding: 10,
-      backgroundColor: tokens.colors.background,
-    },
-    backgroundImage: {
-      flex: 1,
-      resizeMode: 'cover', // Or 'contain', depending on your needs
-    },
-    value: {
-      backgroundColor: "#e0f7fa",
-      color: "#00796b",
-      padding: 2,
-      borderRadius: 5,
-    },
-    planPrice: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#007AFF',
-      marginBottom: 10,
-    },
+    // paddingHorizontal: 10,
+    display: "flex",
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  scrollInCardContainer: {
+    flexGrow: 1,
+    padding: 10,
+    backgroundColor: tokens.colors.background,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover", // Or 'contain', depending on your needs
+  },
+  value: {
+    backgroundColor: "#e0f7fa",
+    color: "#00796b",
+    padding: 2,
+    borderRadius: 5,
+  },
+  planPrice: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+    marginBottom: 10,
+  },
+  imagePlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: tokens.colors.hairduMainColor, // Placeholder background color
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    fontSize: 20,
+    color: "#fff", // Text color for the placeholder
+  },
+  forgotPassword: {
+    marginTop: 14,
+    alignItems: "baseline",
+    justifyContent: "center",
+  },
+  forgotPasswordClickHere: {
+    color: "#007AFF",
+    // alignItems: "center",
+    // justifyContent: "center",
+    // position: "absolute",
+    // bottom: -3,
+  },
 });
 
 export default globalStyles;

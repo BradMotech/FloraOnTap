@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Keyboard,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import ContainerCard from "../components/ContainerCard";
@@ -23,7 +24,7 @@ import * as ImagePicker from 'expo-image-picker';
 import DropdownComponent from "../components/DropdownComponent";
 import WeekdaySelector from "../components/WeekDaySelector";
 import { signUp } from "../firebase/authFunctions";
-import { setUserInFirestore, uploadImageToFirebase } from "../firebase/dbFunctions";
+import { setHairstylistInFirestore, setUserInFirestore, uploadImageToFirebase } from "../firebase/dbFunctions";
 import { useToast } from "../components/ToastContext";
 
 const SignupScreen = ({ navigation }) => {
@@ -41,7 +42,7 @@ const SignupScreen = ({ navigation }) => {
     province: "",
     profileImage: null, // New field for image
     availability: [],
-    userSelectedRole:"Customer"
+    userSelectedRole:""
   });
 
   // Input references
@@ -52,7 +53,7 @@ const SignupScreen = ({ navigation }) => {
   const confirmPasswordRef = useRef(null);
   const locationRef = useRef(null);
   const provinceRef = useRef(null);
-  const userSelectedRole = useRef(null);
+  const userSelectedRoleRef = useRef(null);
 
   // Handle input change
   const handleInputChange = (field, value) => {
@@ -130,6 +131,9 @@ const SignupScreen = ({ navigation }) => {
           // Add the user to the Firestore Users collection
           await setUserInFirestore(uid, userData);
 
+          if(formData.userSelectedRole === "Provider"){
+            await setHairstylistInFirestore(uid, userData)
+          }
         //   alert("Registration successful");
           navigation.navigate('Login');
           setStep(step + 1); // Only increment if registration and Firestore update are successful
@@ -143,18 +147,28 @@ const SignupScreen = ({ navigation }) => {
 }
 
   const handleNextStep = async () => {
+    // alert(step+formData.userSelectedRole)
     if (step === 3 && formData.userSelectedRole !== "Provider") {
+        alert("comes here and should not")
     //   Alert.alert(
     //     "Role Restriction",
     //     "Only providers can proceed to set availability."
     //   );
     await loginAndUpdateUsersCollections();
     } else {
-      if (step === 4) {
-       await loginAndUpdateUsersCollections();
-
-      } else {
+        if(step === 3 && formData.userSelectedRole === "Provider"){
+            alert("comes here and should")
             setStep(step + 1);
+            // await loginAndUpdateUsersCollections();
+        }
+        else if(step === 4){
+            alert("yeeeee")
+            await loginAndUpdateUsersCollections();
+      }
+      else if(step === 1){
+        setStep(step + 1);
+      }else if(step == 2){
+        setStep(step + 1);
       }
     }
   };
@@ -165,7 +179,7 @@ const SignupScreen = ({ navigation }) => {
     switch (step) {
       case 1:
         return (
-          <View>
+          <View style={{height:Dimensions.get('screen').height-130}}>
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP}
             </Text>
@@ -214,15 +228,15 @@ const SignupScreen = ({ navigation }) => {
               />
               <DropdownComponent
                 items={[
-                  "General user",
+                  "Customer",
                   "Provider",
                 ]}
-                ref={userSelectedRole}
+                ref={userSelectedRoleRef}
                 iconName="globe-outline"
                 value={formData.province}
                 onChangeText={(text) => handleInputChange("userSelectedRole", text)}
                 placeholder="Select role"
-                onItemSelected={(selected)=>{}}
+                onItemSelected={(selected)=>{ handleInputChange("userSelectedRole", selected)}}
               />
               <InputComponent
                 ref={passwordRef}
@@ -349,8 +363,9 @@ const SignupScreen = ({ navigation }) => {
   };
 
   // Registration handler
-  const handleRegister = () => {
+  const handleRegister = async () => {
     console.log("Form Data Submitted: ", formData);
+    await loginAndUpdateUsersCollections();
     // Add registration logic (e.g., API call or Firebase integration)
   };
 

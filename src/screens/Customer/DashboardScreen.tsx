@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, ScrollView, FlatList, SafeAreaView,StatusBar } from "react-native";
 import globalStyles from "../../styles/globalStyles";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 import StoryItem from "../../components/StoryItem";
 import SearchComponent from "../../components/SearchComponent";
 import LoadingScreen from "../../components/LoadingScreen";
@@ -113,6 +113,7 @@ const DashboardScreen = ({ navigation }) => {
                     });
                   }}
                   src={storyData.image}
+                  name={storyData.name}
                 />
               );
             })}

@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text, ScrollView, FlatList, SafeAreaView, StatusBar } from "react-native";
+import { View, Text, ScrollView, FlatList, SafeAreaView, StatusBar, TouchableOpacity } from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import Header from "../../components/header";
 import CircularProgressWithDetails from "../../components/CircularProgressWithDetails";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 import {
   fetchHairstylesFromFirestore,
   fetchUserFromFirestore,
@@ -14,6 +14,8 @@ import ProductItemCard from "../../components/ProductItem";
 import CustomTabView from "../../components/CustomTopTab";
 import tokens from "../../styles/tokens";
 import { useToast } from "../../components/ToastContext";
+import CustomTabViewProvider from "../../components/CustomTopTabProvider";
+import ButtonComponent from "../../components/buttonComponent";
 
 const ProviderDashboard = ({ navigation }) => {
   const {
@@ -54,8 +56,11 @@ const ProviderDashboard = ({ navigation }) => {
           <View
             style={{ flex: 1, marginTop: tokens.spacing.xs * 2, width: "100%" }}
           >
+            <View style={{marginBottom:6}}>
+            <ButtonComponent onPress={() => navigation.navigate('AddProduct')} text={"Upload Portfolio"}/>
+            </View>
             {hairstylesData && hairstylistsData ? (
-              <CustomTabView
+              <CustomTabViewProvider
                 salonData={hairstylesData}
                 salonDetails={hairstylistsData[0]}
                 ratingData={undefined}

@@ -10,7 +10,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import globalStyles from "../../styles/globalStyles";
 import tokens from "../../styles/tokens";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 import LoadingScreen from "../../components/LoadingScreen";
 
 const ListItem = ({ title, onPress }) => (

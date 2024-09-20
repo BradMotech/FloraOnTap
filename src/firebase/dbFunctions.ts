@@ -38,6 +38,11 @@ export const setUserInFirestore = async (uid: string, userData: any) => {
   const docRef = doc(db, 'Users', uid);
   await setDoc(docRef, userData, { merge: true });
 };
+// Add or update user data in Firestore
+export const setHairstylistInFirestore = async (uid: string, userData: any) => {
+  const docRef = doc(db, 'hairstylists', uid);
+  await setDoc(docRef, userData, { merge: true });
+};
 
 // Fetch appointments from Firestore (for providers or customers)
 export const fetchAppointments = async (uid: string, selectedRoleValue: 'provider' | 'customer') => {

@@ -12,6 +12,8 @@ import Header from '../../components/header';
 import SettingsScreen from '../../screens/Provider/SettingsScreen';
 import PriceList from '../../screens/Provider/Pricelist';
 import FAQScreen from '../../screens/Provider/FAQScreen';
+import ProductUploadScreen from '../../screens/Provider/ProductUploadScreen';
+import ProductEditScreen from '../../screens/Provider/ProductEditScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); 
@@ -31,6 +33,8 @@ const DashboardStack = () => (
     })}
   >
     <Stack.Screen name="Dashboard" component={DashboardScreen} />
+    <Stack.Screen name="AddProduct" component={ProductUploadScreen} />
+    <Stack.Screen name="EditProduct" component={ProductEditScreen} />
   </Stack.Navigator>
 );
 const AppointmentsStack = () => (

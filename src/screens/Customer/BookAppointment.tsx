@@ -11,7 +11,7 @@ import CalendarComponent from "../../components/CalendarComponent";
 import CustomModal from "../../components/CustomModal";
 import { formatDate } from "../../utils/dateFormat";
 import { fetchAppointmentsByHairstylistId, makeBooking } from "../../firebase/dbFunctions";
-import { AuthContext } from "../../auth /AuthContext";
+import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../components/ToastContext";
 import LoadingScreen from "../../components/LoadingScreen";
 
