@@ -19,7 +19,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ onPress, src ,name}) => {
           cx="40"
           cy="40"
           r="40"
-          stroke="#E1306C" // Color for the border
+          stroke={tokens.colors.hairduMainColor} // Color for the border
           strokeWidth="3"
           fill="transparent"
         />

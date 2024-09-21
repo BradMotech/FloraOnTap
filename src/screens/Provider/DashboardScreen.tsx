@@ -15,6 +15,7 @@ import CustomTabView from "../../components/CustomTopTab";
 import tokens from "../../styles/tokens";
 import { useToast } from "../../components/ToastContext";
 import CustomTabViewProvider from "../../components/CustomTopTabProvider";
+import { Ionicons } from '@expo/vector-icons';
 import ButtonComponent from "../../components/buttonComponent";
 
 const ProviderDashboard = ({ navigation }) => {
@@ -57,7 +58,13 @@ const ProviderDashboard = ({ navigation }) => {
             style={{ flex: 1, marginTop: tokens.spacing.xs * 2, width: "100%" }}
           >
             <View style={{marginBottom:6}}>
-            <ButtonComponent onPress={() => navigation.navigate('AddProduct')} text={"Upload Portfolio"}/>
+            <TouchableOpacity style={globalStyles.imagePicker} onPress={() => navigation.navigate('AddProduct')}>
+      <Ionicons name="folder" color={tokens.colors.inactive} size={35} />
+        <Text style={globalStyles.imagePickerText}>
+        {' Upload Portfolio'}
+        </Text>
+      </TouchableOpacity>
+            {/* <ButtonComponent onPress={() => navigation.navigate('AddProduct')} text={"Upload Portfolio"}/> */}
             </View>
             {hairstylesData && hairstylistsData ? (
               <CustomTabViewProvider

@@ -38,16 +38,13 @@ const SalonItemCard: React.FC<SalonItemCardProps> = ({
           {rating ? <Rating rating={rating} size={0}/> : null}
         </View>
         <View style={styles.row}>
-          <Ionicons name="call-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.phone}>{phone}</Text>
+          <Text style={styles.phone}><Ionicons name="call-outline" size={12} color={tokens.colors.iconColor} />{" "+phone}</Text>
         </View>
         <View style={styles.row}>
-          <Ionicons name="information-circle-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.description} numberOfLines={3}>{description}</Text>
+          <Text style={styles.description} numberOfLines={3}><Ionicons name="information-circle-outline" size={12} color={tokens.colors.iconColor} />{" "+description}</Text>
         </View>
         <View style={styles.row}>
-          <Ionicons name="calendar-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.joinedOn}>Joined On: {joinedOn}</Text>
+          <Text style={styles.joinedOn}><Ionicons name="calendar-outline" size={12} color={tokens.colors.iconColor} />{" "}Joined On: {joinedOn}</Text>
         </View>
         {/* <TouchableOpacity style={styles.button} onPress={onViewDetails}>
           <Text style={styles.buttonText}>View Details</Text>
@@ -104,7 +101,7 @@ const styles = StyleSheet.create({
   phone: {
     fontSize: 12,
     color: tokens.colors.textColor,
-    marginLeft: 10,
+    // marginLeft: 10,
   },
   description: {
     fontSize: 12,
@@ -118,9 +115,11 @@ const styles = StyleSheet.create({
   joinedOn: {
     fontSize: 12,
     color: tokens.colors.textColor,
-    marginLeft: 10,
+    // marginLeft: 10,
     maxWidth:120,
-    minWidth:Dimensions.get('window').width /2.8
+    minWidth:Dimensions.get('window').width /2.8,
+    alignItems:'baseline',
+    justifyContent:'center'
   },
   button: {
     backgroundColor: tokens.colors.hairduMainColor, // Adjust to fit your theme

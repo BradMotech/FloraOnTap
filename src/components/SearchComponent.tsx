@@ -22,9 +22,25 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ value, onChangeText, 
   };
 
   return (
-    <View style={globalStyles.inputContainer}>
+    <View
+      style={[
+        globalStyles.inputContainer,
+        {
+          borderColor: tokens.colors.inactive,
+          borderWidth: 0.4,
+          borderRadius: 22,
+          // Shadow for iOS
+          shadowColor: tokens.colors.shadow,
+          shadowOffset: { width: 0, height: 1 }, // Offset for shadow (height 2px down)
+          shadowOpacity: 0.1, // Light shadow opacity
+          shadowRadius: 8, // Slightly larger shadow blur
+          // Shadow for Android
+          elevation: 3, // Adds depth on Android
+        },
+      ]}
+    >
       <TextInput
-        style={globalStyles.inputField}
+        style={[globalStyles.inputField]}
         value={value}
         onChangeText={onChangeText}
         placeholder="Search"

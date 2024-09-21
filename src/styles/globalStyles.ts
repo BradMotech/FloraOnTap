@@ -214,7 +214,7 @@ const globalStyles = StyleSheet.create({
   planPrice: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#00796b",
     marginBottom: 10,
   },
   imagePlaceholder: {
@@ -240,6 +240,23 @@ const globalStyles = StyleSheet.create({
     // justifyContent: "center",
     // position: "absolute",
     // bottom: -3,
+  },
+  imagePicker: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    width:Dimensions.get('screen').width / 2.5,
+    alignItems:'center',
+    justifyContent:'center',
+    flexDirection:'row'
+  },
+  imagePickerText: {
+    color: tokens.colors.hairduTextColorGreen,
+    textAlign: 'center',
+    fontSize: 16,
+    justifyContent:'center',
+    alignItems:'center'
   },
 });
 

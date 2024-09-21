@@ -36,7 +36,7 @@ const InputComponent = forwardRef<TextInput, InputComponentProps>(({
   return (
     <View style={[
       globalStyles.inputContainer,
-      { borderColor: error ? tokens.colors.error : tokens.colors.gray }
+      { borderColor: error ? tokens.colors.error : tokens.colors.inactive }
     ]}>
       <Ionicons name={iconName} size={20} color={tokens.colors.gray} style={styles.icon} />
       <TextInput

@@ -17,6 +17,7 @@ import { db, storage } from '../../firebase/firebase';
 import { addDoc, collection, updateDoc } from 'firebase/firestore';
 import { AuthContext } from '../../auth/AuthContext';
 import tokens from '../../styles/tokens';
+import { Ionicons } from '@expo/vector-icons'; 
 
 const CATEGORIES = [
   'Braids',
@@ -140,8 +141,9 @@ const ProductUploadScreen = ({ navigation }) => {
 
       {/* Select Multiple Images */}
       <TouchableOpacity style={styles.imagePicker} onPress={pickImages}>
+      <Ionicons name="image" color={tokens.colors.inactive} size={55} />
         <Text style={styles.imagePickerText}>
-          {selectedImages.length > 0 ? 'Add More Images' : 'Select Images'}
+        {selectedImages.length > 0 ? ' Add More Images' : ' Select Images'}
         </Text>
       </TouchableOpacity>
 
@@ -222,16 +224,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imagePicker: {
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: 'transparent',
     padding: 10,
     borderRadius: 5,
     marginBottom: 20,
-    width:Dimensions.get('screen').width / 2
+    width:Dimensions.get('screen').width / 2.5,
+    alignItems:'center',
+    justifyContent:'center',
+    flexDirection:'row'
   },
   imagePickerText: {
-    color: '#fff',
+    color: tokens.colors.hairduTextColorGreen,
     textAlign: 'center',
     fontSize: 16,
+    justifyContent:'center',
+    alignItems:'center'
   },
   imageThumbnail: {
     width: 100,
@@ -240,12 +247,16 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    marginVertical: 10,
-    borderRadius: 5,
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    height: 45,
+    borderWidth: 0.3,
+    borderColor:tokens.colors.inactive,
+    borderRadius: tokens.borderRadius.small,
+    backgroundColor: tokens.colors.background,
+    paddingHorizontal: tokens.spacing.sm,
+    marginVertical: tokens.spacing.sm,
   },
   label: {
     fontSize: 16,
@@ -253,7 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 20,
     marginRight: 10,

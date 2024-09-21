@@ -126,6 +126,9 @@ const SignupScreen = ({ navigation }) => {
             website: "",
             twitter: "",
             instagram: "",
+            totalCredits: "30",
+            creditsLeft: "30",
+            subscriptionPlan: "Free Trial",
           };
 
           // Add the user to the Firestore Users collection

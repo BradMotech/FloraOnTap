@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import tokens from '../styles/tokens';
 import globalStyles from '../styles/globalStyles';
@@ -46,6 +46,7 @@ const TimePicker: React.FC<{ onTimeChange?: (time: Time) => void }> = ({ onTimeC
           selectedValue={selectedHours}
           style={styles.picker}
           onValueChange={handleHoursChange}
+          mode="dropdown" // Dropdown mode for consistency
         >
           {hours.map((hour) => (
             <Picker.Item key={hour} label={hour.toString()} value={hour} />
@@ -56,6 +57,7 @@ const TimePicker: React.FC<{ onTimeChange?: (time: Time) => void }> = ({ onTimeC
           selectedValue={selectedMinutes}
           style={styles.picker}
           onValueChange={handleMinutesChange}
+          mode="dropdown" // Dropdown mode for consistency
         >
           {minutes.map((minute) => (
             <Picker.Item key={minute} label={minute.toString()} value={minute} />
@@ -70,6 +72,7 @@ const TimePicker: React.FC<{ onTimeChange?: (time: Time) => void }> = ({ onTimeC
             const hours12 = value === 'PM' && selectedHours < 12 ? selectedHours + 12 : selectedHours;
             if (onTimeChange) onTimeChange({ hours: hours12, minutes: selectedMinutes });
           }}
+          mode="dropdown" // Dropdown mode for consistency
         >
           <Picker.Item label="AM" value="AM" />
           <Picker.Item label="PM" value="PM" />
@@ -95,9 +98,25 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth:Dimensions.get('screen').width - 60,
+    minHeight:Dimensions.get('screen').width/2 - 10,
   },
   picker: {
-    width: 80,
+    flex: 1, // Allow the picker to take up equal space
+    height: 50, // Uniform height for both platforms
+    backgroundColor: 'transparent', // Consistent background
+    borderRadius: 8, // Rounded edges for consistency
+    borderWidth: 1,
+    width:'100%',
+    borderColor: tokens.colors.inactive,
+    ...Platform.select({
+      ios: {
+        justifyContent: 'center', // Centering for iOS
+      },
+      android: {
+        paddingHorizontal: 5, // Android specific padding for a consistent look
+      },
+    }),
   },
   separator: {
     fontSize: 20,
@@ -105,7 +124,7 @@ const styles = StyleSheet.create({
   },
   selectedTime: {
     fontSize: 16,
-    fontWeight:'600'
+    fontWeight: '600',
   },
 });
 

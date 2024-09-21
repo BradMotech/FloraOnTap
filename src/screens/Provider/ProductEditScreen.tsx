@@ -17,6 +17,7 @@ import { db, storage } from '../../firebase/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';;
 import tokens from '../../styles/tokens';
 import { AuthContext } from '../../auth/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
 
 const CATEGORIES = [
   'Braids',
@@ -170,7 +171,7 @@ const ProductEditScreen = ({ route, navigation }) => {
         style={styles.removeImage}
         onPress={() => removeExistingImage(item.url)}
       >
-        <Text style={styles.removeImageText}>X</Text>
+        <Text style={styles.removeImageText}><Ionicons name='trash'/></Text>
       </TouchableOpacity>
     </View>
   );
@@ -181,8 +182,9 @@ const ProductEditScreen = ({ route, navigation }) => {
 
       {/* Select Images */}
       <TouchableOpacity style={styles.imagePicker} onPress={pickImages}>
+      <Ionicons name="image" color={tokens.colors.inactive} size={55} />
         <Text style={styles.imagePickerText}>
-          {selectedImages.length > 0 ? 'Add More Images' : 'Select Images'}
+        {selectedImages.length > 0 ? ' Add More Images' : ' Select Images'}
         </Text>
       </TouchableOpacity>
 
@@ -263,16 +265,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imagePicker: {
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: 'transparent',
     padding: 10,
     borderRadius: 5,
     marginBottom: 20,
-    width: Dimensions.get('screen').width / 2,
+    width:Dimensions.get('screen').width / 2.5,
+    alignItems:'center',
+    justifyContent:'center',
+    flexDirection:'row'
   },
   imagePickerText: {
-    color: '#fff',
+    color: tokens.colors.hairduTextColorGreen,
     textAlign: 'center',
     fontSize: 16,
+    justifyContent:'center',
+    alignItems:'center'
   },
   imageContainer: {
     position: 'relative',
@@ -287,7 +294,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     right: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: tokens.colors.hairduMainColor,
     borderRadius: 12,
     padding: 2,
   },

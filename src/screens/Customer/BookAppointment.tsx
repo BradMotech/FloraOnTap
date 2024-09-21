@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, Text, SafeAreaView, ScrollView } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView, ScrollView, Dimensions } from "react-native";
 import ImageGalleryItem from "../../components/ImageGalleryItem";
 import { useRoute } from "@react-navigation/native";
 import globalStyles from "../../styles/globalStyles";
@@ -258,7 +258,7 @@ const bgColor = getRandomColor(googleCalendarColors);
           </View>
           </View>
           <View style={globalStyles.separatorNoColor}></View>
-          <CalendarComponent onEventClick={()=>{}} onTimeClick={(time)=>setSelectedBookingTimeSlot(time)} events={formattedEvents.events} agendaItems={formattedEvents.agendaItems} onBookEvent={function (date: string): void {
+          <CalendarComponent onEventClick={()=>{}} onTimeClick={(time)=>{setSelectedBookingTimeSlot(time)}} events={formattedEvents.events} agendaItems={formattedEvents.agendaItems} onBookEvent={function (date: string): void {
             setSelectedDate(date);
             setModalVisible(true);
           } } allowBooking={true} />
@@ -292,6 +292,8 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 14,
     color: "#333", // Customize text color
+    maxWidth:Dimensions.get('screen').width -60,
+    paddingRight:12
   },
   flexStart: {
     textAlign: "center",

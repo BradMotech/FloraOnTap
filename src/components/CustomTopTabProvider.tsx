@@ -145,13 +145,12 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                     justifyContent: "center",
                   }}
                 >
+                  <Text style={{ color: tokens.colors.textColor }}>
                   <Ionicons
                     name="chatbubble-outline"
-                    size={18}
-                    style={{ marginLeft: 16, marginTop: tokens.spacing.lg * 3 }}
-                  />
-                  <Text style={{ marginBottom: 22, color: "blue" }}>
-                    {" Send message"}
+                    size={15}
+                    style={{ marginLeft: 16 }}
+                  />{" Send message"}
                   </Text>
                 </Text>
               </TouchableOpacity>

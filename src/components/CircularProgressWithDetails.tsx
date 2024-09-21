@@ -68,7 +68,7 @@ const CircularProgressWithDetails = ({ user }) => {
         </Text>
         <Text style={styles.detailText}>
           <Text style={styles.label}>Credits Left: </Text>
-          <Text style={[styles.value,{maxWidth:20,overflow:'hidden',fontSize:12}]} numberOfLines={2} ellipsizeMode="tail">{creditsLeft}</Text>
+          <Text style={[styles.value,{maxWidth:20,overflow:'hidden',fontSize:12}]} numberOfLines={2} ellipsizeMode="tail">{totalCredits-creditsLeft}</Text>
         </Text>
         <Text style={styles.detailText}>
           <Text style={styles.label}>Total Credits: </Text>

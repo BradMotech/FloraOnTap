@@ -89,7 +89,6 @@ const DashboardScreen = ({ navigation }) => {
         <View style={globalStyles.dashboard}>
           <Text style={globalStyles.title}>Top Rated</Text>
           <View style={globalStyles.separatorNoColor}></View>
-          <View style={globalStyles.separatorNoColor}></View>
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false} // Optional: Hide horizontal scroll indicator
@@ -118,8 +117,6 @@ const DashboardScreen = ({ navigation }) => {
               );
             })}
           </ScrollView>
-          <View style={globalStyles.separatorNoColor}></View>
-          <View style={globalStyles.separatorNoColor}></View>
           <SearchComponent
             value={searchText}
             onChangeText={function (text: string): void {
@@ -130,7 +127,6 @@ const DashboardScreen = ({ navigation }) => {
             }}
           />
           <Text style={globalStyles.title}>Hair Specialists</Text>
-          <View style={globalStyles.separatorNoColor}></View>
           <View style={globalStyles.separatorNoColor}></View>
           <FlatList
             data={filteredData}

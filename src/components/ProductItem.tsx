@@ -29,24 +29,16 @@ const ProductItemCard: React.FC<ProductItemCardProps> = ({
       <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.details}>
         <View style={styles.row}>
-          {/* <Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} /> */}
-          <Text style={styles.title}>{title}</Text>
+          <Text numberOfLines={3} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',lineHeight: 18, }]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
         </View>
         <View style={styles.row}>
-          {/* <Ionicons name="cash" size={12} color={"white"} /> */}
-          <Text style={[globalStyles.planPrice]}>{"  "}R {price}</Text>
+          <Text style={[globalStyles.planPrice]}><Ionicons name="cash" size={12} color={tokens.colors.hairduMainColor} />{"  "}R {price}</Text>
         </View>
         <View style={styles.row}>
-          <Ionicons name="call-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.phone}>{phone}</Text>
+          <Text style={styles.description} numberOfLines={3}><Ionicons name="information-circle-outline" size={12} color={tokens.colors.iconColor} />{" "+description}</Text>
         </View>
         <View style={styles.row}>
-          <Ionicons name="information-circle-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.description} numberOfLines={3}>{description}</Text>
-        </View>
-        <View style={styles.row}>
-          <Ionicons name="calendar-outline" size={12} color={tokens.colors.iconColor} />
-          <Text style={styles.joinedOn}>Added On: {addedOn}</Text>
+          <Text style={styles.joinedOn}><Ionicons name="calendar" size={12} color={tokens.colors.iconColor} /> Added On: {addedOn}</Text>
         </View>
         {/* <TouchableOpacity style={styles.button} onPress={onViewDetails}>
           <Text style={styles.buttonText}>View Details</Text>
@@ -61,8 +53,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     minWidth: Dimensions.get("window").width / 2.2,
-    // maxHeight: Dimensions.get('window').width /1.5,
-    minHeight: Dimensions.get("window").width / 2.5,
+    maxHeight: Dimensions.get('window').width /1.5,
+    minHeight: Dimensions.get("window").width / 1.43,
     // margin: 1,
     backgroundColor: tokens.colors.background,
     shadowColor: tokens.colors.shadow, // Shadow color for iOS
@@ -72,7 +64,7 @@ const styles = StyleSheet.create({
     elevation: 5, // Shadow for Android
     borderWidth: 0.6,
     borderColor: tokens.colors.inactive,
-    paddingBottom:22,
+    paddingBottom:10,
     marginLeft:2
     // width:'100%'
   },
@@ -95,7 +87,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginLeft: 10,
+    color:tokens.colors.text,
+    marginTop:16
+    // marginLeft: 10,
   },
   rating: {
     fontSize: 16,
@@ -119,7 +113,7 @@ const styles = StyleSheet.create({
   joinedOn: {
     fontSize: 12,
     color: tokens.colors.textColor,
-    marginLeft: 10,
+    // marginLeft: 10,
     maxWidth: 120,
     minWidth: Dimensions.get("window").width / 2.8,
   },
