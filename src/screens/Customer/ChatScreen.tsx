@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+    fontFamily:'GorditaMedium'
   },
   friendsList: {
     flexGrow: 1,
@@ -128,7 +129,8 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 16,
     fontWeight: "300",
-    marginLeft:16
+    marginLeft:16,
+    fontFamily:'GorditaMedium'
   },
   imagePlaceholder: {
     width: 40,

@@ -17,6 +17,7 @@ const tokens = {
     inactive:'#d1d1d1',
     textColor:'#9ca3af',
     bgFaint:'#f0f0f0a8',
+    circularProgress:'#4488ff',
     error: '#e74c3c', // Red color for error
   },
   fontSize: {

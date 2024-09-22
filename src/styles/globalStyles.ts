@@ -30,6 +30,7 @@ const globalStyles = StyleSheet.create({
     fontSize: tokens.fontSize.large,
     fontWeight: "bold",
     color: tokens.colors.text,
+    fontFamily:'GorditaMedium'
   },
   profileImage: {
     width: 35,
@@ -44,12 +45,14 @@ const globalStyles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: tokens.fontSize.medium,
+    fontFamily:'GorditaMedium'
   },
   spacing: {
     padding: tokens.spacing.sm,
   },
   headerColor: {
     backgroundColor: tokens.colors.hairduMainColor,
+    fontFamily:'GorditaMedium'
   },
   containerCard: {
     height: null,
@@ -73,14 +76,16 @@ const globalStyles = StyleSheet.create({
     alignItems: "center",
     textAlign: "center",
     width: "100%",
+    fontFamily:'GorditaMedium'
   },
   welcomeText: {
     color: tokens.colors.hairduTextColorGreen,
-    alignItems: "center",
-    textAlign: "center",
+    alignItems: "flex-start",
+    textAlign: "left",
     width: "100%",
     fontSize: tokens.fontSize.larger,
     marginTop: tokens.spacing.xl,
+    fontFamily:'GorditaBold'
   },
   imageView: {
     alignItems: "center",
@@ -100,6 +105,7 @@ const globalStyles = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
     fontWeight: "600",
+    fontFamily:'GorditaMedium'
   },
   inputError: {
     borderColor: tokens.colors.error, // Red border for error state
@@ -117,6 +123,7 @@ const globalStyles = StyleSheet.create({
     backgroundColor: tokens.colors.background,
     paddingHorizontal: tokens.spacing.sm,
     marginVertical: tokens.spacing.sm,
+    fontFamily:'GorditaRegular'
   },
 
   inputField: {
@@ -125,12 +132,14 @@ const globalStyles = StyleSheet.create({
     paddingLeft: 40, // Adjust based on icon size and spacing
     fontSize: tokens.fontSize.medium,
     color: tokens.colors.text,
+    fontFamily:'GorditaRegular'
   },
   subtitle: {
     color: tokens.colors.gray,
-    textAlign: "center",
-    justifyContent: "center",
+    textAlign: "left",
+    justifyContent: "flex-start",
     fontWeight: "600",
+    fontFamily:'GorditaRegular'
   },
   calendar: {
     marginBottom: 20,
@@ -210,12 +219,14 @@ const globalStyles = StyleSheet.create({
     color: "#00796b",
     padding: 2,
     borderRadius: 5,
+    fontFamily:'GorditaMedium'
   },
   planPrice: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "800",
     color: "#00796b",
     marginBottom: 10,
+    fontFamily:'GorditaRegular'
   },
   imagePlaceholder: {
     width: 40,
@@ -228,6 +239,7 @@ const globalStyles = StyleSheet.create({
   placeholderText: {
     fontSize: 20,
     color: "#fff", // Text color for the placeholder
+    fontFamily:'GorditaRegular'
   },
   forgotPassword: {
     marginTop: 14,
@@ -236,6 +248,7 @@ const globalStyles = StyleSheet.create({
   },
   forgotPasswordClickHere: {
     color: "#007AFF",
+    fontFamily:'GorditaRegular'
     // alignItems: "center",
     // justifyContent: "center",
     // position: "absolute",
@@ -257,6 +270,15 @@ const globalStyles = StyleSheet.create({
     fontSize: 16,
     justifyContent:'center',
     alignItems:'center'
+  },
+  GorditaLight:{
+    fontFamily:'GorditaLight'
+  },
+  GorditaMedium:{
+    fontFamily:'GorditaMedium'
+  },
+  GorditaBold:{
+    fontFamily:'GorditaBold'
   },
 });
 

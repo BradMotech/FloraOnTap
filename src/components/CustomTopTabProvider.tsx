@@ -53,7 +53,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
       title={item.name}
       price={item.price}
       description={item.description}
-      addedOn={formatDate(item.createdAt)}
+      addedOn={formatDate(item.createdAt) ? formatDate(item.createdAt) : formatDate(item.updatedAt)}
       onViewDetails={() => {
         // Handle view details button press
         navigation.navigate("EditProduct", { docId: item.id });
@@ -66,7 +66,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
     const firstLetter = data.name.charAt(0).toUpperCase();
     return (
       <View>
-        <View style={{width:Dimensions.get('screen').width-22}}>
+        <View style={{ width: Dimensions.get("screen").width - 22 }}>
           <View
             style={[
               globalStyles.imageView,
@@ -78,9 +78,18 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
               },
             ]}
           >
-            {data.image ?<Image src={data.image} style={[globalStyles.Storycontainer]} />: <View style={[globalStyles.imagePlaceholder,{height:80,width:80,borderRadius:40,marginRight:10}]}>
-              <Text style={globalStyles.placeholderText}>{firstLetter}</Text>
-            </View>}
+            {data.image ? (
+              <Image src={data.image} style={[globalStyles.Storycontainer]} />
+            ) : (
+              <View
+                style={[
+                  globalStyles.imagePlaceholder,
+                  { height: 80, width: 80, borderRadius: 40, marginRight: 10 },
+                ]}
+              >
+                <Text style={globalStyles.placeholderText}>{firstLetter}</Text>
+              </View>
+            )}
             <View
               style={{
                 alignItems: "baseline",
@@ -146,33 +155,46 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                   }}
                 >
                   <Text style={{ color: tokens.colors.textColor }}>
-                  <Ionicons
-                    name="chatbubble-outline"
-                    size={15}
-                    style={{ marginLeft: 16 }}
-                  />{" Send message"}
+                    <Ionicons
+                      name="chatbubble-outline"
+                      size={15}
+                      style={{ marginLeft: 16 }}
+                    />
+                    {" Send message"}
                   </Text>
                 </Text>
               </TouchableOpacity>
               {/* buttons */}
             </View>
           </View>
-          
-          {isProvider ? <View
-            style={{ width: "100%", display: "flex", flexDirection: "row",justifyContent:'space-between' }}
-          >
-            <View style={{width:Dimensions.get('screen').width/2 - 15}}>
-            <ButtonComponent
-              marginTop={10}
-              text={"Edit profile"}
-              onPress={() => setEditProfile(true)}
-            />
+
+          {isProvider ? (
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ width: Dimensions.get("screen").width / 2 - 15 }}>
+                <TouchableOpacity
+                  style={globalStyles.imagePicker}
+                  onPress={() => navigation.navigate("AddProduct")}
+                >
+                  <Ionicons
+                    name="person"
+                    color={tokens.colors.inactive}
+                    size={30}
+                  />
+                  <Text style={globalStyles.imagePickerText}>
+                    {" Edit profile"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={{width:Dimensions.get('screen').width/2 - 15}}>
-            <ButtonComponent marginTop={10} text={"Renew subscription"} />
-            </View>
-          </View>:null}
-          <View style={globalStyles.imageView}>
+          ) : null}
+          <View style={globalStyles.alignCenter}>
             <Text style={{ color: tokens.colors.textColor, padding: 6 }}>
               {data.description}
             </Text>

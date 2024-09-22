@@ -129,10 +129,11 @@ const CustomTabView = ({ salonData, ratingData, navigation, salonDetails,isProvi
               </Text>
               <TouchableOpacity
                 style={{
-                  height: 24,
+                  // height: 24,
                   alignItems: "center",
                   justifyContent: "center",
                   flex: 1,
+                  marginTop:4
                 }}
                 onPress={() => sendMessageToUser(data)}
               >
@@ -147,12 +148,8 @@ const CustomTabView = ({ salonData, ratingData, navigation, salonDetails,isProvi
                 >
                   <Ionicons
                     name="chatbubble-outline"
-                    size={18}
-                    style={{ marginLeft: 16, marginTop: tokens.spacing.lg * 3 }}
-                  />
-                  <Text style={{ marginBottom: 22, color: "blue" }}>
-                    {" Send message"}
-                  </Text>
+                    size={15}
+                  />{"  Send message"}
                 </Text>
               </TouchableOpacity>
               {/* buttons */}
@@ -416,6 +413,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 16,
     color: tokens.colors.inactive,
+    fontFamily:'GorditaRegular'
   },
   activeTabText: {
     color: tokens.colors.hairduMainColor, // Active tab text color

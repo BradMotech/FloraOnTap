@@ -18,6 +18,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';;
 import tokens from '../../styles/tokens';
 import { AuthContext } from '../../auth/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useToast } from '../../components/ToastContext';
 
 const CATEGORIES = [
   'Braids',
@@ -29,6 +30,7 @@ const CATEGORIES = [
 ];
 
 const ProductEditScreen = ({ route, navigation }) => {
+    const { showToast } = useToast()
   const { docId } = route.params; // Document ID passed via navigation
   const { user } = useContext(AuthContext); // Get current user context
 
@@ -148,17 +150,18 @@ const ProductEditScreen = ({ route, navigation }) => {
         category,
         images: [...existingImages, ...newImageUrls], // Combine existing and new images
         updatedAt: new Date(),
+        createdAt: new Date(),
       };
 
       // Update the hairstyle document in Firestore
       const docRef = doc(db, 'hairstyles', docId);
       await updateDoc(docRef, updatedHairstyle);
 
-      Alert.alert('Success', 'Hairstyle updated successfully!');
+    showToast("Hairstyle updated successfully","success","top")
       navigation.goBack(); // Navigate back or reset form
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to update hairstyle');
+      showToast("Failed to update hairstyle","danger","top")
     } finally {
       setUploading(false);
     }

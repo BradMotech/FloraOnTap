@@ -101,13 +101,13 @@ const CustomerTabNavigator = () => {
           let iconName;
 
           if (route.name === 'Dashboard') {
-            iconName = 'home-outline';
+            iconName = color !== tokens.colors.hairduMainColor ? 'home-outline':'home';
           } else if (route.name === 'Settings') {
-            iconName = 'settings-outline';
+            iconName = color !== tokens.colors.hairduMainColor ?  'settings-outline':'settings';
           } else if (route.name === 'Appointments') {
-            iconName = 'calendar-outline';
+            iconName = color !== tokens.colors.hairduMainColor ?  'calendar-outline':'calendar';
           } else if (route.name === 'Chat') {
-            iconName = 'chatbubble-outline';
+            iconName = color !== tokens.colors.hairduMainColor ? 'chatbubble-outline':'chatbubble';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;

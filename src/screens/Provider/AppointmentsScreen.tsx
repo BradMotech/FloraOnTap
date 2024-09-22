@@ -1,10 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Alert,
+} from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import CalendarComponent from "../../components/CalendarComponent";
 import { TITLES } from "../../utils/Constants/constantTexts";
 import { AuthContext } from "../../auth/AuthContext";
-import { acceptBooking, declineBooking, fetchAppointmentsByHairstylistId } from "../../firebase/dbFunctions";
+import {
+  acceptBooking,
+  declineBooking,
+  fetchAppointmentsByHairstylistId,
+} from "../../firebase/dbFunctions";
 import AppointmentModal from "../../components/AppointmentModal";
 import { useToast } from "../../components/ToastContext";
 
@@ -13,9 +24,9 @@ const AppointmentsScreen = () => {
   const [modalVisible, setModalVisible] = useState<boolean>();
   const [bookingFlag, setBookingFlag] = useState<boolean>(false);
   const [foundEvents, setFoundEvents] = useState<any[]>();
-  const {showToast} = useToast()
-  const { hairstylistsData,user, setHairstylesData, setHairstylistsData } =
-  useContext(AuthContext);
+  const { showToast } = useToast();
+  const { hairstylistsData, user, setHairstylesData, setHairstylistsData } =
+    useContext(AuthContext);
   const events = {
     "2024-09-15": {
       marked: true,
@@ -53,18 +64,21 @@ const AppointmentsScreen = () => {
       { name: "Event 2 on 2024-09-16" },
     ],
   };
-  const [formattedEvents, setFormattedEvents] = useState({ events: {}, agendaItems: {} });
+  const [formattedEvents, setFormattedEvents] = useState({
+    events: {},
+    agendaItems: {},
+  });
 
   const formatDateToYYYYMMDD = (isoDateString) => {
     try {
       const date = new Date(isoDateString);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+      const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return '';
+      console.error("Error formatting date:", error);
+      return "";
     }
   };
 
@@ -104,53 +118,67 @@ const AppointmentsScreen = () => {
               if (!agendaItems[eventDate]) {
                 agendaItems[eventDate] = [];
               }
-              agendaItems[eventDate].push({ name: event.text,appointmentDetails:appointment,hairstylistId:appointment.providerId }); // Customize based on your event data
+              agendaItems[eventDate].push({
+                name: event.text,
+                appointmentDetails: appointment,
+                hairstylistId: appointment.providerId,
+              }); // Customize based on your event data
             });
           }
         });
 
-        // Update state with formatted events and agenda items 
-        setFormattedEvents({ events, agendaItems });  
+        // Update state with formatted events and agenda items
+        setFormattedEvents({ events, agendaItems });
       } catch (error) {
-        console.error('Error fetching and formatting events:', error);
+        console.error("Error fetching and formatting events:", error);
       }
     };
 
     fetchAndFormatEvents();
-  }, [user.uid,bookingFlag]);
+  }, [user.uid, bookingFlag]);
 
   const handleEventClick = (event: any) => {
-    console.warn("🚀 ~ handleEventClick ~ event:", event)
-    setModalVisible(true)
-    setSelectedEvent(event)
+    console.warn("🚀 ~ handleEventClick ~ event:", event);
+    setModalVisible(true);
+    setSelectedEvent(event);
   };
-  
-    function acceptClientBooking(appointment:any): void {
-         acceptBooking(appointment.appointmentDetails.id).then((data)=>{
-            setModalVisible(false);
-            setBookingFlag(true)
-            showToast('Appointment cancelled successfully, the salon has been notified',"success",'top')
-         })
-    }
 
-    function confirmCancelBooking(appointment: any): void {
-        declineBooking(appointment.appointmentDetails.id).then((data) => {
-          setModalVisible(false);
-          setBookingFlag(true)
-          showToast('Appointment declined successfully, the salon has been notified',"danger",'top')
-        });
-      }
+  function acceptClientBooking(appointment: any): void {
+    acceptBooking(appointment.appointmentDetails.id).then((data) => {
+      setModalVisible(false);
+      setBookingFlag(true);
+      showToast(
+        "Appointment approved successfully, the Customer has been notified",
+        "success",
+        "top"
+      );
+    });
+  }
+
+  function confirmCancelBooking(appointment: any): void {
+    declineBooking(appointment.appointmentDetails.id).then((data) => {
+      setModalVisible(false);
+      setBookingFlag(true);
+      showToast(
+        "Appointment declined successfully, the customer has been notified",
+        "danger",
+        "top"
+      );
+    });
+  }
 
   return (
     <SafeAreaView>
       {selectedEvent && (
         <AppointmentModal
-                  visible={modalVisible}
-                  event={selectedEvent}
-                  onClose={() => confirmCancelBooking(selectedEvent)}
-                  title={"Appointment confirmation"}
-                  leftButtonTitle={"Accept"}
-                  rightButtonTitle={"Decline"} onConfirm={()=> acceptClientBooking(selectedEvent) }        />
+          visible={modalVisible}
+          event={selectedEvent}
+          onClose={() => confirmCancelBooking(selectedEvent)}
+          title={"Appointment confirmation"}
+          leftButtonTitle={"Accept"}
+          rightButtonTitle={"Decline"}
+          onConfirm={() => acceptClientBooking(selectedEvent)}
+        />
       )}
       <ScrollView contentContainerStyle={globalStyles.scroll}>
         <View style={globalStyles.container}>

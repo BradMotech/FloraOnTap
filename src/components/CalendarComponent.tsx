@@ -5,6 +5,8 @@ import globalStyles from "../styles/globalStyles";
 import tokens from "../styles/tokens";
 import ButtonComponent from "./buttonComponent";
 import TimePicker from "./TimePicker";
+import { Ionicons } from "@expo/vector-icons";
+import { formatReadableDate } from "../utils/dateFormat";
 
 interface CalendarComponentProps {
   events: Record<
@@ -15,7 +17,7 @@ interface CalendarComponentProps {
   onBookEvent: (date: string) => void; // Callback function to handle booking
   onEventClick?: (event: any) => void; // New prop for event click handler
   onTimeClick?: (event: any) => void; // New prop for event click handler
-  allowBooking: boolean// New prop for event click handler
+  allowBooking: boolean; // New prop for event click handler
 }
 
 const CalendarComponent: React.FC<CalendarComponentProps> = ({
@@ -24,7 +26,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   onBookEvent,
   onEventClick, // Accept the event click handler
   allowBooking,
-  onTimeClick
+  onTimeClick,
 }) => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -52,25 +54,86 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
   // Render agenda items as clickable
   const renderItem = (item: any) => {
-    console.log("🚀 ~ renderItem ~ item:", item)
+    console.log("🚀 ~ renderItem ~ item:", item);
     // Get the dot color for the date of the event
     const eventDate = selectedDate || "";
     const eventStyle = events[eventDate] || {};
     const backgroundColor = events[eventDate].dotColor || "#fff"; // Default to white if no dotColor is provided
-  
+
     return (
       <TouchableOpacity
-        style={[globalStyles.itemCalendarRender, { backgroundColor,padding:12,marginTop:8,marginRight:8 }]} // Apply the background color
-        onPress={() => onEventClick(item)} // Event click handler passed from parent
+        style={[
+          globalStyles.itemCalendarRender,
+          { backgroundColor, padding: 12, marginTop: 8, marginRight: 8 },
+        ]} // Apply the background color
+        onPress={() => {onEventClick(item)}} // Event click handler passed from parent
       >
         <View>
-        <Text style={{ color: backgroundColor === '#fff' ? 'black' : 'white' }}>{item.name}</Text>
-        <Text style={{ color: backgroundColor === '#fff' ? 'black' : 'white' }}>{item.appointmentDetails.userCustomerInfo[0].name}</Text>
-        <Text style={{ color: backgroundColor === '#fff' ? 'black' : 'white' }}>{item.appointmentDetails.userCustomerInfo[0].phone}</Text>
-        <Text style={{ color: backgroundColor === '#fff' ? 'black' : 'white' }}>{item.appointmentDetails.userCustomerInfo[0].surname}</Text>
-        <View style={styles.badge}>
-        <Text style={{ color: item.appointmentDetails.appointmentStatus === 'ACCEPTED' ? 'green' : 'red',fontWeight:'800',fontSize:10 }}>{item.appointmentDetails.appointmentStatus}</Text>
-        </View>
+          <View
+            style={[
+              globalStyles.imagePlaceholder,
+              { height: 30, width: 30, borderRadius: 15, marginBottom: 10 },
+            ]}
+          >
+            <Text style={globalStyles.placeholderText}>
+              {item.appointmentDetails.userCustomerInfo[0].name
+                .charAt(0)
+                .toUpperCase()}
+            </Text>
+          </View>
+          <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"person-circle-outline"} size={15} color={"#fff"} />
+            {" " + item.name}
+          </Text>
+          <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"person-circle-outline"} size={15} color={"#fff"} />
+            {" " +
+              item.appointmentDetails.userCustomerInfo[0].name +
+              " " +
+              item.appointmentDetails.userCustomerInfo[0].surname}
+          </Text>
+          <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"call"} size={15} color={"#fff"} />
+            {" " + item.appointmentDetails.userCustomerInfo[0].phone}
+          </Text>
+          <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"watch-outline"} size={15} color={"#fff"} />
+            {" " + formatReadableDate(item.appointmentDetails.events[0].start)}
+          </Text>
+          <View style={styles.badge}>
+            <Text
+              style={{
+                color:
+                  item.appointmentDetails.appointmentStatus === "ACCEPTED"
+                    ? "green"
+                    : "red",
+                fontWeight: "800",
+                fontSize: 10,
+              }}
+            >
+              {" " + item.appointmentDetails.appointmentStatus}
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -128,7 +191,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
               agendaTodayColor: "#00adf5",
               agendaKnobColor: "#00adf5",
             }}
-            
           />
         </View>
       )}
@@ -136,8 +198,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       {/* Button to book the event */}
       {selectedDate && (
         <View style={globalStyles.bookingContainer}>
-          {allowBooking ? <TimePicker onTimeChange={(time)=>onTimeClick(time)}></TimePicker>:null}
-          {allowBooking ? <ButtonComponent text="Book Event" onPress={handleBookEvent} />:null}
+          {allowBooking ? (
+            <TimePicker onTimeChange={(time) => onTimeClick(time)}></TimePicker>
+          ) : null}
+          {allowBooking ? (
+            <ButtonComponent text="Book Event" onPress={handleBookEvent} />
+          ) : null}
         </View>
       )}
     </View>
@@ -170,14 +236,14 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 2,
   },
-  badge:{
-    backgroundColor:'white',
-    width:80,
-    padding:2,
-    borderRadius:14,
-    alignItems:'center',
-    marginTop:6
-  }
+  badge: {
+    backgroundColor: "white",
+    width: 80,
+    padding: 2,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 6,
+  },
 });
 
 export default CalendarComponent;

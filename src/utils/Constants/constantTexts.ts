@@ -2,7 +2,7 @@
 
 // Titles
 export const TITLES = {
-    LOGIN: 'Login to hairdu app',
+    LOGIN: 'Login',
     SIGN_UP: 'Sign Up',
     SIGN_UP_LOCATION: 'Location details',
     WELCOME: 'Welcome to HairDu',

@@ -18,6 +18,7 @@ import { addDoc, collection, updateDoc } from 'firebase/firestore';
 import { AuthContext } from '../../auth/AuthContext';
 import tokens from '../../styles/tokens';
 import { Ionicons } from '@expo/vector-icons'; 
+import { useToast } from '../../components/ToastContext';
 
 const CATEGORIES = [
   'Braids',
@@ -29,6 +30,7 @@ const CATEGORIES = [
 ];
 
 const ProductUploadScreen = ({ navigation }) => {
+    const { showToast } = useToast()
   const [selectedImages, setSelectedImages] = useState([]);
   const [price, setPrice] = useState('');
   const [title, setTitle] = useState('');
@@ -118,13 +120,14 @@ const ProductUploadScreen = ({ navigation }) => {
       const docRef = await addDoc(collection(db, 'hairstyles'), newHairstyle);
   
       // Update the document with its ID
-      await updateDoc(docRef, { Id: docRef.id });
+      await updateDoc(docRef, { Id: docRef.id, id: docRef.id });
   
-      Alert.alert('Success', 'Hairstyle uploaded successfully!');
+      showToast('Hairstyle uploaded successfully!','success',"top");
       navigation.goBack(); // Navigate back or reset form
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to upload hairstyle');
+    //   Alert.alert('Error', 'Failed to upload hairstyle');
+      showToast('Failed to upload hairstyle','danger',"top");
     } finally {
       setUploading(false);
     }

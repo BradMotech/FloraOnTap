@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
       fontSize: 20,
       fontWeight: "bold",
       marginBottom: 10,
+      fontFamily:'GorditaMedium'
     },
     friendsList: {
       flexGrow: 1,
@@ -118,6 +119,7 @@ const styles = StyleSheet.create({
       marginVertical: 5,
       borderBottomColor: tokens.colors.inactive,
       borderBottomWidth: 0.5,
+      fontFamily:'GorditaMedium'
     },
     friendName: {
       fontSize: 16,

@@ -92,11 +92,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
+    fontFamily:'GorditaMedium'
   },
   answerText: {
     fontSize: 14,
     color: '#555',
     marginTop: 10,
+        fontFamily:'GorditaLight'
   },
 });
 

@@ -4,6 +4,7 @@ import { collection, addDoc, query, where, onSnapshot, Timestamp } from 'firebas
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebase/firebase';
 import globalStyles from '../styles/globalStyles';
+import tokens from '../styles/tokens';
 
 interface Message {
   id: string;
@@ -63,6 +64,13 @@ const ChatComponent: React.FC<{ receiverId: string }> = ({ receiverId }) => {
     setNewMessage('');
   };
 
+  const formatDate = (timestamp) => {
+    if (timestamp && timestamp.toDate) {
+      return timestamp.toDate().toLocaleString(); // Includes both date and time
+    }
+    return '';
+  };
+
   const renderMessage = ({ item }: { item: Message }) => {
     const isCurrentUser = item.senderId === currentUser?.uid;
     return (
@@ -73,6 +81,7 @@ const ChatComponent: React.FC<{ receiverId: string }> = ({ receiverId }) => {
         ]}
       >
         <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.messageTime}>{formatDate(item.createdAt)}</Text>
       </View>
     );
   };
@@ -137,6 +146,13 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+    fontFamily:'GorditaMedium'
+  },
+  messageTime: {
+    fontSize: 10,
+    fontFamily:'GorditaMedium',
+    color:tokens.colors.textColor,
+    marginTop:4
   },
   inputContainer: {
     flexDirection: 'row',
@@ -152,6 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#cccccc',
+    fontFamily:'GorditaMedium'
   },
   sendButton: {
     justifyContent: 'center',
@@ -162,6 +179,7 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily:'GorditaMedium'
   },
   latestMessageContainer: {
     padding: 10,
@@ -172,6 +190,7 @@ const styles = StyleSheet.create({
   latestMessageText: {
     fontSize: 16,
     color: '#888',
+    fontFamily:'GorditaMedium'
   },
 });
 

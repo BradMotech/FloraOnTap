@@ -14,6 +14,7 @@ import { fetchAppointmentsByHairstylistId, makeBooking } from "../../firebase/db
 import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../components/ToastContext";
 import LoadingScreen from "../../components/LoadingScreen";
+import { sendNotification } from "../../utils/sendNotification";
 
 const BookAppointment = () => {
   const [selectedTime, setSelectedTime] = useState();
@@ -200,8 +201,8 @@ const bgColor = getRandomColor(googleCalendarColors);
     const events = createEventsArray(
       startDate, // Example start time
       startDate, // Example end time
-      "Sample description",    // Example description
-      hairstyleDetails.description ,           // Example text
+      hairstyleDetails.description,    // Example description
+      "Booking - "+hairstyleDetails.name ,           // Example text
       formattedTime ,           // arrival time text
       bgColor ,           // bgcolor text
       "Sample text" ,           // service name text
@@ -214,12 +215,15 @@ const bgColor = getRandomColor(googleCalendarColors);
     };
 
     const userDataArray = [userData];
-    makeBooking(user.uid, updatedHairstyleDetails, selectedDate, "",events,userDataArray as any).then((data) => {
-      console.log("here is the booking made" + data);
+    makeBooking(user.uid, updatedHairstyleDetails, selectedDate, "",events,userDataArray as any).then(async (data) => {
+      // alert("here is the booking made" + hairstyleDetails.fcmtoken);
       setMakeBookingFlag(true);
       showToast("successfully placed an appoitment",'success','top');
       setModalVisible(false);
-      setIsLoading(false)
+      setIsLoading(false);
+      await sendNotification(hairstyleDetails.fcmtoken,"testing within app","you're welcome").then((data)=>{
+        alert(data)
+      });
     });
   }
 

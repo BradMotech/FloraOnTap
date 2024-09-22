@@ -92,15 +92,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
+    fontFamily:'GorditaRegular'
   },
   rating: {
     fontSize: 16,
     color: tokens.colors.primary, // Adjust to fit your theme
     marginLeft: 10,
+    fontFamily:'GorditaRegular'
   },
   phone: {
     fontSize: 12,
     color: tokens.colors.textColor,
+    fontFamily:'GorditaRegular'
     // marginLeft: 10,
   },
   description: {
@@ -111,6 +114,7 @@ const styles = StyleSheet.create({
     minWidth:Dimensions.get('window').width /2.5,
     // maxHeight:tokens.spacing.lg,
     overflow: 'hidden', // Ensure text is clipped
+    fontFamily:'GorditaRegular'
   },
   joinedOn: {
     fontSize: 12,
@@ -119,7 +123,8 @@ const styles = StyleSheet.create({
     maxWidth:120,
     minWidth:Dimensions.get('window').width /2.8,
     alignItems:'baseline',
-    justifyContent:'center'
+    justifyContent:'center',
+    fontFamily:'GorditaRegular'
   },
   button: {
     backgroundColor: tokens.colors.hairduMainColor, // Adjust to fit your theme

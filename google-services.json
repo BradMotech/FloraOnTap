@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "648264423943",
+    "project_id": "hairdu2024",
+    "storage_bucket": "hairdu2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648264423943:android:dd106f66304a1cdd0aa8a2",
+        "android_client_info": {
+          "package_name": "com.bradleyxcodes.hairdu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEpvq_9k71XGfW00ObSy5-Saq7Cpo669o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

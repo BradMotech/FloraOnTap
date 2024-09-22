@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -26,10 +26,15 @@ import WeekdaySelector from "../components/WeekDaySelector";
 import { signUp } from "../firebase/authFunctions";
 import { setHairstylistInFirestore, setUserInFirestore, uploadImageToFirebase } from "../firebase/dbFunctions";
 import { useToast } from "../components/ToastContext";
+import { getTokenFromStorage } from "../utils/getTokenFromStorage";
+import TextAreaComponent from "../components/TextAreaComponent";
 
 const SignupScreen = ({ navigation }) => {
   const [step, setStep] = useState(1); // Step state to manage form steps
   const [selectedDays, setSelectedDays] = useState([]);
+  const [description, setDescription] = useState();
+  const [tokenValue, setTokenValue] = useState('');
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
   const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -42,7 +47,8 @@ const SignupScreen = ({ navigation }) => {
     province: "",
     profileImage: null, // New field for image
     availability: [],
-    userSelectedRole:""
+    userSelectedRole:"",
+    description:"",
   });
 
   // Input references
@@ -54,6 +60,7 @@ const SignupScreen = ({ navigation }) => {
   const locationRef = useRef(null);
   const provinceRef = useRef(null);
   const userSelectedRoleRef = useRef(null);
+  const userDescriptionRef = useRef(null);
 
   // Handle input change
   const handleInputChange = (field, value) => {
@@ -66,6 +73,7 @@ const SignupScreen = ({ navigation }) => {
 
   // Image picker handler
   const handleImageUpload = async () => {
+    setImageLoading(true)
     try {
       // Request permission to access the gallery
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -92,20 +100,34 @@ const SignupScreen = ({ navigation }) => {
           profileImage: downloadURL,
         }));
 
-        showToast("Image uploaded successfully!",'success','top')
+        showToast("Image uploaded successfully!",'success','top');
+        setImageLoading(false)
       } else {
-        showToast("Image upload canceled!",'danger','top')
+        showToast("Image upload canceled!",'danger','top');
+        setImageLoading(false)
       }
     } catch (error) {
       console.error("Error uploading image: ", error);
-      showToast("Image upload failed!"+ error.message,'danger','top')
+      showToast("Image upload failed!"+ error.message,'danger','top');
+      setImageLoading(false)
     }
   };
+
+  useEffect(() => { 
+    getTokenFromStorage().then((token) => {
+        if (token) {
+            setTokenValue(token);
+          console.log("FCM Token:", token);
+          showToast('FCM Token:'+token,'success','top')
+        } else {
+          console.log("No token found.");
+        }
+      });
+  }, []);
 
   async function loginAndUpdateUsersCollections() {
     try {
         const data = await signUp(formData.email, formData.password);
-
         if (data?.user) { // Check if there's a valid user in the response
           const { uid } = data.user; // Get the user's UID from Firebase
 
@@ -113,22 +135,38 @@ const SignupScreen = ({ navigation }) => {
           const userData = {
             email: formData.email,
             selectedRoleValue: formData.userSelectedRole,
-            description: formData.userSelectedRole,
             id: uid,
             image: formData.profileImage,
             username: "@"+formData.name + "_"+formData.surname,
             name: formData.name,
             surname: formData.surname,
             province: formData.province,
+            description:formData.description,
+            details:formData.description,
             createdAt: new Date(),
             availability:formData.availability ? formData.availability : [],
             services: [],
             website: "",
             twitter: "",
             instagram: "",
-            totalCredits: "30",
-            creditsLeft: "30",
+            totalCredits: 30,
+            creditsLeft: 30,
+            subscription:{
+                plan: "Free Trial",
+                expires: new Date(),
+                paid: false,
+                paidAt: new Date(),
+                paidUntil: new Date(),
+                totalCredits: 40,
+                creditsLeft: 40,
+                paidMethod: "",
+                paidAmount: 0,
+                paidCurrency: "ZAR",
+                paidStatus: "Free Trial",
+                paidDate: new Date()
+            },
             subscriptionPlan: "Free Trial",
+            fcmtoken:tokenValue
           };
 
           // Add the user to the Firestore Users collection
@@ -142,17 +180,19 @@ const SignupScreen = ({ navigation }) => {
           setStep(step + 1); // Only increment if registration and Firestore update are successful
         } else {
             
-          Alert.alert("Error", "Registration failed. Please try again.");
+        //   Alert.alert("Error", "Registration failed. Please try again.");
+          showToast('Registration failed. Please try again.','danger','top');
         }
       } catch (error) {
-        Alert.alert("Error message", error.message); // Handle any errors
+        // Alert.alert("Error message", error.message); // Handle any errors
+        showToast('Error message'+error.message,'danger','top');
       }
 }
 
   const handleNextStep = async () => {
     // alert(step+formData.userSelectedRole)
     if (step === 3 && formData.userSelectedRole !== "Provider") {
-        alert("comes here and should not")
+        // alert("comes here and should not")
     //   Alert.alert(
     //     "Role Restriction",
     //     "Only providers can proceed to set availability."
@@ -160,12 +200,12 @@ const SignupScreen = ({ navigation }) => {
     await loginAndUpdateUsersCollections();
     } else {
         if(step === 3 && formData.userSelectedRole === "Provider"){
-            alert("comes here and should")
+            // alert("comes here and should")
             setStep(step + 1);
             // await loginAndUpdateUsersCollections();
         }
         else if(step === 4){
-            alert("yeeeee")
+            // alert("yeeeee")
             await loginAndUpdateUsersCollections();
       }
       else if(step === 1){
@@ -241,6 +281,7 @@ const SignupScreen = ({ navigation }) => {
                 placeholder="Select role"
                 onItemSelected={(selected)=>{ handleInputChange("userSelectedRole", selected)}}
               />
+              <TextAreaComponent ref={userDescriptionRef} onTextChange={(textDescr)=>handleInputChange("description", textDescr)}/>
               <InputComponent
                 ref={passwordRef}
                 iconName="key-outline"
@@ -326,12 +367,12 @@ const SignupScreen = ({ navigation }) => {
             ) : (
               <View style={{ margin: tokens.spacing.lg, width: "100%" }}>
                 <ButtonComponent
-                  text="Select Profile Picture"
+                  text={!imageLoading ? 'Select Profile Picture':'Uploading...'}
                   onPress={handleImageUpload}
                 />
               </View>
             )}
-            {!formData.profileImage ? (
+            {imageLoading  ? (
               <ButtonComponent text="Next" onPress={handleNextStep} />
             ) : null}
           </View>

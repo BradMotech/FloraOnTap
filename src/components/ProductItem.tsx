@@ -29,7 +29,7 @@ const ProductItemCard: React.FC<ProductItemCardProps> = ({
       <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.details}>
         <View style={styles.row}>
-          <Text numberOfLines={3} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',lineHeight: 18, }]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
+          <Text numberOfLines={2} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',lineHeight: 18, }]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
         </View>
         <View style={styles.row}>
           <Text style={[globalStyles.planPrice]}><Ionicons name="cash" size={12} color={tokens.colors.hairduMainColor} />{"  "}R {price}</Text>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     minWidth: Dimensions.get("window").width / 2.2,
-    maxHeight: Dimensions.get('window').width /1.5,
+    // maxHeight: Dimensions.get('window').width /1.5,
     minHeight: Dimensions.get("window").width / 1.43,
     // margin: 1,
     backgroundColor: tokens.colors.background,
@@ -76,6 +76,8 @@ const styles = StyleSheet.create({
   },
   details: {
     padding: 5,
+    maxWidth:(Dimensions.get("window").width / 2.2),
+    overflow: "hidden",
   },
   row: {
     flexDirection: "row",
@@ -88,7 +90,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color:tokens.colors.text,
-    marginTop:16
+    marginTop:16,
+    maxWidth:(Dimensions.get("window").width / 2.2),
+    overflow: "hidden",
+     fontFamily:'GorditaMedium'
     // marginLeft: 10,
   },
   rating: {

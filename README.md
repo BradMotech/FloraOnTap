@@ -13,3 +13,7 @@ Fix Package dependencies issues.
 Field: Android.adaptiveIcon.foregroundImage - image should be square, but the file at './assets/logo.png' has dimensions 150x148.
 Field: icon - image should be square, but the file at './assets/logo.png' has dimensions 150x148.
 So I fixed all these. and then again ran npx expo-doctor and it was then fixed.
+
+    "@react-native-firebase/app": "^20.5.0",
+    "@react-native-firebase/functions": "^20.5.0",
+    "@react-native-firebase/messaging": "^20.5.0",
