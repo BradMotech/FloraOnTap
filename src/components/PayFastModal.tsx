@@ -143,7 +143,7 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: tokens.colors.blackColor,
     justifyContent: "center",
     alignItems: "center",
   },

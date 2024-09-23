@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Image, ActivityIndicator, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import ChatComponent from '../../components/ChatComponent';
 import { fetchUserFriendsData } from '../../firebase/dbFunctions';
 import tokens from '../../styles/tokens';
 import LoadingScreen from '../../components/LoadingScreen';
 import { useRoute } from '@react-navigation/native';
+import globalStyles from '../../styles/globalStyles';
 
 
 interface Friend {
@@ -69,28 +70,40 @@ const ChatScreen = () => {
   // If a friend is selected, show the chat screen
   if (selectedFriendId) {
     return (
-      <>
+      <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
         <TouchableOpacity onPress={()=>setSelectedFriendId(null)} style={{ marginLeft: 16,marginTop:tokens.spacing.xs * 2,width:'100%',alignItems:'center',flexDirection:'row' }}><Ionicons name='chevron-back' size={22} /><Text>Chatting to <Text style={{fontWeight:'700'}}>{selectedFriendName}</Text></Text></TouchableOpacity>
         <ChatComponent receiverId={selectedFriendId} />
-      </>
+      </SafeAreaView>
     );
   }
 
   // Render friends list if no friend is selected yet
   return !isLoading ? (
+    <SafeAreaView   style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <View style={{ flex: 1, width: "100%" }}>
-    <View style={styles.container}>
-      <Text style={styles.title}>Salons:</Text>
-      <FlatList
-        data={friends}
-        keyExtractor={(item) => item.id}
-        renderItem={renderFriendItem}
-        ListEmptyComponent={<Text>No friends found.</Text>}
-        contentContainerStyle={styles.friendsList}
-      />
+      <View style={styles.container}>
+        <Text style={styles.title}>Salons:</Text>
+        <FlatList
+          data={friends}
+          keyExtractor={(item) => item.id}
+          renderItem={renderFriendItem}
+          ListEmptyComponent={
+            <>
+              {isLoading ? <ActivityIndicator
+                size="large"
+                color={tokens.colors.hairduMainColor}
+              /> :  <Text>No friends found.</Text>}
+             
+            </>
+          }
+          contentContainerStyle={styles.friendsList}
+        />
+      </View>
     </View>
-    </View>
-  ):(<LoadingScreen/>);
+    </SafeAreaView>
+  ) : (
+    <LoadingScreen />
+  );
 };
 
 const styles = StyleSheet.create({

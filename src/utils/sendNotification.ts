@@ -1,5 +1,5 @@
 // import { firebase } from "@react-native-firebase/messaging";
-import '@react-native-firebase/functions';
+// import '@react-native-firebase/functions';
 
 // Function to send notification
 export const sendNotification = async (token: string, title: string, body: string) => {

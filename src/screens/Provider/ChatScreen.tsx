@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet,Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet,Image, ActivityIndicator, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import ChatComponent from '../../components/ChatComponent';
 import { fetchUserFriendsData } from '../../firebase/dbFunctions';
 import tokens from '../../styles/tokens';
+import globalStyles from '../../styles/globalStyles';
 
 
 interface Friend {
@@ -16,6 +17,7 @@ const ChatScreen = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedFriendName, setSelectedFriendName] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Fetch friends on component mount
   useEffect(() => {
@@ -23,6 +25,7 @@ const ChatScreen = () => {
       try {
         const fetchedFriends = await fetchUserFriendsData(); // Fetch friends from Firebase
         setFriends(fetchedFriends); // Set fetched friends
+        setIsLoading(false)
       } catch (error) {
         console.error("Error fetching friends:", error);
       } 
@@ -63,15 +66,16 @@ const ChatScreen = () => {
   // If a friend is selected, show the chat screen
   if (selectedFriendId) {
     return (
-      <>
+      <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
         <TouchableOpacity onPress={()=>setSelectedFriendId(null)} style={{ marginLeft: 16,marginTop:tokens.spacing.xs * 2,width:'100%',alignItems:'center',flexDirection:'row' }}><Ionicons name='chevron-back' size={22} /><Text>Chatting to <Text style={{fontWeight:'700'}}>{selectedFriendName}</Text></Text></TouchableOpacity>
         <ChatComponent receiverId={selectedFriendId} />
-      </>
+      </SafeAreaView>
     );
   }
 
   // Render friends list if no friend is selected yet
   return (
+    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <View style={{ flex: 1, marginTop: tokens.spacing.xs * 1, width: "100%" }}>
     <View style={styles.container}>
       <Text style={styles.title}>Chat to customers :</Text>
@@ -79,11 +83,18 @@ const ChatScreen = () => {
         data={friends}
         keyExtractor={(item) => item.id}
         renderItem={renderFriendItem}
-        ListEmptyComponent={<Text>No friends found.</Text>}
+        ListEmptyComponent={ <>
+          {isLoading ? <ActivityIndicator
+            size="large"
+            color={tokens.colors.hairduMainColor}
+          /> :  <Text>No friends found.</Text>}
+         
+        </>}
         contentContainerStyle={styles.friendsList}
       />
     </View>
     </View>
+    </SafeAreaView>
   );
 };
 
@@ -119,7 +130,7 @@ const styles = StyleSheet.create({
       marginVertical: 5,
       borderBottomColor: tokens.colors.inactive,
       borderBottomWidth: 0.5,
-      fontFamily:'GorditaMedium'
+      fontFamily:'GorditaMedium',
     },
     friendName: {
       fontSize: 16,

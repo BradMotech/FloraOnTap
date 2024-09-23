@@ -11,7 +11,7 @@ import Header from '../../components/header';
 import { createStackNavigator } from '@react-navigation/stack'; // Use @react-navigation/stack
 import SalonDetails from '../../screens/Customer/SalonDetails';
 import BookAppointment from '../../screens/Customer/BookAppointment';
-import { StatusBar } from 'react-native';
+import { Dimensions, StatusBar } from 'react-native';
 import FAQScreen from '../../screens/Customer/FAQScreen';
 
 const Tab = createBottomTabNavigator();
@@ -21,14 +21,14 @@ const DashboardStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontFamily:'GorditaRegular',
       },
     })}
   >
@@ -41,14 +41,14 @@ const AppointmentStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontFamily:'GorditaMedium',
       },
     })}
   >
@@ -59,14 +59,14 @@ const ChatStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontFamily:'GorditaMedium',
       },
     })}
   >
@@ -77,14 +77,14 @@ const SettingsStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+        fontFamily:'GorditaMedium',
       },
     })}
   >

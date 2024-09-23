@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -7,21 +7,25 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import tokens from "../styles/tokens";
 import ProductItemCard from "./ProductItem";
 import { formatDate } from "../utils/dateFormat";
 import globalStyles from "../styles/globalStyles";
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from "@expo/vector-icons";
 import ImageGalleryItem from "./ImageGalleryItem";
 import ButtonComponent from "./buttonComponent";
 import InputComponent from "./InputComponent";
-import ImagePicker from 'react-native-image-picker';
+import ImagePicker from "react-native-image-picker";
 import { updateUserFriends } from "../firebase/dbFunctions";
 import { useToast } from "./ToastContext";
 import SearchComponent from "./SearchComponent";
 import FilterBy from "./FilterBy";
+import OpeningHours from "./OpeningHours";
+import ReviewsScreen from "./Reviews";
+import { AuthContext } from "../auth/AuthContext";
+import Badge from "./Badge";
 
 // Tab button component
 const TabButton = ({ title, isActive, onPress }) => (
@@ -36,15 +40,22 @@ const TabButton = ({ title, isActive, onPress }) => (
 );
 
 // Tab view component
-const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails,isProvider }) => {
+const CustomTabViewProvider = ({
+  salonData,
+  ratingData,
+  navigation,
+  salonDetails,
+  isProvider,
+}) => {
   const [activeTab, setActiveTab] = useState("Details");
   const [editProfile, setEditProfile] = useState<boolean>(false);
   const [filterByFlag, setFilterByFlag] = useState<boolean>(false);
   const { showToast } = useToast();
+  const { user } = useContext(AuthContext);
 
   function sendMessageToUser(data: { id: string }) {
     updateUserFriends(data);
-    navigation.navigate('Chat')
+    navigation.navigate("Chat");
   }
 
   const renderItem = ({ item }: { item: any }) => (
@@ -53,7 +64,11 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
       title={item.name}
       price={item.price}
       description={item.description}
-      addedOn={formatDate(item.createdAt) ? formatDate(item.createdAt) : formatDate(item.updatedAt)}
+      addedOn={
+        formatDate(item.createdAt)
+          ? formatDate(item.createdAt)
+          : formatDate(item.updatedAt)
+      }
       onViewDetails={() => {
         // Handle view details button press
         navigation.navigate("EditProduct", { docId: item.id });
@@ -75,6 +90,9 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                 alignItems: "flex-start",
                 flexDirection: "row",
                 justifyContent: "flex-start",
+                backgroundColor: tokens.colors.barkInspiredColor,
+                padding: 8,
+                borderRadius: 12,
               },
             ]}
           >
@@ -99,7 +117,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
             >
               <Text
                 style={{
-                  color: tokens.colors.textColor,
+                  color: tokens.colors.barkInspiredTextColor,
                   textAlign: "center",
                   alignItems: "center",
                   justifyContent: "center",
@@ -108,11 +126,11 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                 <Ionicons
                   name={"person-circle-outline"}
                   size={15}
-                  color={tokens.colors.gray}
+                  color={tokens.colors.barkInspiredTextColor}
                 />
                 {"  " + data.name}
               </Text>
-              <Text style={{ color: tokens.colors.textColor }}>
+              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
                 <Ionicons
                   name={"mail-outline"}
                   size={15}
@@ -120,7 +138,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                 />
                 {"  " + data.email}
               </Text>
-              <Text style={{ color: tokens.colors.textColor }}>
+              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
                 <Ionicons
                   name={"call-outline"}
                   size={15}
@@ -128,76 +146,109 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                 />
                 {"  " + data.phone}
               </Text>
-              <Text style={{ color: tokens.colors.textColor }}>
+              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
                 <Ionicons
                   name={"globe-outline"}
                   size={15}
-                  color={tokens.colors.gray}
+                  color={tokens.colors.barkInspiredTextColor}
                 />
                 {"  " + data.province}
               </Text>
-              <TouchableOpacity
-                style={{
-                  height: 24,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flex: 1,
-                }}
-                onPress={() => sendMessageToUser(data)}
-              >
-                <Text
-                  style={{
-                    color: tokens.colors.textColor,
-                    textAlign: "center",
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ color: tokens.colors.textColor }}>
+
+              <View style={styles.separator}></View>
+              {isProvider ? (
+                <>
+                  <TouchableOpacity
+                    style={{
+                      height: 24,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flex: 1,
+                    }}
+                    onPress={() => navigation.navigate("AddProduct")}
+                  >
+                    <Text
+                      style={{
+                        color: tokens.colors.barkInspiredTextColor,
+                        textAlign: "center",
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          color: tokens.colors.text,
+                          fontFamily: "GorditaMedium",
+                          width: "100%",
+                        }}
+                      >
+                        <Ionicons
+                          name="pencil-outline"
+                          size={18}
+                          style={{ marginLeft: 16 }}
+                        />
+                        {"  Edit Profile"}
+                      </Text>
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={globalStyles.imagePicker}
+                    onPress={() => navigation.navigate("AddProduct")}
+                  >
                     <Ionicons
-                      name="chatbubble-outline"
-                      size={15}
-                      style={{ marginLeft: 16 }}
+                      name="folder"
+                      color={tokens.colors.barkInspiredTextColor}
+                      size={20}
                     />
-                    {" Send message"}
-                  </Text>
-                </Text>
-              </TouchableOpacity>
+                    <Text
+                      style={[
+                        {
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          color: tokens.colors.text,
+                          fontFamily: "GorditaMedium",
+                          width: "100%",
+                        },
+                      ]}
+                    >
+                      {" Upload Portfolio"}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
               {/* buttons */}
             </View>
           </View>
-
-          {isProvider ? (
-            <View
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={{ width: Dimensions.get("screen").width / 2 - 15 }}>
-                <TouchableOpacity
-                  style={globalStyles.imagePicker}
-                  onPress={() => navigation.navigate("AddProduct")}
-                >
-                  <Ionicons
-                    name="person"
-                    color={tokens.colors.inactive}
-                    size={30}
-                  />
-                  <Text style={globalStyles.imagePickerText}>
-                    {" Edit profile"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-          <View style={globalStyles.alignCenter}>
+          <View
+            style={{ display: "flex", flexDirection: "row", marginTop: 12 }}
+          >
+            <Badge variant="details" text={"Online booking priority"} />
+            <Badge variant="prebooking" text={"Allows pre-booking"} />
+          </View>
+          <View style={styles.separator}></View>
+          <View
+            style={[
+              {
+                backgroundColor: tokens.colors.fadedBackgroundGey,
+                borderRadius: 12,
+                padding: 6,
+              },
+            ]}
+          >
             <Text style={{ color: tokens.colors.textColor, padding: 6 }}>
               {data.description}
             </Text>
+          </View>
+          <View style={styles.separator}></View>
+          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+            <Text style={globalStyles.title}>Operating hours</Text>
+            <OpeningHours hours={data.availability} />
+          </View>
+          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+            <Text style={globalStyles.title}>Social Media</Text>
           </View>
           <View style={globalStyles.imageView}>{/* map here */}</View>
         </View>
@@ -211,7 +262,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
     const [phone, setPhone] = useState(data?.phone);
     const [description, setDescription] = useState(data?.description);
     const [image, setImage] = useState(data?.image);
-  
+
     const handleImagePick = () => {
       // ImagePicker.showImagePicker({}, (response) => {
       //   if (response.didCancel) {
@@ -223,26 +274,39 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
       //   }
       // });
     };
-  
+
     const handleSave = () => {
       // Add validation and save logic here
       if (!name || !email || !phone || !description) {
-        showToast('Error: Please fill all fields','warning','middle')
-        
+        showToast("Error: Please fill all fields", "warning", "middle");
+
         return;
       }
-  
+
       const updatedData = { name, email, phone, description, image };
       onSave(updatedData);
     };
-  
+
     return (
       <View style={globalStyles.container}>
-        <View style={[globalStyles.imageView, { flexDirection: 'row', alignItems: 'center' }]}>
-          <ButtonComponent text="Change Profile Image" onPress={handleImagePick} />
-          {image && <Image source={{ uri: image }} style={globalStyles.Storycontainer} />}
+        <View
+          style={[
+            globalStyles.imageView,
+            { flexDirection: "row", alignItems: "center" },
+          ]}
+        >
+          <ButtonComponent
+            text="Change Profile Image"
+            onPress={handleImagePick}
+          />
+          {image && (
+            <Image
+              source={{ uri: image }}
+              style={globalStyles.Storycontainer}
+            />
+          )}
         </View>
-  
+
         <InputComponent
           iconName="person-outline"
           // value={name}
@@ -269,12 +333,12 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
           onChangeText={setDescription}
           placeholder="Enter description"
         />
-  
+
         <ButtonComponent text="Save Changes" onPress={handleSave} />
         <ButtonComponent text="Cancel" onPress={onCancel} />
       </View>
     );
-  };
+  }
 
   const renderGallery = (): React.ReactNode => {
     return (
@@ -287,7 +351,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
   };
 
   function applyFilters(data) {
-    setFilterByFlag(false)
+    setFilterByFlag(false);
   }
 
   return (
@@ -342,8 +406,8 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
             {salonData ? (
               <View>
                 {/* Render salon data */}
-                { !filterByFlag ? 
-                  <View style={{width:Dimensions.get("screen").width - 22}}>
+                {!filterByFlag ? (
+                  <View style={{ width: Dimensions.get("screen").width - 22 }}>
                     <SearchComponent
                       value={""}
                       onChangeText={() => {}}
@@ -357,13 +421,17 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                         backgroundColor: "white",
                         borderWidth: 0.5,
                         borderColor: tokens.colors.inactive,
-                        alignItems:'center',
-                        justifyContent:'center',
-                        marginBottom:10
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 10,
                       }}
-                      onPress={()=>setFilterByFlag(true)}
+                      onPress={() => setFilterByFlag(true)}
                     >
-                      <Ionicons name="filter-outline" size={22} color={tokens.colors.shadow} />
+                      <Ionicons
+                        name="filter-outline"
+                        size={22}
+                        color={tokens.colors.shadow}
+                      />
                     </TouchableOpacity>
                     <FlatList
                       data={salonData}
@@ -374,14 +442,16 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
                       contentContainerStyle={globalStyles.gridContainer}
                     />
                   </View>
-                :
-                <View style={{width:Dimensions.get("screen").width}}>
-                <FilterBy onApplyFilter={function (filters: any): void {
-                  applyFilters(filters)
-                } }/>
-                </View>
-                }
-             
+                ) : (
+                  <View style={{ width: Dimensions.get("screen").width }}>
+                    <FilterBy
+                      onApplyFilter={function (filters: any): void {
+                        applyFilters(filters);
+                      }}
+                    />
+                  </View>
+                )}
+
                 {/* Add more salon details as needed */}
               </View>
             ) : (
@@ -391,16 +461,7 @@ const CustomTabViewProvider = ({ salonData, ratingData, navigation, salonDetails
         )}
         {activeTab === "Ratings" && (
           <View style={styles.pageContent}>
-            {ratingData && ratingData.length > 0 ? (
-              ratingData.map((rating, index) => (
-                <View key={index}>
-                  <Text style={styles.pageText}>Rating: {rating.score}</Text>
-                  <Text style={styles.pageText}>Comment: {rating.comment}</Text>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.pageText}>No ratings available</Text>
-            )}
+            <ReviewsScreen provider={true} hairstylistId={user.uid} />
           </View>
         )}
         {activeTab === "Gallery" && (
@@ -437,14 +498,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 3,
-    borderBottomColor: tokens.colors.hairduMainColor, // Active tab color
+    borderBottomColor: tokens.colors.barkInspiredTextColor, // Active tab color
   },
   tabText: {
     fontSize: 16,
     color: tokens.colors.inactive,
   },
   activeTabText: {
-    color: tokens.colors.hairduMainColor, // Active tab text color
+    color: tokens.colors.barkInspiredTextColor, // Active tab text color
     fontWeight: "bold",
   },
   content: {
@@ -460,7 +521,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
   },
+  separator: {
+    height: 0.3,
+    width: Dimensions.get("screen").width,
+    backgroundColor: tokens.colors.gray,
+    opacity: 0.5,
+    marginTop: 6,
+    marginBottom: 6,
+  },
 });
 
 export default CustomTabViewProvider;
-

@@ -52,12 +52,12 @@ const ProviderDashboard = ({ navigation }) => {
   return (
     <View>
       <StatusBar hidden={true} />
-      <SafeAreaView style={{ marginTop: tokens.spacing.xs * 0.5 }}>
+      <SafeAreaView style={{ marginTop: tokens.spacing.lg * 2.5 }}>
         <ScrollView contentContainerStyle={globalStyles.scroll}>
           <View style={{ flex: 1 }}>
             <View>
               {hairstylistsData ? (
-                <CircularProgressWithDetails user={hairstylistsData[0]} />
+                <CircularProgressWithDetails user={hairstylistsData[0]} onRenewSubscription={()=> navigation.navigate('Subscription')} onFinanceProjections={()=> navigation.navigate('Projections')} />
               ) : null}
             </View>
 
@@ -69,22 +69,6 @@ const ProviderDashboard = ({ navigation }) => {
                 width: "100%",
               }}
             >
-              <View style={{ marginBottom: 6 }}>
-                <TouchableOpacity
-                  style={globalStyles.imagePicker}
-                  onPress={() => navigation.navigate("AddProduct")}
-                >
-                  <Ionicons
-                    name="folder"
-                    color={tokens.colors.inactive}
-                    size={35}
-                  />
-                  <Text style={globalStyles.imagePickerText}>
-                    {" Upload Portfolio"}
-                  </Text>
-                </TouchableOpacity>
-                {/* <ButtonComponent onPress={() => navigation.navigate('AddProduct')} text={"Upload Portfolio"}/> */}
-              </View>
               {hairstylesData && hairstylistsData ? (
                 <CustomTabViewProvider
                   salonData={hairstylesData}

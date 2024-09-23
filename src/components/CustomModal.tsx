@@ -44,14 +44,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparent background
+    backgroundColor: tokens.colors.blackColor, // Transparent background
   },
   modalContent: {
     width: '80%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'; // Use Ionicons or any other pref
 import tokens from '../styles/tokens'; // Adjust the path to your tokens or styles
 import Rating from './Rating';
 import globalStyles from '../styles/globalStyles';
+import Badge from './Badge';
 
 interface SalonItemCardProps {
   image: string;
@@ -46,6 +47,11 @@ const SalonItemCard: React.FC<SalonItemCardProps> = ({
         <View style={styles.row}>
           <Text style={styles.joinedOn}><Ionicons name="calendar-outline" size={12} color={tokens.colors.iconColor} />{" "}Joined On: {joinedOn}</Text>
         </View>
+        <View style={{display:'flex',flexDirection:'row',marginTop:12}}>
+          <Badge variant="details" text={"Prio"}/>
+          <Badge variant="prebooking" text={"Pre-book"}/>
+          </View>
+        {/* <Badge text={'Popular salon'}/>   */}
         {/* <TouchableOpacity style={styles.button} onPress={onViewDetails}>
           <Text style={styles.buttonText}>View Details</Text>
         </TouchableOpacity> */}
@@ -67,7 +73,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 }, // Shadow offset for iOS
     shadowOpacity: 0.25, // Shadow opacity for iOS
     shadowRadius: 10, // Shadow blur radius for iOS
-    elevation: 5, // Shadow for Android
+    elevation: 1.5, // Shadow for Android
     borderWidth: 0.6,
     borderColor: tokens.colors.inactive,
     paddingBottom:22

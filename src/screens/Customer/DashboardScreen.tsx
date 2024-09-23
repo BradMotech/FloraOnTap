@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, ScrollView, FlatList, SafeAreaView,StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import { AuthContext } from "../../auth/AuthContext";
 import StoryItem from "../../components/StoryItem";
@@ -11,22 +18,20 @@ import { formatDate } from "../../utils/dateFormat";
 import {
   fetchHairstylesFromFirestore,
   fetchHairstylistsFromFirestore,
-  fetchUserFromFirestore,
 } from "../../firebase/dbFunctions";
 import SalonItemCard from "../../components/SalonItem";
 
 const DashboardScreen = ({ navigation }) => {
   const { hairstylistsData, setHairstylesData, setHairstylistsData } =
     useContext(AuthContext);
-     // State to hold the filtered data
+  // State to hold the filtered data
   const [filteredData, setFilteredData] = useState(hairstylistsData || []);
-  
+
   // Store the original data
   const [originalData, setOriginalData] = useState(hairstylistsData || []);
 
-   // State to manage the search input value
-   const [searchText, setSearchText] = useState("");
-
+  // State to manage the search input value
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     if (hairstylistsData) {
@@ -62,16 +67,17 @@ const DashboardScreen = ({ navigation }) => {
 
   function filterSalons(text) {
     setSearchText(text);
-    
+
     if (text) {
       const lowercasedText = text.toLowerCase();
-  
-      const filtered = originalData.filter((stylist) =>
-        stylist.name.toLowerCase().includes(lowercasedText) ||
-        stylist.phone.toLowerCase().includes(lowercasedText) ||
-        stylist.description.toLowerCase().includes(lowercasedText)
+
+      const filtered = originalData.filter(
+        (stylist) =>
+          stylist.name.toLowerCase().includes(lowercasedText) ||
+          stylist.phone.toLowerCase().includes(lowercasedText) ||
+          stylist.description.toLowerCase().includes(lowercasedText)
       );
-  
+
       setFilteredData(filtered);
     } else {
       // If the search text is empty, reset the data to the original data
@@ -81,10 +87,10 @@ const DashboardScreen = ({ navigation }) => {
 
   return hairstylistsData ? (
     <SafeAreaView
-      style={[globalStyles.safeArea]}
+      style={[globalStyles.safeArea, { marginTop: tokens.spacing.lg * 2.4 }]}
     >
-       {/* Hide the status bar */}
-       <StatusBar hidden={true} />
+      {/* Hide the status bar */}
+      <StatusBar hidden={true} />
       <ScrollView contentContainerStyle={globalStyles.scroll}>
         <View style={globalStyles.dashboard}>
           <Text style={globalStyles.title}>Top Rated</Text>
@@ -107,9 +113,11 @@ const DashboardScreen = ({ navigation }) => {
                         });
                       })
                       .catch(() => {});
-                    fetchHairstylesFromFirestore(storyData.id).then((hairStyles) => {
-                      setHairstylesData(hairStyles);
-                    });
+                    fetchHairstylesFromFirestore(storyData.id).then(
+                      (hairStyles) => {
+                        setHairstylesData(hairStyles);
+                      }
+                    );
                   }}
                   src={storyData.image}
                   name={storyData.name}
@@ -126,6 +134,7 @@ const DashboardScreen = ({ navigation }) => {
               // throw new Error("Function not implemented.");
             }}
           />
+          <View style={globalStyles.separator}></View>
           <Text style={globalStyles.title}>Hair Specialists</Text>
           <View style={globalStyles.separatorNoColor}></View>
           <FlatList

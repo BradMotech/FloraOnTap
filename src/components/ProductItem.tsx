@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'; // Use Ionicons or any other pref
 import tokens from '../styles/tokens'; // Adjust the path to your tokens or styles
 import Rating from './Rating';
 import globalStyles from '../styles/globalStyles';
+import Badge from './Badge';
 
 interface ProductItemCardProps {
   image: string;
@@ -29,17 +30,20 @@ const ProductItemCard: React.FC<ProductItemCardProps> = ({
       <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.details}>
         <View style={styles.row}>
-          <Text numberOfLines={2} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',lineHeight: 18, }]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
+          <Text numberOfLines={2} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',}]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
         </View>
         <View style={styles.row}>
           <Text style={[globalStyles.planPrice]}><Ionicons name="cash" size={12} color={tokens.colors.hairduMainColor} />{"  "}R {price}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.description} numberOfLines={3}><Ionicons name="information-circle-outline" size={12} color={tokens.colors.iconColor} />{" "+description}</Text>
+          <Text style={styles.description} numberOfLines={3}><Ionicons name="information-circle" size={14} color={tokens.colors.iconColor} />{" "+description}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.joinedOn}><Ionicons name="calendar" size={12} color={tokens.colors.iconColor} /> Added On: {addedOn}</Text>
         </View>
+        <View style={{display:'flex',flexDirection:'row',marginTop:12}}>
+          <Badge variant="success" text={"popular"}/>
+          </View>
         {/* <TouchableOpacity style={styles.button} onPress={onViewDetails}>
           <Text style={styles.buttonText}>View Details</Text>
         </TouchableOpacity> */}
@@ -61,7 +65,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 }, // Shadow offset for iOS
     shadowOpacity: 0.25, // Shadow opacity for iOS
     shadowRadius: 10, // Shadow blur radius for iOS
-    elevation: 5, // Shadow for Android
+    elevation: 1.5, // Shadow for Android
     borderWidth: 0.6,
     borderColor: tokens.colors.inactive,
     paddingBottom:10,
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
     marginTop:16,
     maxWidth:(Dimensions.get("window").width / 2.2),
     overflow: "hidden",
-     fontFamily:'GorditaMedium'
+     fontFamily:'GorditaRegular'
     // marginLeft: 10,
   },
   rating: {
@@ -114,13 +118,15 @@ const styles = StyleSheet.create({
     minWidth: Dimensions.get("window").width / 2.5,
     // maxHeight: tokens.spacing.lg,
     overflow: "hidden", // Ensure text is clipped
+    fontFamily:'GorditaRegular'
   },
   joinedOn: {
-    fontSize: 12,
+    fontSize: 10,
     color: tokens.colors.textColor,
     // marginLeft: 10,
     maxWidth: 120,
     minWidth: Dimensions.get("window").width / 2.8,
+    fontFamily:'GorditaRegular'
   },
   button: {
     backgroundColor: tokens.colors.hairduMainColor, // Adjust to fit your theme

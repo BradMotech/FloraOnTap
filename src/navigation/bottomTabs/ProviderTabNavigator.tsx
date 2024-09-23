@@ -14,6 +14,8 @@ import PriceList from '../../screens/Provider/Pricelist';
 import FAQScreen from '../../screens/Provider/FAQScreen';
 import ProductUploadScreen from '../../screens/Provider/ProductUploadScreen';
 import ProductEditScreen from '../../screens/Provider/ProductEditScreen';
+import { Dimensions } from 'react-native';
+import FinancialProjections from '../../screens/Provider/FinancialProjections';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); 
@@ -21,34 +23,36 @@ const DashboardStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+         fontFamily:'GorditaRegular',
+         textAlign:'center',
       },
     })}
   >
     <Stack.Screen name="Dashboard" component={DashboardScreen} />
     <Stack.Screen name="AddProduct" component={ProductUploadScreen} />
     <Stack.Screen name="EditProduct" component={ProductEditScreen} />
+    <Stack.Screen name="Projections" component={FinancialProjections} />
   </Stack.Navigator>
 );
 const AppointmentsStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+         fontFamily:'GorditaRegular',
       },
     })}
   >
@@ -59,14 +63,14 @@ const ChatsStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+         fontFamily:'GorditaRegular',
       },
     })}
   >
@@ -77,14 +81,14 @@ const SettingsStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      // header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
       headerTitleStyle: {
-        fontWeight: 'bold',
+         fontFamily:'GorditaRegular',
       },
     })}
   >

@@ -13,15 +13,12 @@ const CustomerStack = createStackNavigator(
   {
     Dashboard: {
       screen: DashboardScreen,
-      navigationOptions: {
-        title: 'Dashboard',
-      },
-      // navigationOptions: ({ navigation }) => ({
-      //   header: () => <>
-      //    <StatusBar barStyle="light-content" backgroundColor={tokens.colors.hairduMainColor} />
-      //   <Header title="Home" navigation={navigation} profileImageUrl={''} />,
-      //   </>
-      // }),
+      // navigationOptions: {
+      //   title: 'Dashboard',
+      // },
+      navigationOptions: ({ navigation }) => ({
+        header: () => <Header title="Home" navigation={navigation} profileImageUrl={''} />
+      }),
     },
     Profile: {
       screen: ProfileScreen,

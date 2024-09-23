@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Modal, View, Text, Button, StyleSheet } from "react-native";
+import { Modal, View, Text, Button, StyleSheet, Dimensions } from "react-native";
+import ButtonComponent from "./buttonComponent";
+import tokens from "../styles/tokens";
 
 interface AppointmentModalProps {
   visible: boolean;
@@ -26,22 +28,25 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({ visible, onClose, e
 
           {/* Footer with buttons */}
           <View style={styles.modalFooter}>
-            <Button
-              title={leftButtonTitle}
+            <View style={{width:Dimensions.get("screen").width/3.4}}>
+            <ButtonComponent
+              text={leftButtonTitle}
               onPress={() => {
                 console.log("Declined");
                 onConfirm(); // Close the modal after decline
               }}
-              color="red"
             />
-            <Button
-              title={rightButtonTitle}
+            </View>
+            <View style={{width:Dimensions.get("screen").width/3.4}}>
+            <ButtonComponent
+              text={rightButtonTitle}
+              buttonColor={tokens.colors.blackColor}
               onPress={() => {
                 console.log("Confirmed");
                 onClose(); // Close the modal after confirm
               }}
-              color="green"
             />
+            </View>
           </View>
         </View>
       </View>
@@ -54,19 +59,21 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark transparent background
+      backgroundColor: tokens.colors.blackColor, // Dark transparent background
     },
     modalContent: {
       width: 300,
       padding: 20,
       backgroundColor: "white",
       borderRadius: 10,
-      alignItems: "center",
+      alignItems: "flex-start",
     },
     modalTitle: {
       fontSize: 18,
       fontWeight: "bold",
       marginBottom: 10,
+      textAlign:'left',
+      alignItems:'flex-start'
     },
     modalBody: {
       fontSize: 16,

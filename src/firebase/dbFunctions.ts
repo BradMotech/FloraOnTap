@@ -1,10 +1,11 @@
-import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, arrayUnion, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from "uuid"; // To generate a unique ID for the image
 import { storage } from "./firebase"; // Make sure your firebaseConfig is correctly imported
 import { getAuth } from 'firebase/auth';
+import dayjs from 'dayjs'; // Library for working with dates
 
 // Fetch user type (provider or customer) from Firestore
 export const fetchUserFromFirestore = async (uid: string) => {
@@ -143,7 +144,7 @@ export const uploadImageToFirebase = async (imageUri: string): Promise<string> =
 };
 
 // Fetch appointments from Firestore based on customerId
-export const fetchAppointmentsByCustomerId = async (customerId: string) => {
+export const fetchAppointmentsByCustomerId = (customerId: string, callback: (appointments: any[]) => void) => {
   try {
     // Define the collection reference
     const appointmentsRef = collection(db, 'appointments');
@@ -151,24 +152,29 @@ export const fetchAppointmentsByCustomerId = async (customerId: string) => {
     // Create a query to filter documents by 'customerId'
     const q = query(appointmentsRef, where('customerId', '==', customerId));
 
-    // Get the documents matching the query
-    const querySnapshot = await getDocs(q);
+    // Set up a real-time listener
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const appointments = [];
 
-    // Map and return the data of all documents
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs.map(doc => doc.data());
-    } else {
-      console.log('No appointments found for the given customerId');
-      return [];
-    }
+      // Map and return the data of all documents
+      querySnapshot.forEach((doc) => {
+        appointments.push(doc.data());
+      });
+
+      // Call the provided callback with the fetched appointments
+      callback(appointments);
+    });
+
+    // Return the unsubscribe function for cleanup
+    return unsubscribe;
   } catch (error) {
     console.error('Error fetching appointments:', error);
-    return [];
+    return () => {}; // Return a no-op function
   }
 };
 
 // Fetch appointments from Firestore based on hairstylistId within the selectedHairstyle field
-export const fetchAppointmentsByHairstylistId = async (hairstylistId: string) => {
+export const fetchAppointmentsByHairstylistId = (hairstylistId: string, onUpdate: (appointments: any[]) => void) => {
   try {
     // Define the collection reference
     const appointmentsRef = collection(db, 'appointments');
@@ -176,19 +182,27 @@ export const fetchAppointmentsByHairstylistId = async (hairstylistId: string) =>
     // Create a query to filter documents where 'selectedHairstyle.hairstylistId' matches the given hairstylistId
     const q = query(appointmentsRef, where('selectedHairstyle.hairstylistId', '==', hairstylistId));
 
-    // Get the documents matching the query
-    const querySnapshot = await getDocs(q);
+    // Set up a real-time listener using onSnapshot
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      if (!querySnapshot.empty) {
+        const appointments = querySnapshot.docs.map(doc => doc.data());
+        // Invoke the callback with the updated data
+        onUpdate(appointments);
+      } else {
+        console.log('No appointments found for the given hairstylistId');
+        onUpdate([]);
+      }
+    }, (error) => {
+      console.error('Error fetching real-time appointments:', error);
+      onUpdate([]); // Pass an empty array on error
+    });
 
-    // Map and return the data of all documents
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs.map(doc => doc.data());
-    } else {
-      console.log('No appointments found for the given hairstylistId');
-      return [];
-    }
+    // Return the unsubscribe function so it can be called to stop listening
+    return unsubscribe;
+
   } catch (error) {
-    console.error('Error fetching appointments:', error);
-    return [];
+    console.error('Error setting up real-time appointments listener:', error);
+    onUpdate([]);
   }
 };
 
@@ -251,18 +265,76 @@ export const cancelBooking = async (bookingId: string) => {
 };
 
 // Accept a booking
+// export const acceptBooking = async (bookingId: string) => {
+//   try {
+//     // Define the document reference to the booking
+//     const bookingRef = doc(db, 'appointments', bookingId);
+
+//     // Update the booking status to accepted
+//     await updateDoc(bookingRef, {
+//       appointmentStatus: 'ACCEPTED',
+//     });
+
+//     console.log('Booking accepted successfully');
+//     return { success: true };
+//   } catch (error) {
+//     console.error('Error accepting booking:', error);
+//     return { success: false, message: error.message };
+//   }
+// };
+
 export const acceptBooking = async (bookingId: string) => {
   try {
     // Define the document reference to the booking
     const bookingRef = doc(db, 'appointments', bookingId);
 
-    // Update the booking status to accepted
-    await updateDoc(bookingRef, {
-      appointmentStatus: 'ACCEPTED',
-    });
+    // Get the booking data
+    const bookingSnap = await getDoc(bookingRef);
+    
+    if (bookingSnap.exists()) {
+      const bookingData = bookingSnap.data();
 
-    console.log('Booking accepted successfully');
-    return { success: true };
+      // Update the booking status to accepted
+      await updateDoc(bookingRef, {
+        appointmentStatus: 'ACCEPTED',
+      });
+      // Extract the date and price from the booking data
+      const appointmentDate = dayjs(bookingData.appointmentDate);
+      const price = bookingData.selectedHairstyle.price || 0;  // Default to 0 if price is missing
+      // Determine the day of the week (e.g., Mon, Tue) and the month (e.g., Jan, Feb)
+      const dayOfWeek = appointmentDate.format('ddd');  // e.g., "Mon", "Tue"
+      const month = appointmentDate.format('MMM');      // e.g., "Jan", "Feb"
+
+      // Log weekly data
+      const weeklyMetrics = {
+        label: dayOfWeek,   // e.g., 'Mon', 'Tue', etc.
+        value: price,       // Price of the appointment
+        appointmentDate: bookingData.appointmentDate,
+        bookingData: bookingData,
+        providerId: bookingData.providerId,
+      };
+
+      // Log monthly data
+      const monthlyMetrics = {
+        label: month,       // e.g., 'Jan', 'Feb', etc.
+        value: price,       // Price of the appointment
+        appointmentDate: bookingData.appointmentDate,
+        bookingData: bookingData,
+        providerId: bookingData.providerId,
+      };
+      // Save the weekly metrics to Firestore (e.g., 'weeklyMetrics')
+      await addDoc(collection(db, 'weeklyMetrics'), weeklyMetrics);
+      
+      // Save the monthly metrics to Firestore (e.g., 'monthlyMetrics')
+      await addDoc(collection(db, 'monthlyMetrics'), monthlyMetrics);
+
+      console.log('Booking accepted and metrics logged successfully');
+      return { success: true };
+    } else {
+      console.error('No such booking found');
+      return { success: false, message: 'No such booking found' };
+    }
+
   } catch (error) {
     console.error('Error accepting booking:', error);
     return { success: false, message: error.message };
@@ -275,13 +347,54 @@ export const declineBooking = async (bookingId: string) => {
     // Define the document reference to the booking
     const bookingRef = doc(db, 'appointments', bookingId);
 
-    // Update the booking status to declined
-    await updateDoc(bookingRef, {
-      appointmentStatus: 'DECLINED',
-    });
+    // Get the booking data
+    const bookingSnap = await getDoc(bookingRef);
+    
+    if (bookingSnap.exists()) {
+      const bookingData = bookingSnap.data();
 
-    console.log('Booking declined successfully');
-    return { success: true };
+      // Update the booking status to declined
+      await updateDoc(bookingRef, {
+        appointmentStatus: 'DECLINED',
+      });
+
+      const appointmentDate = dayjs(bookingData.appointmentDate);
+      const price = bookingData.selectedHairstyle.price || 0;  // Default to 0 if price is missing
+      // Determine the day of the week (e.g., Mon, Tue) and the month (e.g., Jan, Feb)
+      const dayOfWeek = appointmentDate.format('ddd');  // e.g., "Mon", "Tue"
+      const month = appointmentDate.format('MMM');      // e.g., "Jan", "Feb"
+
+      // Log weekly data
+      const weeklyMetrics = {
+        label: dayOfWeek,   // e.g., 'Mon', 'Tue', etc.
+        value:  Number(price),       // Price of the appointment
+        appointmentDate: bookingData.appointmentDate,
+        bookingData: bookingData,
+        providerId: bookingData.providerId,
+      };
+
+      // Log monthly data
+      const monthlyMetrics = {
+        label: month,       // e.g., 'Jan', 'Feb', etc.
+        value:  Number(price),       // Price of the appointment
+        appointmentDate: bookingData.appointmentDate,
+        bookingData: bookingData,
+        providerId: bookingData.providerId,
+      };
+
+      // Save the weekly metrics to Firestore (e.g., 'weeklyMetrics')
+      await addDoc(collection(db, 'weeklyMetrics'), weeklyMetrics);
+
+      // Save the monthly metrics to Firestore (e.g., 'monthlyMetrics')
+      await addDoc(collection(db, 'monthlyMetrics'), monthlyMetrics);
+
+      console.log('Booking declined and metrics logged successfully');
+      return { success: true };
+    } else {
+      console.error('No such booking found');
+      return { success: false, message: 'No such booking found' };
+    }
+
   } catch (error) {
     console.error('Error declining booking:', error);
     return { success: false, message: error.message };
@@ -399,5 +512,42 @@ export const fetchUserFriendsData = async (): Promise<Friend[]> => {
   } catch (error) {
     console.error('Error fetching user friends:', error);
     return [];
+  }
+};
+
+// Function to fetch reviews by hairstylistId
+export const fetchReviews = (hairstylistId: string, callback: (reviews: any[]) => void) => {
+  const reviewsRef = collection(db, 'reviews');
+  const reviewsQuery = query(reviewsRef, where('hairstylistId', '==', hairstylistId));
+
+  // Real-time listener
+  return onSnapshot(reviewsQuery, (snapshot) => {
+    const reviews = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(reviews);
+  });
+};
+
+// Function to add a review
+export const addReview = async (review: {
+  customerId: string,
+  customerName: string,
+  customerEmail: string,
+  customerImage: string,
+  customerPhone: string,
+  rating: number,
+  description: string,
+  hairstylistId: string,
+}) => {
+  try {
+    const reviewsRef = collection(db, 'reviews');
+    await addDoc(reviewsRef, {
+      ...review,
+      createdAt: serverTimestamp() // Use server timestamp for the createdAt field
+    });
+  } catch (error) {
+    console.error("Error adding review: ", error);
   }
 };

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, SafeAreaView } from 'react-native';
+import globalStyles from '../../styles/globalStyles';
+import tokens from '../../styles/tokens';
 
 const FAQS = [
   {
@@ -59,6 +61,7 @@ const FAQScreen = () => {
   );
 
   return (
+    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <View style={styles.container}>
       <FlatList
         data={FAQS}
@@ -67,6 +70,7 @@ const FAQScreen = () => {
         contentContainerStyle={styles.listContainer}
       />
     </View>
+    </SafeAreaView>
   );
 };
 

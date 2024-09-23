@@ -10,6 +10,7 @@ import {
   Alert,
   FlatList,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker'; // To handle image picking
 import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from 'firebase/storage'; // Firebase Storage
@@ -19,6 +20,7 @@ import tokens from '../../styles/tokens';
 import { AuthContext } from '../../auth/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useToast } from '../../components/ToastContext';
+import globalStyles from '../../styles/globalStyles';
 
 const CATEGORIES = [
   'Braids',
@@ -180,6 +182,7 @@ const ProductEditScreen = ({ route, navigation }) => {
   );
 
   return (
+    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Edit Hairstyle</Text>
 
@@ -255,6 +258,7 @@ const ProductEditScreen = ({ route, navigation }) => {
         </Text>
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -333,7 +337,7 @@ const styles = StyleSheet.create({
     borderColor: tokens.colors.hairduMainColor,
   },
   submitButton: {
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: tokens.colors.blackColor,
     paddingVertical: 15,
     borderRadius: 5,
     marginTop: 30,

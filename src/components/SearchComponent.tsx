@@ -35,7 +35,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ value, onChangeText, 
           shadowOpacity: 0.1, // Light shadow opacity
           shadowRadius: 8, // Slightly larger shadow blur
           // Shadow for Android
-          elevation: 3, // Adds depth on Android
+          elevation: 0.6, // Adds depth on Android
         },
       ]}
     >

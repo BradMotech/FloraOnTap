@@ -42,3 +42,20 @@ export function formatDate (timestamp: any) {
     // Combine date and time with the day suffix
     return `${formattedDate.replace(/\d+/, `${day}${getDaySuffix(day)}`)} at ${formattedTime}`;
   };
+
+  export function formatTimeToPMAM(
+    date: { seconds: number; nanoseconds: number } | null
+  ): string {
+    if (!date) return ""; // Handle null input
+
+    // Convert Firestore timestamp to a JavaScript Date object
+    const jsDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
+
+    const hours = jsDate.getHours();
+    const minutes = jsDate.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM/PM
+    const formattedMinutes = minutes.toString().padStart(2, "0"); // Ensure two digits
+
+    return `${formattedHours}:${formattedMinutes}${ampm}`;
+  }

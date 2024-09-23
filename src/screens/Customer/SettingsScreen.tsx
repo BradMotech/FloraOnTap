@@ -45,12 +45,12 @@ const SettingsScreen = ({navigation}) => {
     }, 3000);
   };
   return !isLoading ? (
-    <SafeAreaView>
+    <SafeAreaView   style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 1.4}]}>
     <ScrollView contentContainerStyle={globalStyles.scroll}>
         <View style={[styles.container,{width:'100%'}]}>
         <View style={globalStyles.separatorNoColor}></View>
         <View style={globalStyles.separatorNoColor}></View>
-      <Text style={[globalStyles.title,{textAlign:'center'}]}>Settings</Text>
+      {/* <Text style={[globalStyles.title,{textAlign:'center'}]}>Settings</Text> */}
       <View style={styles.container}>
         <ListItem
           title="Privacy Policy"

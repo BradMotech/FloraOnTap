@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   Dimensions,
+  SafeAreaView,
 } from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import tokens from "../../styles/tokens";
@@ -105,6 +106,7 @@ const PriceList = () => {
   );
 
   return (
+    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <View style={styles.container}>
       <FlatList
         data={PRICINGOPTIONS.slice(0, 3)} // Limit to first 3 options
@@ -139,6 +141,7 @@ const PriceList = () => {
         paymentData={paymentData}
       />
     </View>
+    </SafeAreaView>
   );
 };
 

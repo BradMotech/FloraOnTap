@@ -18,6 +18,12 @@ const tokens = {
     textColor:'#9ca3af',
     bgFaint:'#f0f0f0a8',
     circularProgress:'#4488ff',
+    blackColor:'#0d1619',
+    fadedBackgroundGey:'#f9f9fa',
+    barkInspiredColor:'#fef8ed',
+    barkInspiredTextColor:'#111637',
+    barkInspiredDescriptionTextColor:'#9ea0b6',
+    gold:'gold',
     error: '#e74c3c', // Red color for error
   },
   fontSize: {

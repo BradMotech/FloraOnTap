@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, View, Image, TouchableOpacity, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
+import tokens from '../styles/tokens';
 
 interface ImageViewProps {
   isVisible: boolean;
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'transparent',
+    backgroundColor: tokens.colors.blackColor,
     justifyContent: 'center',
     alignItems: 'center',
   },

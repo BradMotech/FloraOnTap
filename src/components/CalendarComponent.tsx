@@ -58,7 +58,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     // Get the dot color for the date of the event
     const eventDate = selectedDate || "";
     const eventStyle = events[eventDate] || {};
-    const backgroundColor = events[eventDate].dotColor || "#fff"; // Default to white if no dotColor is provided
+    const backgroundColor = events[eventDate].dotColor
+    ? `${events[eventDate].dotColor}80` // Add 80 for 50% opacity in hex
+    : "rgba(255, 255, 255, 0.5)"; // Default to white with 50% opacity
 
     return (
       <TouchableOpacity

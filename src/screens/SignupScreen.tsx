@@ -20,11 +20,15 @@ import tokens from "../styles/tokens";
 import InputComponent from "../components/InputComponent"; // Import InputComponent
 import ButtonComponent from "../components/buttonComponent"; // Custom ButtonComponent
 import { SUBTITLES, TITLES } from "../utils/Constants/constantTexts";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import DropdownComponent from "../components/DropdownComponent";
 import WeekdaySelector from "../components/WeekDaySelector";
 import { signUp } from "../firebase/authFunctions";
-import { setHairstylistInFirestore, setUserInFirestore, uploadImageToFirebase } from "../firebase/dbFunctions";
+import {
+  setHairstylistInFirestore,
+  setUserInFirestore,
+  uploadImageToFirebase,
+} from "../firebase/dbFunctions";
 import { useToast } from "../components/ToastContext";
 import { getTokenFromStorage } from "../utils/getTokenFromStorage";
 import TextAreaComponent from "../components/TextAreaComponent";
@@ -33,7 +37,7 @@ const SignupScreen = ({ navigation }) => {
   const [step, setStep] = useState(1); // Step state to manage form steps
   const [selectedDays, setSelectedDays] = useState([]);
   const [description, setDescription] = useState();
-  const [tokenValue, setTokenValue] = useState('');
+  const [tokenValue, setTokenValue] = useState("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const { showToast } = useToast();
   const [formData, setFormData] = useState({
@@ -47,8 +51,8 @@ const SignupScreen = ({ navigation }) => {
     province: "",
     profileImage: null, // New field for image
     availability: [],
-    userSelectedRole:"",
-    description:"",
+    userSelectedRole: "",
+    description: "",
   });
 
   // Input references
@@ -73,156 +77,158 @@ const SignupScreen = ({ navigation }) => {
 
   // Image picker handler
   const handleImageUpload = async () => {
-    setImageLoading(true)
+    setImageLoading(true);
     try {
       // Request permission to access the gallery
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        showToast("Permission denied - You need to give permission to access the gallery.",'danger','top')
+        showToast(
+          "Permission denied - You need to give permission to access the gallery.",
+          "danger",
+          "top"
+        );
         return;
       }
-  
+
       // Open image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
-  
+
       if (!result.canceled) {
         const imageUri = result.assets[0].uri; // Get the selected image URI
-  
+
         // Upload the image to Firebase and get the download URL
         const downloadURL = await uploadImageToFirebase(imageUri);
-  
+
         // Update the formData with the image URL
         setFormData((prevState) => ({
           ...prevState,
           profileImage: downloadURL,
         }));
 
-        showToast("Image uploaded successfully!",'success','top');
-        setImageLoading(false)
+        showToast("Image uploaded successfully!", "success", "top");
+        setImageLoading(false);
       } else {
-        showToast("Image upload canceled!",'danger','top');
-        setImageLoading(false)
+        showToast("Image upload canceled!", "danger", "top");
+        setImageLoading(false);
       }
     } catch (error) {
       console.error("Error uploading image: ", error);
-      showToast("Image upload failed!"+ error.message,'danger','top');
-      setImageLoading(false)
+      showToast("Image upload failed!" + error.message, "danger", "top");
+      setImageLoading(false);
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     getTokenFromStorage().then((token) => {
-        if (token) {
-            setTokenValue(token);
-          console.log("FCM Token:", token);
-          showToast('FCM Token:'+token,'success','top')
-        } else {
-          console.log("No token found.");
-        }
-      });
+      if (token) {
+        setTokenValue(token);
+        console.log("FCM Token:", token);
+        //   showToast('FCM Token:'+token,'success','top')
+      } else {
+        console.log("No token found.");
+      }
+    });
   }, []);
 
   async function loginAndUpdateUsersCollections() {
     try {
-        const data = await signUp(formData.email, formData.password);
-        if (data?.user) { // Check if there's a valid user in the response
-          const { uid } = data.user; // Get the user's UID from Firebase
+      const data = await signUp(formData.email, formData.password);
+      if (data?.user) {
+        // Check if there's a valid user in the response
+        const { uid } = data.user; // Get the user's UID from Firebase
 
-          // Prepare the user data to save in Firestore
-          const userData = {
-            email: formData.email,
-            selectedRoleValue: formData.userSelectedRole,
-            id: uid,
-            image: formData.profileImage,
-            username: "@"+formData.name + "_"+formData.surname,
-            name: formData.name,
-            surname: formData.surname,
-            province: formData.province,
-            description:formData.description,
-            details:formData.description,
-            createdAt: new Date(),
-            availability:formData.availability ? formData.availability : [],
-            services: [],
-            website: "",
-            twitter: "",
-            instagram: "",
-            totalCredits: 30,
-            creditsLeft: 30,
-            subscription:{
-                plan: "Free Trial",
-                expires: new Date(),
-                paid: false,
-                paidAt: new Date(),
-                paidUntil: new Date(),
-                totalCredits: 40,
-                creditsLeft: 40,
-                paidMethod: "",
-                paidAmount: 0,
-                paidCurrency: "ZAR",
-                paidStatus: "Free Trial",
-                paidDate: new Date()
-            },
-            subscriptionPlan: "Free Trial",
-            fcmtoken:tokenValue
-          };
+        // Prepare the user data to save in Firestore
+        const userData = {
+          email: formData.email,
+          selectedRoleValue: formData.userSelectedRole,
+          id: uid,
+          image: formData.profileImage,
+          username: "@" + formData.name + "_" + formData.surname,
+          name: formData.name,
+          surname: formData.surname,
+          province: formData.province,
+          description: formData.description,
+          details: formData.description,
+          createdAt: new Date(),
+          availability: formData.availability ? formData.availability : [],
+          services: [],
+          website: "",
+          twitter: "",
+          instagram: "",
+          totalCredits: 30,
+          creditsLeft: 30,
+          subscription: {
+            plan: "Free Trial",
+            expires: new Date(),
+            paid: false,
+            paidAt: new Date(),
+            paidUntil: new Date(),
+            totalCredits: 40,
+            creditsLeft: 40,
+            paidMethod: "",
+            paidAmount: 0,
+            paidCurrency: "ZAR",
+            paidStatus: "Free Trial",
+            paidDate: new Date(),
+          },
+          subscriptionPlan: "Free Trial",
+          fcmtoken: tokenValue,
+        };
 
-          // Add the user to the Firestore Users collection
-          await setUserInFirestore(uid, userData);
+        // Add the user to the Firestore Users collection
+        await setUserInFirestore(uid, userData);
 
-          if(formData.userSelectedRole === "Provider"){
-            await setHairstylistInFirestore(uid, userData)
-          }
-        //   alert("Registration successful");
-          navigation.navigate('Login');
-          setStep(step + 1); // Only increment if registration and Firestore update are successful
-        } else {
-            
-        //   Alert.alert("Error", "Registration failed. Please try again.");
-          showToast('Registration failed. Please try again.','danger','top');
+        if (formData.userSelectedRole === "Provider") {
+          await setHairstylistInFirestore(uid, userData);
         }
-      } catch (error) {
-        // Alert.alert("Error message", error.message); // Handle any errors
-        showToast('Error message'+error.message,'danger','top');
+        //   alert("Registration successful");
+        navigation.navigate("Login");
+        setStep(step + 1); // Only increment if registration and Firestore update are successful
+      } else {
+        //   Alert.alert("Error", "Registration failed. Please try again.");
+        showToast("Registration failed. Please try again.", "danger", "top");
       }
-}
+    } catch (error) {
+      // Alert.alert("Error message", error.message); // Handle any errors
+      showToast("Error message" + error.message, "danger", "top");
+    }
+  }
 
   const handleNextStep = async () => {
     // alert(step+formData.userSelectedRole)
     if (step === 3 && formData.userSelectedRole !== "Provider") {
-        // alert("comes here and should not")
-    //   Alert.alert(
-    //     "Role Restriction",
-    //     "Only providers can proceed to set availability."
-    //   );
-    await loginAndUpdateUsersCollections();
+      // alert("comes here and should not")
+      //   Alert.alert(
+      //     "Role Restriction",
+      //     "Only providers can proceed to set availability."
+      //   );
+      await loginAndUpdateUsersCollections();
     } else {
-        if(step === 3 && formData.userSelectedRole === "Provider"){
-            // alert("comes here and should")
-            setStep(step + 1);
-            // await loginAndUpdateUsersCollections();
-        }
-        else if(step === 4){
-            // alert("yeeeee")
-            await loginAndUpdateUsersCollections();
-      }
-      else if(step === 1){
+      if (step === 3 && formData.userSelectedRole === "Provider") {
+        // alert("comes here and should")
         setStep(step + 1);
-      }else if(step == 2){
+        // await loginAndUpdateUsersCollections();
+      } else if (step === 4) {
+        // alert("yeeeee")
+        await loginAndUpdateUsersCollections();
+      } else if (step === 1) {
+        setStep(step + 1);
+      } else if (step == 2) {
         setStep(step + 1);
       }
     }
   };
-
 
   // Render step-wise content
   const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
-          <View style={{height:Dimensions.get('screen').height-130}}>
+          <View style={{ height: Dimensions.get("screen").height }}>
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP}
             </Text>
@@ -270,18 +276,24 @@ const SignupScreen = ({ navigation }) => {
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
               <DropdownComponent
-                items={[
-                  "Customer",
-                  "Provider",
-                ]}
+                items={["Customer", "Provider"]}
                 ref={userSelectedRoleRef}
                 iconName="globe-outline"
                 value={formData.province}
-                onChangeText={(text) => handleInputChange("userSelectedRole", text)}
+                onChangeText={(text) =>
+                  handleInputChange("userSelectedRole", text)
+                }
                 placeholder="Select role"
-                onItemSelected={(selected)=>{ handleInputChange("userSelectedRole", selected)}}
+                onItemSelected={(selected) => {
+                  handleInputChange("userSelectedRole", selected);
+                }}
               />
-              <TextAreaComponent ref={userDescriptionRef} onTextChange={(textDescr)=>handleInputChange("description", textDescr)}/>
+              <TextAreaComponent
+                ref={userDescriptionRef}
+                onTextChange={(textDescr) =>
+                  handleInputChange("description", textDescr)
+                }
+              />
               <InputComponent
                 ref={passwordRef}
                 iconName="key-outline"
@@ -355,24 +367,26 @@ const SignupScreen = ({ navigation }) => {
         return (
           <View style={{ alignItems: "center" }}>
             {formData.profileImage ? (
-                <>
-              <Image
-                source={{ uri: formData.profileImage }}
-                style={{ width: 100, height: 100, borderRadius: 50 }}
-              />
-              <View style={{marginTop:16,width:'100%'}}>
-               <ButtonComponent text="Next" onPress={handleNextStep} />
-              </View>
-                </>
+              <>
+                <Image
+                  source={{ uri: formData.profileImage }}
+                  style={{ width: 100, height: 100, borderRadius: 50 }}
+                />
+                <View style={{ marginTop: 16, width: "100%" }}>
+                  <ButtonComponent text="Next" onPress={handleNextStep} />
+                </View>
+              </>
             ) : (
               <View style={{ margin: tokens.spacing.lg, width: "100%" }}>
                 <ButtonComponent
-                  text={!imageLoading ? 'Select Profile Picture':'Uploading...'}
+                  text={
+                    !imageLoading ? "Select Profile Picture" : "Uploading..."
+                  }
                   onPress={handleImageUpload}
                 />
               </View>
             )}
-            {imageLoading  ? (
+            {imageLoading ? (
               <ButtonComponent text="Next" onPress={handleNextStep} />
             ) : null}
           </View>
@@ -414,8 +428,8 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-<ImageBackground
-      source={{ uri: 'https://hairdu2024.web.app/hairdubraidsbackground3.png' }}
+    <ImageBackground
+      source={{ uri: "https://hairdu2024.web.app/hairdubraidsbackground3.png" }}
       style={globalStyles.backgroundImage}
     >
       <KeyboardAvoidingView
@@ -449,7 +463,6 @@ const styles = {
     top: 0,
     marginTop: 44,
     left: 0,
-    marginLeft: 22, 
+    marginLeft: 22,
   },
 };
-

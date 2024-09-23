@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, Dimensions } from "react-native";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import tokens from "../styles/tokens";
 import ButtonComponent from "./buttonComponent";
+import globalStyles from "../styles/globalStyles";
 
-const CircularProgressWithDetails = ({ user }) => {
+const CircularProgressWithDetails = ({ user,onRenewSubscription, onFinanceProjections }) => {
   const { name, email, creditsLeft, totalCredits } = user;
-  const radius = 80;
+  const radius = 100;
   const stroke = 16;
   const normalizedRadius = radius - stroke * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
@@ -114,8 +115,13 @@ const CircularProgressWithDetails = ({ user }) => {
           </Text>
         </View>
       </View>
-      <View style={{ width: Dimensions.get("screen").width / 2 - 15 }}>
-        <ButtonComponent marginTop={10} text={"Renew subscription"} />
+      <View style={styles.row}>
+      <View style={{ width: Dimensions.get("screen").width / 2.7 }}>
+        <ButtonComponent onPress={onRenewSubscription} marginTop={10} text={"Subscription"} />
+      </View>
+      <View style={{ width: Dimensions.get("screen").width / 2.7 }}>
+        <ButtonComponent onPress={onFinanceProjections} buttonColor={tokens.colors.blackColor} marginTop={10} text={"Report"} />
+      </View>
       </View>
     </View>
   );
@@ -141,7 +147,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 10, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 13,
-    elevation: 5,
+    elevation: 0.8,
     width: "100%",
   },
   progressContainer: {
@@ -166,6 +172,12 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: 15,
   },
+  row:{
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-around',
+    width:'100%'
+  }
 });
 
 export default CircularProgressWithDetails;

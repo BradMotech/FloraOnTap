@@ -22,7 +22,7 @@ const globalStyles = StyleSheet.create({
     justifyContent: "space-between",
     height: 60,
     paddingHorizontal: tokens.spacing.md,
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: tokens.colors.background,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
   },
@@ -64,7 +64,7 @@ const globalStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 }, // Shadow offset for iOS
     shadowOpacity: 0.25, // Shadow opacity for iOS
     shadowRadius: 10, // Shadow blur radius for iOS
-    elevation: 5, // Shadow for Android
+    elevation: 0.9, // Shadow for Android
     padding: tokens.spacing.lg,
     maxHeight: height * 0.65,
     // minHeight:height * 0.5
@@ -223,7 +223,7 @@ const globalStyles = StyleSheet.create({
   },
   planPrice: {
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "700",
     color: "#00796b",
     marginBottom: 10,
     fontFamily:'GorditaRegular'
@@ -235,11 +235,13 @@ const globalStyles = StyleSheet.create({
     backgroundColor: tokens.colors.hairduMainColor, // Placeholder background color
     justifyContent: "center",
     alignItems: "center",
+    fontFamily:'GorditaRegular',
   },
   placeholderText: {
     fontSize: 20,
     color: "#fff", // Text color for the placeholder
-    fontFamily:'GorditaRegular'
+    fontFamily:'GorditaRegular',
+    fontWeight:"700"
   },
   forgotPassword: {
     marginTop: 14,
@@ -280,6 +282,14 @@ const globalStyles = StyleSheet.create({
   GorditaBold:{
     fontFamily:'GorditaBold'
   },
+  separator:{
+    height:0.8,
+    width:'auto',
+    backgroundColor: tokens.colors.gray,
+    opacity:0.2,
+    marginTop:16,
+    marginBottom:16,
+  }
 });
 
 export default globalStyles;

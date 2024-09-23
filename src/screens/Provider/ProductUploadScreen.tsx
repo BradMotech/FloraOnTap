@@ -10,6 +10,7 @@ import {
   Alert,
   FlatList,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker'; // To handle image picking
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'; // Firebase Storage
@@ -19,6 +20,7 @@ import { AuthContext } from '../../auth/AuthContext';
 import tokens from '../../styles/tokens';
 import { Ionicons } from '@expo/vector-icons'; 
 import { useToast } from '../../components/ToastContext';
+import globalStyles from '../../styles/globalStyles';
 
 const CATEGORIES = [
   'Braids',
@@ -139,6 +141,7 @@ const ProductUploadScreen = ({ navigation }) => {
   );
 
   return (
+    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Upload Hairstyle</Text>
 
@@ -214,6 +217,7 @@ const ProductUploadScreen = ({ navigation }) => {
         </Text>
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -279,7 +283,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   submitButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: tokens.colors.blackColor,
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
