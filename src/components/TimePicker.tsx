@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Platform, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import tokens from '../styles/tokens';
 import globalStyles from '../styles/globalStyles';
+import Badge from './Badge';
 
 interface Time {
   hours: number;
@@ -40,7 +41,7 @@ const TimePicker: React.FC<{ onTimeChange?: (time: Time) => void }> = ({ onTimeC
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Select Time</Text>
+      <Text style={styles.label}>Select appointment time</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedHours}
@@ -78,7 +79,10 @@ const TimePicker: React.FC<{ onTimeChange?: (time: Time) => void }> = ({ onTimeC
           <Picker.Item label="PM" value="PM" />
         </Picker>
       </View>
-      <Text style={styles.selectedTime}>Selected Time: <Text style={globalStyles.value}>{formatTime(selectedHours, selectedMinutes)}</Text></Text>
+      <View style={styles.selectedTime}>
+      <Text style={styles.selectedTime}>Selected Time: </Text>
+      <Badge variant='success' text={formatTime(selectedHours, selectedMinutes)}/>
+      </View>
     </View>
   );
 };
@@ -94,6 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 0,
     fontWeight: '500',
+    fontFamily:'GorditaMedium'
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -108,6 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: 8, // Rounded edges for consistency
     borderWidth: 1,
     width:'100%',
+     fontFamily:'GorditaRegular',
     borderColor: tokens.colors.inactive,
     ...Platform.select({
       ios: {
@@ -125,6 +131,11 @@ const styles = StyleSheet.create({
   selectedTime: {
     fontSize: 16,
     fontWeight: '600',
+     fontFamily:'GorditaRegular',
+     alignItems:'center',
+     justifyContent:'center',
+     display:'flex',
+     flexDirection:'row'
   },
 });
 

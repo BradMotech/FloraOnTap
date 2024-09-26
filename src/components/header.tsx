@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const { userData } = useContext(AuthContext);
-  const firstLetter = userData?.name?.charAt(0).toUpperCase() || "Brad";
+  const firstLetter = userData?.name?.charAt(0).toUpperCase();
 
   return (
     <SafeAreaView style={[globalStyles.safeArea, { paddingTop: insets.top }]}>

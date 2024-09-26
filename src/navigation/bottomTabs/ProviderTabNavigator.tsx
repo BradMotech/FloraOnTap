@@ -16,14 +16,48 @@ import ProductUploadScreen from '../../screens/Provider/ProductUploadScreen';
 import ProductEditScreen from '../../screens/Provider/ProductEditScreen';
 import { Dimensions } from 'react-native';
 import FinancialProjections from '../../screens/Provider/FinancialProjections';
+import Patrons from '../../screens/Provider/Patrons';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); 
 const DashboardStack = () => (
   
   <Stack.Navigator
-    screenOptions={({ navigation }) => ({
-      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+    screenOptions={({route, navigation }) => ({
+      header: () => {
+        let title = '';
+
+        switch (route.name) {
+          case 'Dashboard':
+            title = 'Dashboard';
+            break;
+          case 'AddProduct':
+            title = 'Add Product';
+            break;
+          case 'AddPatrons':
+            title = 'Add Patrons';
+            break;
+          case 'EditProduct':
+            title = 'Edit Product';
+            break;
+          case 'Projections':
+            title = 'Financial Projections';
+            break;
+          case 'Subscription':
+            title = 'Subscription';
+            break;
+          default:
+            title = 'Hairdu';
+        }
+
+        return (
+          <Header
+            title={title}
+            navigation={navigation}
+            profileImageUrl={''}
+          />
+        );
+      },
       headerStyle: {
         backgroundColor: tokens.colors.hairduMainColor,
       },
@@ -37,8 +71,10 @@ const DashboardStack = () => (
   >
     <Stack.Screen name="Dashboard" component={DashboardScreen} />
     <Stack.Screen name="AddProduct" component={ProductUploadScreen} />
+    <Stack.Screen name="AddPatrons" component={Patrons} />
     <Stack.Screen name="EditProduct" component={ProductEditScreen} />
     <Stack.Screen name="Projections" component={FinancialProjections} />
+    <Stack.Screen name="Subscription" component={PriceList} />
   </Stack.Navigator>
 );
 const AppointmentsStack = () => (

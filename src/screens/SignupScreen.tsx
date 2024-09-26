@@ -12,6 +12,8 @@ import {
   ScrollView,
   Keyboard,
   Dimensions,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import ContainerCard from "../components/ContainerCard";
@@ -32,6 +34,7 @@ import {
 import { useToast } from "../components/ToastContext";
 import { getTokenFromStorage } from "../utils/getTokenFromStorage";
 import TextAreaComponent from "../components/TextAreaComponent";
+const GOOGLE_PLACES_API_KEY = "AIzaSyCbCTiO9UHe5adLop_2AZux7QwBDBljYVQ";
 
 const SignupScreen = ({ navigation }) => {
   const [step, setStep] = useState(1); // Step state to manage form steps
@@ -40,6 +43,7 @@ const SignupScreen = ({ navigation }) => {
   const [tokenValue, setTokenValue] = useState("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const { showToast } = useToast();
+  const [suggestions, setSuggestions] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     surname: "",
@@ -133,6 +137,71 @@ const SignupScreen = ({ navigation }) => {
       }
     });
   }, []);
+
+  const fetchPlaceSuggestions = async (input) => {
+    if (input.length < 3) return; // Start searching after 3 characters
+
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${input}&key=AIzaSyCbCTiO9UHe5adLop_2AZux7QwBDBljYVQ`;
+
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      if (data.predictions ) {
+        setSuggestions(data.predictions);
+        console.warn("🚀 ~ fetchPlaceSuggestions ~ response:"+JSON.stringify(data.predictions));
+        const placeId = data.predictions[0].place_id;
+        
+        // Fetch place details using the place_id to get the province
+        const placeDetails = await fetchPlaceDetails(placeId);
+
+        // Store both location and province
+        if (placeDetails) {
+          handleInputChange("province", placeDetails.province);
+          // handleInputChange("location", placeDetails.placeName);
+          console.warn("🚀 ~ fetchPlaceSuggestions ~ placeDetails.province:", placeDetails.province)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching places:", error);
+    }
+  };
+
+  // Fetch place details to extract province
+  const fetchPlaceDetails = async (placeId) => {
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=AIzaSyCbCTiO9UHe5adLop_2AZux7QwBDBljYVQ`;
+
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      if (data.result) {
+        const addressComponents = data.result.address_components;
+
+        // Find the province from the address components
+        const provinceComponent = addressComponents.find(component =>
+          component.types.includes('administrative_area_level_1')
+        );
+
+        const placeName = data.result.name;
+        const province = provinceComponent ? provinceComponent.long_name : null;
+
+        return { placeName, province };
+      } else {
+        console.error("No result found", data);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching place details:", error);
+      return null;
+    }
+  };
+
+  const handlePlaceSelect = (description) => {
+    // Handle the selection of the place
+    handleInputChange("location", description);
+    setSuggestions([]); // Clear suggestions after selection
+  };
 
   async function loginAndUpdateUsersCollections() {
     try {
@@ -325,22 +394,43 @@ const SignupScreen = ({ navigation }) => {
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP_LOCATION}
             </Text>
-            <Text
-              style={[globalStyles.subtitle, { marginTop: tokens.spacing.md }]}
-            >
+            <Text style={[globalStyles.subtitle, { marginTop: tokens.spacing.md }]}>
               {SUBTITLES.SIGN_UP_SUBTITLE}
             </Text>
             <View>
               <InputComponent
                 iconName="pin-outline"
                 value={formData.location}
-                onChangeText={(text) => handleInputChange("location", text)}
+                onChangeText={(text) => {
+                  handleInputChange('location',text);
+                  setTimeout(() => {
+                    
+                    fetchPlaceSuggestions(text); // Fetch places as user types
+                  }, 5000);
+                }}
                 placeholder="Location"
                 ref={locationRef}
                 returnKeyType="next"
                 onSubmitEditing={() => provinceRef.current?.focus()}
               />
-              <DropdownComponent
+      
+              {/* Display the suggestions */}
+              {suggestions.length > 0 && (
+                <FlatList
+                  data={suggestions}
+                  keyExtractor={(item) => item.place_id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.suggestionItem}
+                      onPress={() =>  {handlePlaceSelect(item.description)}}
+                    >
+                      <Text>{item.description}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              )}
+      
+              {/* <DropdownComponent
                 items={[
                   "Eastern Cape",
                   "Free State",
@@ -357,7 +447,7 @@ const SignupScreen = ({ navigation }) => {
                 value={formData.province}
                 onChangeText={(text) => handleInputChange("province", text)}
                 placeholder="Province"
-              />
+              /> */}
               <ButtonComponent text="Next" onPress={handleNextStep} />
             </View>
           </View>
@@ -464,5 +554,10 @@ const styles = {
     marginTop: 44,
     left: 0,
     marginLeft: 22,
+  },
+  suggestionItem: {
+    padding: tokens.spacing.sm,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
   },
 };

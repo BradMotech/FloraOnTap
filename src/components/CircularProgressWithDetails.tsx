@@ -1,18 +1,47 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Dimensions, Animated } from "react-native";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import tokens from "../styles/tokens";
 import ButtonComponent from "./buttonComponent";
-import globalStyles from "../styles/globalStyles";
+import Badge from "./Badge";
+import { PRICINGOPTIONS } from "../screens/Provider/Pricelist";
 
-const CircularProgressWithDetails = ({ user,onRenewSubscription, onFinanceProjections }) => {
-  const { name, email, creditsLeft, totalCredits } = user;
+const CircularProgressWithDetails = ({ user, onRenewSubscription, onFinanceProjections }) => {
+  const { name, email, subscription } = user;
+  
+  const userPlan = PRICINGOPTIONS.find((plan) => plan.name === subscription?.plan);
+  const totalCredits = userPlan ? userPlan?.credits : subscription.totalCredits;
+  const creditsLeft = totalCredits - subscription?.totalCredits;
+  
   const radius = 100;
   const stroke = 16;
   const normalizedRadius = radius - stroke * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const progress = (creditsLeft / totalCredits) * 100;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  // Ensure progress is valid
+  const safeProgress = isNaN(progress) || progress < 0 ? 0 : progress > 100 ? 100 : progress;
+  const animatedProgress = useRef(new Animated.Value(safeProgress)).current;
+
+  const animatedStrokeDashoffset = animatedProgress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [circumference, 0],
+    extrapolate: 'clamp',
+  });
+
+  const strokeColor = animatedProgress.interpolate({
+    inputRange: [0, 70, 100],
+    outputRange: [tokens.colors.circularProgress, tokens.colors.circularProgress, 'red'],
+    extrapolate: 'clamp',
+  });
+
+  useEffect(() => {
+    Animated.timing(animatedProgress, {
+      toValue: safeProgress,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [safeProgress]);
 
   return (
     <View style={styles.containerColumn}>
@@ -27,105 +56,73 @@ const CircularProgressWithDetails = ({ user,onRenewSubscription, onFinanceProjec
               cx={radius}
               cy={radius}
             />
-            <Circle
-              stroke={tokens.colors.circularProgress} // Progress bar color
+            <AnimatedCircle
+              stroke={strokeColor}
               fill="transparent"
               strokeWidth={stroke}
               strokeDasharray={`${circumference} ${circumference}`}
-              strokeDashoffset={strokeDashoffset} // Move strokeDashoffset here
+              strokeDashoffset={animatedStrokeDashoffset}
               r={normalizedRadius}
               cx={radius}
               cy={radius}
               strokeLinecap="round"
             />
             <SvgText
-              x="50%"
+              x="70%"
               y="50%"
               alignmentBaseline="middle"
               textAnchor="end"
               fontSize="13"
               fill="#333"
-            >{creditsLeft}/  {totalCredits}
+            >
+              {`${creditsLeft} / ${totalCredits} credits`} 
             </SvgText>
-            <SvgText
-            x="50%"
-            y="60%"
-            alignmentBaseline="middle"
-            textAnchor="middle"
-            fontSize="12"
-            fill={tokens.colors.circularProgress}
-          >
-            credits
-          </SvgText>
           </Svg>
         </View>
         <View style={styles.userDetails}>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Name: </Text>
-            <Text
-              style={[
-                styles.value,
-                { maxWidth: 20, overflow: "hidden", fontSize: 12 },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {name}
-            </Text>
+            <Text style={styles.value}>{name}</Text>
           </Text>
-          <Text style={styles.detailText} numberOfLines={2}
-              ellipsizeMode="tail">
+          <Text style={styles.detailText}>
             <Text style={styles.label}>Email: </Text>
-            <Text
-              style={[
-                styles.value,
-                { maxWidth: 20, overflow: "hidden", fontSize: 12 },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {email}
-            </Text>
+            <Text style={styles.value}>{email}</Text>
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Credits Left: </Text>
-            <Text
-              style={[
-                styles.value,
-                { maxWidth: 20, overflow: "hidden", fontSize: 12 },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {totalCredits - creditsLeft}
-            </Text>
+            <Text style={styles.value}>{totalCredits - creditsLeft}</Text>
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Total Credits: </Text>
-            <Text
-              style={[
-                styles.value,
-                { maxWidth: 20, overflow: "hidden", fontSize: 12 },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {totalCredits}
-            </Text>
+            <Text style={styles.value}>{totalCredits}</Text>
           </Text>
+          <Badge variant="noIcon" text={subscription?.plan} />
         </View>
       </View>
       <View style={styles.row}>
-      <View style={{ width: Dimensions.get("screen").width / 2.7 }}>
-        <ButtonComponent onPress={onRenewSubscription} marginTop={10} text={"Subscription"} />
-      </View>
-      <View style={{ width: Dimensions.get("screen").width / 2.7 }}>
-        <ButtonComponent onPress={onFinanceProjections} buttonColor={tokens.colors.blackColor} marginTop={10} text={"Report"} />
-      </View>
+        <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
+          <ButtonComponent
+            buttonColor={tokens.colors.circularProgress}
+            onPress={onRenewSubscription}
+            marginTop={10}
+            text={"Subscription"}
+          />
+        </View>
+        <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
+          <ButtonComponent
+            onPress={onFinanceProjections}
+            buttonColor={tokens.colors.blackColor}
+            marginTop={10}
+            text={"Report"}
+          />
+        </View>
       </View>
     </View>
   );
 };
+
+// Create an animated version of Circle
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const styles = StyleSheet.create({
   containerColumn: {
@@ -157,8 +154,8 @@ const styles = StyleSheet.create({
   },
   userDetails: {
     fontSize: 11,
-    maxWidth:Dimensions.get('screen').width/2.2,
-    overflow:'hidden'
+    maxWidth: Dimensions.get('screen').width / 2.4,
+    overflow: 'hidden'
   },
   detailText: {
     marginBottom: 10,
@@ -167,16 +164,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   value: {
-    // backgroundColor: "#e0f7fa",
     color: "#00796b",
     padding: 2,
-    borderRadius: 15,
+    borderRadius: 15,  
   },
-  row:{
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'space-around',
-    width:'100%'
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%'
   }
 });
 

@@ -41,9 +41,9 @@ const SettingsScreen = ({ navigation }) => {
         <View style={[styles.container, { width: "100%" }]}>
           <View style={globalStyles.separatorNoColor}></View>
           <View style={globalStyles.separatorNoColor}></View>
-          <Text style={[globalStyles.title, { textAlign: "center" }]}>
-            Settings
-          </Text>
+          <View style={globalStyles.separatorNoColor}></View>
+          <View style={globalStyles.separatorNoColor}></View>
+          
           <View style={styles.container}>
             <ListItem
               title="Privacy Policy"

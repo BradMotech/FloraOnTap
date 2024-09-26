@@ -1,63 +1,86 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
-  FlatList,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import globalStyles from "../../styles/globalStyles";
-import Header from "../../components/header";
 import CircularProgressWithDetails from "../../components/CircularProgressWithDetails";
 import { AuthContext } from "../../auth/AuthContext";
 import {
   fetchHairstylesFromFirestore,
   fetchUserFromFirestore,
+  subscribeToHairstylists,
 } from "../../firebase/dbFunctions";
-import SearchComponent from "../../components/SearchComponent";
-import { formatDate } from "../../utils/dateFormat";
-import ProductItemCard from "../../components/ProductItem";
-import CustomTabView from "../../components/CustomTopTab";
 import tokens from "../../styles/tokens";
-import { useToast } from "../../components/ToastContext";
 import CustomTabViewProvider from "../../components/CustomTopTabProvider";
-import { Ionicons } from "@expo/vector-icons";
-import ButtonComponent from "../../components/buttonComponent";
 
 const ProviderDashboard = ({ navigation }) => {
-  const {
-    signIn,
-    setUserType,
-    userType,
-    user,
-    hairstylistsData,
-    setHairstylesData,
-    hairstylesData,
-  } = useContext(AuthContext);
-  const { showToast } = useToast();
-  useEffect(() => {
-    fetchUserFromFirestore(user.uid)
-      .then((userdata) => {
-        setHairstylesData(userdata);
-      })
-      .catch(() => {});
+  const { user, hairstylistsData, setHairstylesData, hairstylesData } = useContext(AuthContext);
+  const [hairstylistUserData, setHairstylistUserData] = useState<any>([]);
+  const [refreshing, setRefreshing] = useState(false); // Track refreshing status
 
-    fetchHairstylesFromFirestore(user.uid).then((hairStyles) => {
+  // Function to fetch data
+  const fetchData = async () => {
+    try {
+      const hairStyles = await fetchHairstylesFromFirestore(user.uid);
       setHairstylesData(hairStyles);
-    });
+
+      if (hairstylistUserData === null) {
+        const userdata = await fetchUserFromFirestore(user.uid);
+        setHairstylesData(userdata);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Refresh data on pull-to-refresh
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [user]);
+
+  useEffect(() => {
+    // Subscribe to the hairstylists collection
+    const unsubscribe = subscribeToHairstylists(user.uid, (data) => {
+      setHairstylistUserData(data[0]);
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]); // Re-run the effect when `uid` changes
 
   return (
     <View>
       <StatusBar hidden={true} />
       <SafeAreaView style={{ marginTop: tokens.spacing.lg * 2.5 }}>
-        <ScrollView contentContainerStyle={globalStyles.scroll}>
+        <ScrollView
+          contentContainerStyle={globalStyles.scroll}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <View style={{ flex: 1 }}>
             <View>
               {hairstylistsData ? (
-                <CircularProgressWithDetails user={hairstylistsData[0]} onRenewSubscription={()=> navigation.navigate('Subscription')} onFinanceProjections={()=> navigation.navigate('Projections')} />
+                <CircularProgressWithDetails
+                  user={hairstylistUserData}
+                  onRenewSubscription={() => navigation.navigate("Subscription")}
+                  onFinanceProjections={() => navigation.navigate("Projections")}
+                />
               ) : null}
             </View>
 

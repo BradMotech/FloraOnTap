@@ -25,6 +25,9 @@ import FilterBy from "./FilterBy";
 import OpeningHours from "./OpeningHours";
 import ReviewsScreen from "./Reviews";
 import Badge from "./Badge";
+import MapComponent from "./MapComponent";
+import MasonryFlatList from "./MasonryFlatlist";
+import MansoryImageGalleryItem from "./MansoryImageGalleryItem";
 
 // Tab button component
 const TabButton = ({ title, isActive, onPress }) => (
@@ -75,6 +78,7 @@ const CustomTabView = ({
     const firstLetter = data.name.charAt(0).toUpperCase();
     return (
       <View>
+      <Image source={{ uri: data.bannerImage }} style={{ width: '100%', height: 200, borderRadius: 12 }} />
         <View style={{ width: Dimensions.get("screen").width - 22 }}>
           <View
             style={[
@@ -121,7 +125,7 @@ const CustomTabView = ({
                 <Ionicons
                   name={"person-circle-outline"}
                   size={15}
-                  color={tokens.colors.barkInspiredTextColor}
+                  color={tokens.colors.gray}
                 />
                 {"  " + data.name}
               </Text>
@@ -129,7 +133,7 @@ const CustomTabView = ({
                 <Ionicons
                   name={"mail-outline"}
                   size={15}
-                  color={tokens.colors.barkInspiredTextColor}
+                  color={tokens.colors.gray}
                 />
                 {"  " + data.email}
               </Text>
@@ -137,7 +141,7 @@ const CustomTabView = ({
                 <Ionicons
                   name={"call-outline"}
                   size={15}
-                  color={tokens.colors.barkInspiredTextColor}
+                  color={tokens.colors.gray}
                 />
                 {"  " + data.phone}
               </Text>
@@ -145,7 +149,7 @@ const CustomTabView = ({
                 <Ionicons
                   name={"globe-outline"}
                   size={15}
-                  color={tokens.colors.barkInspiredTextColor}
+                  color={tokens.colors.gray}
                 />
                 {"  " + data.province}
               </Text>
@@ -153,7 +157,7 @@ const CustomTabView = ({
               <View
                 style={{
                   height: 35,
-                  alignItems: "flex-end",
+                  alignItems: "flex-start",
                   display: "flex",
                   width: "100%",
                 }}
@@ -167,14 +171,6 @@ const CustomTabView = ({
                   }}
                   onPress={() => sendMessageToUser(data)}
                 >
-                  <Text
-                    style={{
-                      color: tokens.colors.barkInspiredTextColor,
-                      textAlign: "center",
-                      alignItems: "baseline",
-                      justifyContent: "baseline",
-                    }}
-                  >
                     <Text
                       style={{
                         fontSize: 15,
@@ -186,7 +182,7 @@ const CustomTabView = ({
                       <Ionicons name="chatbubble-outline" size={15} />
                       {" Send Message"}
                     </Text>
-                  </Text>
+
                 </TouchableOpacity>
               </View>
               {/* buttons */}
@@ -241,6 +237,13 @@ const CustomTabView = ({
           </View>
           <View style={globalStyles.separator}></View>
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+            <Text style={globalStyles.title}>Location details</Text>
+            <View style={{marginTop:16}}>
+            {/* <MapComponent region={undefined}/> */}
+            </View>
+          </View>
+          <View style={globalStyles.separator}></View>
+          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Social Media</Text>
           </View>
           <View style={globalStyles.imageView}>{/* map here */}</View>
@@ -249,99 +252,30 @@ const CustomTabView = ({
     );
   }
 
-  function EditProfile({ data, onSave, onCancel }) {
-    const [name, setName] = useState(data?.name);
-    const [email, setEmail] = useState(data?.email);
-    const [phone, setPhone] = useState(data?.phone);
-    const [description, setDescription] = useState(data?.description);
-    const [image, setImage] = useState(data?.image);
-
-    const handleImagePick = () => {
-      // ImagePicker.showImagePicker({}, (response) => {
-      //   if (response.didCancel) {
-      //     console.log("User cancelled image picker");
-      //   } else if (response.error) {
-      //     console.log("ImagePicker Error: ", response.error);
-      //   } else {
-      //     setImage(response.uri);
-      //   }
-      // });
-    };
-
-    const handleSave = () => {
-      // Add validation and save logic here
-      if (!name || !email || !phone || !description) {
-        showToast("Error: Please fill all fields", "warning", "middle");
-
-        return;
-      }
-
-      const updatedData = { name, email, phone, description, image };
-      onSave(updatedData);
-    };
-
-    return (
-      <View style={globalStyles.container}>
-        <View
-          style={[
-            globalStyles.imageView,
-            { flexDirection: "row", alignItems: "center" },
-          ]}
-        >
-          <ButtonComponent
-            text="Change Profile Image"
-            onPress={handleImagePick}
-          />
-          {image && (
-            <Image
-              source={{ uri: image }}
-              style={globalStyles.Storycontainer}
-            />
-          )}
-        </View>
-
-        <InputComponent
-          iconName="person-outline"
-          // value={name}
-          onChangeText={setName}
-          placeholder="Enter your name"
-        />
-        <InputComponent
-          iconName="mail-outline"
-          value={email}
-          keyboardType="email-address"
-          onChangeText={setEmail}
-          placeholder="Enter email"
-        />
-        <InputComponent
-          iconName="call-outline"
-          // value={phone}
-          keyboardType="phone-pad"
-          onChangeText={setPhone}
-          placeholder="Enter phone number"
-        />
-        <InputComponent
-          iconName="information-circle-outline"
-          // value={description}
-          onChangeText={setDescription}
-          placeholder="Enter description"
-        />
-
-        <ButtonComponent text="Save Changes" onPress={handleSave} />
-        <ButtonComponent text="Cancel" onPress={onCancel} />
-      </View>
-    );
-  }
-
-  const renderGallery = (): React.ReactNode => {
-    return (
-      <>
-        {salonData?.map((mappedImages, index) => (
-          <ImageGalleryItem key={index} uris={mappedImages.images} />
-        ))}
-      </>
-    );
+  const flattenSalonImages = () => {
+    const imageArray: string[] = [];
+    
+    salonData.forEach((salon) => {
+      salon.images.forEach((image) => {
+        imageArray.push(image);
+      });
+    });
+  
+    return imageArray;
   };
+
+const renderGallery = (): React.ReactNode => {
+  const flattenedImages = flattenSalonImages();
+
+  return (
+    <MasonryFlatList
+      data={flattenedImages}
+      renderItem={({ item }) => <MansoryImageGalleryItem uris={[item]} />} // Pass single image as array
+      columnCount={2}
+      gap={10}
+    />
+  );
+};
 
   function applyFilters(data) {
     setFilterByFlag(false);
@@ -482,8 +416,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    backgroundColor: "#f9f9f9", // Added background color for visibility
+    borderBottomColor: "#f9f9f9",
+    backgroundColor: "#fff", // Added background color for visibility
   },
   tabButton: {
     paddingVertical: 10,

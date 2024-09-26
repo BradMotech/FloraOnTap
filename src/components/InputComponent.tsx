@@ -33,10 +33,10 @@ const InputComponent = forwardRef<TextInput, InputComponentProps>(({
 
   // Password validation logic
   const validatePassword = (text: string) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/; // Minimum 8 characters, at least 1 uppercase letter and 1 number
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/; // Minimum 8 characters, at least 1 uppercase letter and 1 number
     if (!passwordRegex.test(text)) {
       setInputError(true);
-      setErrorMessage('Password must be at least 8 characters long, contain an uppercase letter and a number');
+      setErrorMessage('Password must be at least 6 characters long, contain an uppercase letter and a number');
     } else {
       setInputError(false);
       setErrorMessage('');
@@ -90,7 +90,7 @@ const InputComponent = forwardRef<TextInput, InputComponentProps>(({
           onSubmitEditing={onSubmitEditing} // Handle Enter key
         />
         {secureTextEntry && (
-          <TouchableOpacity style={styles.toggleButton} onPress={toggleSecureEntry}>
+          <TouchableOpacity disabled={inputError} style={styles.toggleButton} onPress={toggleSecureEntry}>
             <Ionicons
               name={isSecure ? "eye-off" : "eye"}
               size={20}

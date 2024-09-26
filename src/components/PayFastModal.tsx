@@ -7,9 +7,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import tokens from "../styles/tokens";
+import globalStyles from "../styles/globalStyles";
+import ButtonComponent from "./buttonComponent";
+import { formatToRands } from "../utils/currencyUtil";
 
 const PayFastModal = ({ isVisible, onClose, paymentData }) => {
   const [loading, setLoading] = useState(true);
@@ -21,14 +25,17 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
     setLoading(true);
     setErrorMessage("");
     try {
-      const response = await fetch("https://generatepaymentidentifier-mquhheknbq-uc.a.run.app", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(paymentData),
-        mode: 'cors'
-      });
+      const response = await fetch(
+        "https://generatepaymentidentifier-mquhheknbq-uc.a.run.app",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(paymentData),
+          mode: "cors",
+        }
+      );
 
       const result = await response.json();
       console.log("Response from Firebase Function:", result);
@@ -52,13 +59,17 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
               background-color: #4CAF50; /* Green background */
               color: white; /* White text */
               font-size: 40px; /* Larger text size */
+              class=${globalStyles.GorditaRegular};
               padding: 20px; /* Padding */
               border: none; /* No border */
               border-radius: 5px; /* Rounded corners */
               cursor: pointer; /* Pointer cursor on hover */
-              width: 100%; /* Full width */
+              width: ${
+                Dimensions.get("screen").width * 2 + "px"
+              }; /* Full width */
               height: 100px; /* Fixed height */
               box-sizing: border-box; /* Include padding in width */
+              margin-top:44px
             }
             input[type="submit"]:hover {
               background-color: #45a049; /* Darker green on hover */
@@ -69,14 +80,25 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
             }
           </style>
         `;
-        
+
         // Prepend the custom CSS to the existing HTML form
-        setPaymentFormHtml(customCSS + `
+        setPaymentFormHtml(
+          customCSS +
+            `
          <div style="display:flex;flex-direction:column;align-items:center">
-         <img style="height:200px;width:200px" src="https://hairdu2024.web.app/hairdulogo.png" alt="Payment Instructions" />
-         <h1 style="font-size:30px;">Please click the "Pay Now" button to proceed paying an amount of R${paymentData.amount}.</h1>
+         <h1 class=${
+           globalStyles.GorditaBold
+         } style="font-size:100px;padding-left:82px">Continue making payment</h1>
+         <h1 class=${
+           globalStyles.GorditaRegular
+         } style="font-size:60px;font-weight:300;color:${
+              tokens.colors.text
+            };padding:86px">Please click the "Pay Now" button to proceed paying an amount of ${formatToRands(
+              paymentData.amount
+            )}.</h1>
          ${result.htmlForm}
-        </div>`);
+        </div>`
+        );
       } else {
         setErrorMessage(result.error || "Failed to get payment form.");
       }
@@ -108,16 +130,21 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
     <Modal visible={isVisible} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={onClose}><Text>Close</Text></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={globalStyles.GorditaRegular}>Close</Text>
+          </TouchableOpacity>
           {loading ? (
-            <ActivityIndicator size="large" color={tokens.colors.hairduMainColor} />
+            <ActivityIndicator
+              size="large"
+              color={tokens.colors.hairduMainColor}
+            />
           ) : errorMessage ? (
             <Text style={styles.errorText}>{errorMessage}</Text>
           ) : (
             <>
               {/* Render HTML form directly in WebView */}
               <WebView
-                originWhitelist={['*']}
+                originWhitelist={["*"]}
                 source={{ html: paymentFormHtml }}
                 onNavigationStateChange={handleWebViewNavigationStateChange}
                 startInLoadingState={true}
@@ -125,7 +152,10 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
                 hideKeyboardAccessoryView={true}
                 scalesPageToFit={true}
                 renderLoading={() => (
-                  <ActivityIndicator size="large" color={tokens.colors.hairduMainColor} />
+                  <ActivityIndicator
+                    size="large"
+                    color={tokens.colors.hairduMainColor}
+                  />
                 )}
               />
 
@@ -160,7 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   cancelButton: {
-    backgroundColor: "#F44336",
+    backgroundColor: tokens.colors.barkInspiredTextColor,
     padding: 10,
     borderRadius: 5,
     alignItems: "center",

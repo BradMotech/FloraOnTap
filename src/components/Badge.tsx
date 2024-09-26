@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 
 interface BadgeProps {
   text: string;
-  variant?: 'success' | 'error' | 'details' | 'prebooking'; // Example variants
+  variant?: 'success' | 'error' | 'details' | 'prebooking' | 'noIcon'; // Example variants
 }
 
 const Badge: React.FC<BadgeProps> = ({ text, variant = 'success' }) => {
@@ -16,6 +16,7 @@ const Badge: React.FC<BadgeProps> = ({ text, variant = 'success' }) => {
         variant === 'error' && styles.errorVariant,
         variant === 'details' && styles.detailsVariant,
         variant === 'prebooking' && styles.prebookingVariant,
+        variant === 'noIcon' && styles.noIconVariant,
       ]}
     >
 
@@ -35,6 +36,9 @@ const Badge: React.FC<BadgeProps> = ({ text, variant = 'success' }) => {
         <Path d="M10.8 4.5L10.5 3H3.75V15.75H5.25V10.5H9.45L9.75 12H15V4.5H10.8Z" fill="#F7BF53"/>
       </Svg>:null
       }
+      { variant === 'noIcon' ?
+        '':null
+      }
       {/* Badge text */}
       <Text style={styles.badgeText}>{text}</Text>
     </View>
@@ -53,6 +57,9 @@ const styles = StyleSheet.create({
     margin:3
   },
   successVariant: {
+    backgroundColor: '#E6F8F2', // Light green for success
+  },
+  noIconVariant: {
     backgroundColor: '#E6F8F2', // Light green for success
   },
   errorVariant: {

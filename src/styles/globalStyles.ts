@@ -276,6 +276,9 @@ const globalStyles = StyleSheet.create({
   GorditaLight:{
     fontFamily:'GorditaLight'
   },
+  GorditaRegular:{
+    fontFamily:'GorditaRegular'
+  },
   GorditaMedium:{
     fontFamily:'GorditaMedium'
   },

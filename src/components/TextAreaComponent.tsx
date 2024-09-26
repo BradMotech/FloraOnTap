@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { View, TextInput, Text, StyleSheet } from "react-native";
 import tokens from "../styles/tokens";
 
-const TextAreaComponent = ({ maxLength = 200, placeholder = "Type here...", onTextChange }) => {
-  const [text, setText] = useState("");
+const TextAreaComponent = ({ maxLength = 200, placeholder = "Type here...", onTextChange, textValue }) => {
+  const [text, setText] = useState(textValue || "");
   const [height, setHeight] = useState(40); // Initial height for the TextInput
 
   const handleTextChange = (inputText) => {

@@ -22,14 +22,59 @@ import { Ionicons } from '@expo/vector-icons';
 import { useToast } from '../../components/ToastContext';
 import globalStyles from '../../styles/globalStyles';
 
+// Update CATEGORIES with credit value
 const CATEGORIES = [
-  'Braids',
-  'Straightback',
-  'Faux Locs',
-  'Cornrows',
-  'Dreadlocks',
-  // Add more categories as needed
+  { name: 'Acrylic Nails', creditValue: 10 }, // Major
+  { name: 'Blow Dry', creditValue: 5 }, // Minor
+  { name: 'Body Waxing', creditValue: 10 }, // Major
+  { name: 'Braids', creditValue: 10 }, // Major
+  { name: 'Braid Extensions', creditValue: 10 }, // Major
+  { name: 'Bridal Hair Trial', creditValue: 10 }, // Major
+  { name: 'Bridal Makeup', creditValue: 10 }, // Major
+  { name: 'Color Blocking', creditValue: 10 }, // Major
+  { name: 'Color Correction', creditValue: 10 }, // Major
+  { name: 'Consultation', creditValue: 5 }, // Minor
+  { name: 'Custom Wig Making', creditValue: 10 }, // Major
+  { name: 'Dreadlocks', creditValue: 10 }, // Major
+  { name: 'Eyebrow Shaping', creditValue: 5 }, // Minor
+  { name: 'Eyelash Extensions', creditValue: 10 }, // Major
+  { name: 'Facial', creditValue: 10 }, // Major
+  { name: 'Facial Waxing', creditValue: 5 }, // Minor
+  { name: 'Foot Spa', creditValue: 5 }, // Minor
+  { name: 'Faux Locs', creditValue: 10 }, // Major
+  { name: 'Gel Nails', creditValue: 10 }, // Major
+  { name: 'Hair Curling', creditValue: 10 }, // Major
+  { name: 'Hair Coloring', creditValue: 10 }, // Major
+  { name: 'Hair Treatments', creditValue: 10 }, // Major
+  { name: 'Hair Wash', creditValue: 5 }, // Minor
+  { name: 'Hair Straightening', creditValue: 10 }, // Major
+  { name: 'Haircut', creditValue: 5 }, // Minor
+  { name: 'Hairline Design', creditValue: 5 }, // Minor
+  { name: 'Hair Spa', creditValue: 10 }, // Major
+  { name: 'Kids Haircut', creditValue: 5 }, // Minor
+  { name: 'Lash Lift', creditValue: 10 }, // Major
+  { name: 'Manicure', creditValue: 5 }, // Minor
+  { name: 'Massage', creditValue: 10 }, // Major
+  { name: 'Microblading', creditValue: 10 }, // Major
+  { name: 'Nail Art', creditValue: 10 }, // Major
+  { name: 'Nail Art Design', creditValue: 10 }, // Major
+  { name: 'Nail Extensions', creditValue: 10 }, // Major
+  { name: 'Nail Repair', creditValue: 5 }, // Minor
+  { name: 'Pedicure', creditValue: 5 }, // Minor
+  { name: 'Perm', creditValue: 10 }, // Major
+  { name: 'Pet Grooming', creditValue: 10 }, // Major
+  { name: 'Relaxer', creditValue: 10 }, // Major
+  { name: 'Scalp Treatment', creditValue: 10 }, // Major
+  { name: 'Sew-In Weave', creditValue: 10 }, // Major
+  { name: 'Special Effects Makeup', creditValue: 10 }, // Major
+  { name: 'Special Occasion Makeup', creditValue: 10 }, // Major
+  { name: 'Straightback', creditValue: 5 }, // Minor
+  { name: 'Texture Services', creditValue: 10 }, // Major
+  { name: 'Tanning', creditValue: 5 }, // Minor
+  { name: 'Updo', creditValue: 10 }, // Major
 ];
+
+
 
 const ProductUploadScreen = ({ navigation }) => {
     const { showToast } = useToast()
@@ -94,7 +139,11 @@ const ProductUploadScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please fill in all fields and select at least one image');
       return;
     }
-  
+
+    // Get the credit value based on the selected category
+    const selectedCategory = CATEGORIES.find(cat => cat.name === category);
+    const creditValue = selectedCategory ? selectedCategory.creditValue : 0; // Default to 0 if category not found
+
     try {
       setUploading(true);
       
@@ -109,6 +158,7 @@ const ProductUploadScreen = ({ navigation }) => {
         price: Number(price),
         duration,
         category,
+        creditValue, // Add credit value to newHairstyle
         user: {
           id: user.uid,
           email: user.email, // Assuming you want to add email too
@@ -128,8 +178,7 @@ const ProductUploadScreen = ({ navigation }) => {
       navigation.goBack(); // Navigate back or reset form
     } catch (error) {
       console.error(error);
-    //   Alert.alert('Error', 'Failed to upload hairstyle');
-      showToast('Failed to upload hairstyle','danger',"top");
+      showToast('Failed to upload item','danger',"top");
     } finally {
       setUploading(false);
     }
@@ -141,9 +190,9 @@ const ProductUploadScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
+    <SafeAreaView style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Upload Hairstyle</Text>
+      <Text style={styles.title}>Upload Portfolio Item</Text>
 
       {/* Select Multiple Images */}
       <TouchableOpacity style={styles.imagePicker} onPress={pickImages}>
@@ -197,11 +246,11 @@ const ProductUploadScreen = ({ navigation }) => {
             key={index}
             style={[
               styles.categoryButton,
-              category === item && styles.categorySelected,
+              category === item.name && styles.categorySelected,
             ]}
-            onPress={() => setCategory(item)}
+            onPress={() => setCategory(item.name)}
           >
-            <Text style={styles.categoryText}>{item}</Text>
+            <Text style={styles.categoryText}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -213,7 +262,7 @@ const ProductUploadScreen = ({ navigation }) => {
         disabled={uploading}
       >
         <Text style={styles.submitButtonText}>
-          {uploading ? 'Uploading...' : 'Submit Hairstyle'}
+          {uploading ? 'Uploading...' : 'Submit item'}
         </Text>
       </TouchableOpacity>
     </ScrollView>
@@ -271,30 +320,32 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryButton: {
-    backgroundColor: '#fff',
     padding: 10,
-    borderRadius: 20,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: tokens.colors.inactive,
     marginRight: 10,
   },
   categorySelected: {
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: tokens.colors.hairduTextColorGreen,
   },
   categoryText: {
-    color: '#333',
+    fontSize: 16,
+    color: tokens.colors.barkInspiredTextColor,
   },
   submitButton: {
-    backgroundColor: tokens.colors.blackColor,
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: tokens.colors.circularProgress,
+    paddingVertical: 10,
+    borderRadius: 5,
     alignItems: 'center',
-    marginTop: 30,
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
+    marginTop: 20,
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
+  },
+  disabledButton: {
+    backgroundColor: tokens.colors.inactive,
   },
 });
 

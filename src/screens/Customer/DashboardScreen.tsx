@@ -6,6 +6,7 @@ import {
   FlatList,
   SafeAreaView,
   StatusBar,
+  RefreshControl,
 } from "react-native";
 import globalStyles from "../../styles/globalStyles";
 import { AuthContext } from "../../auth/AuthContext";
@@ -20,27 +21,60 @@ import {
   fetchHairstylistsFromFirestore,
 } from "../../firebase/dbFunctions";
 import SalonItemCard from "../../components/SalonItem";
+import PanoramaScrollCarousel from "../../components/PanoramScrollCarousel";
+import Tab from "../../components/Tab";
+
+const promotionImages = [
+  {
+    url: "https://thamanibeauty.co.za/wp-content/uploads/2021/06/DSCF0707-1024x683.jpg",
+    href: "https://example.com/promo1",
+  },
+  {
+    url: "https://thamanibeauty.co.za/wp-content/uploads/2022/03/Thamani-Beauty-Bar4879-1024x683.jpg",
+    href: "https://example.com/promo2",
+  },
+  {
+    url: "https://thamanibeauty.co.za/wp-content/uploads/2022/03/Thamani-Beauty-Bar4888-1024x683.jpg",
+    href: "https://example.com/promo3",
+  },
+];
 
 const DashboardScreen = ({ navigation }) => {
-  const { hairstylistsData, setHairstylesData, setHairstylistsData } =
+  const { user, hairstylistsData, setHairstylesData, setHairstylistsData } =
     useContext(AuthContext);
-  // State to hold the filtered data
+
   const [filteredData, setFilteredData] = useState(hairstylistsData || []);
-
-  // Store the original data
   const [originalData, setOriginalData] = useState(hairstylistsData || []);
-
-  // State to manage the search input value
   const [searchText, setSearchText] = useState("");
+  const [refreshing, setRefreshing] = useState(false); 
+  const [activeTab, setActiveTab] = useState("All"); 
 
   useEffect(() => {
+    if (hairstylistsData === null) {
+      fetchHairstylistsFromFirestore().then((data) => {
+        setHairstylistsData(data);
+      });
+    }
     if (hairstylistsData) {
       setOriginalData(hairstylistsData);
-      setFilteredData(hairstylistsData); // Initially set the filteredData to the original data
+      setFilteredData(hairstylistsData);
     }
   }, [hairstylistsData]);
 
-  const renderItem = ({ item }: { item: any }) => (
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const data = await fetchHairstylistsFromFirestore();
+      setHairstylistsData(data);
+      setOriginalData(data);
+      setFilteredData(data);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    }
+    setRefreshing(false);
+  };
+
+  const renderItem = ({ item }) => (
     <SalonItemCard
       image={item.image}
       title={item.name}
@@ -48,7 +82,6 @@ const DashboardScreen = ({ navigation }) => {
       description={item.description}
       joinedOn={formatDate(item.createdAt)}
       onViewDetails={() => {
-        // Handle view details button press
         fetchHairstylistsFromFirestore(item.id)
           .then((userdata) => {
             navigation.navigate("SalonDetails", {
@@ -65,42 +98,46 @@ const DashboardScreen = ({ navigation }) => {
     />
   );
 
-  function filterSalons(text) {
+  const filterSalons = (text) => {
     setSearchText(text);
-
     if (text) {
       const lowercasedText = text.toLowerCase();
-
       const filtered = originalData.filter(
         (stylist) =>
           stylist.name.toLowerCase().includes(lowercasedText) ||
           stylist.phone.toLowerCase().includes(lowercasedText) ||
           stylist.description.toLowerCase().includes(lowercasedText)
       );
-
       setFilteredData(filtered);
     } else {
-      // If the search text is empty, reset the data to the original data
       setFilteredData(originalData);
     }
-  }
+  };
+
+  // Array of tab titles
+  const tabTitles = ["All", "Barbershop", "Hair Salon", "Nail Salon", "Skin Care"];
 
   return hairstylistsData ? (
     <SafeAreaView
       style={[globalStyles.safeArea, { marginTop: tokens.spacing.lg * 2.4 }]}
     >
-      {/* Hide the status bar */}
       <StatusBar hidden={true} />
-      <ScrollView contentContainerStyle={globalStyles.scroll}>
+      <ScrollView
+        contentContainerStyle={globalStyles.scroll}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={globalStyles.dashboard}>
+          <PanoramaScrollCarousel images={promotionImages} />
           <Text style={globalStyles.title}>Top Rated</Text>
           <View style={globalStyles.separatorNoColor}></View>
           <ScrollView
             horizontal={true}
-            showsHorizontalScrollIndicator={false} // Optional: Hide horizontal scroll indicator
+            showsHorizontalScrollIndicator={false}
             contentContainerStyle={globalStyles.storyContainerHorizontal}
           >
-            {hairstylistsData?.map((storyData: any, index) => {
+            {hairstylistsData?.map((storyData, index) => {
               return (
                 <StoryItem
                   key={index}
@@ -127,24 +164,33 @@ const DashboardScreen = ({ navigation }) => {
           </ScrollView>
           <SearchComponent
             value={searchText}
-            onChangeText={function (text: string): void {
-              filterSalons(text);
-            }}
-            onSearch={function (text: string): void {
-              // throw new Error("Function not implemented.");
+            onChangeText={(text) => filterSalons(text)}
+            onSearch={(text) => {
+              // Implement search logic here if needed
             }}
           />
           <View style={globalStyles.separator}></View>
-          <Text style={globalStyles.title}>Hair Specialists</Text>
+          <Text style={globalStyles.title}>Specialists</Text>
           <View style={globalStyles.separatorNoColor}></View>
-          <FlatList
-            data={filteredData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id} // Ensure that you have a unique 'id' for each item
-            numColumns={2}
-            columnWrapperStyle={globalStyles.columnWrapper}
-            contentContainerStyle={globalStyles.gridContainer}
-          />
+          <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+            <Tab 
+              titles={tabTitles} 
+              activeTab={activeTab} 
+              onTabPress={setActiveTab} 
+            />
+          </View>
+          <View style={globalStyles.separatorNoColor}></View>
+          {activeTab === "All" && (
+            <FlatList
+              data={filteredData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={globalStyles.columnWrapper}
+              contentContainerStyle={globalStyles.gridContainer}
+            />
+          )}
+          {/* Add similar FlatList rendering for other tabs as needed */}
         </View>
       </ScrollView>
     </SafeAreaView>

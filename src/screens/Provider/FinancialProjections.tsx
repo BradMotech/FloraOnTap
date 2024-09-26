@@ -9,7 +9,7 @@ import ButtonComponent from '../../components/buttonComponent';
 import tokens from '../../styles/tokens';
 import globalStyles from '../../styles/globalStyles';
 
-const FinancialProjections: React.FC = () => {
+const FinancialProjections = () => {
   const [weeklyData, setWeeklyData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +92,7 @@ const FinancialProjections: React.FC = () => {
   return !isLoading ? (
     <SafeAreaView style={[globalStyles.safeArea, { marginTop: tokens.spacing.lg * 2.4 }]}>
       <ScrollView style={styles.container}>
-        <ButtonComponent buttonColor={tokens.colors.blackColor} text="Print" onPress={handlePrint} />
+        <ButtonComponent buttonColor={tokens.colors.blackColor} text="Print projections" onPress={handlePrint} />
         <D3Charts data={weeklyData} title="Weekly Projections" />
         <D3Charts data={monthlyData} title="Monthly Projections" />
       </ScrollView>
@@ -102,8 +102,6 @@ const FinancialProjections: React.FC = () => {
   );
 };
 
-export default FinancialProjections;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -111,3 +109,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+export default FinancialProjections;
+

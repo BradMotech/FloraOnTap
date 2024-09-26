@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AuthContext } from '../auth/AuthContext';
 import { addReview, fetchReviews } from '../firebase/dbFunctions';
@@ -88,12 +88,12 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ hairstylistId,provider })
       </View>: null}
 
       {/* Reviews List */}
-      <FlatList
+     { reviews.length ? <FlatList
         data={reviews}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.reviewsList}
-      />
+      />:<ActivityIndicator size={'large'} color={tokens.colors.hairduMainColor}/>}
     </View>
   );
 };

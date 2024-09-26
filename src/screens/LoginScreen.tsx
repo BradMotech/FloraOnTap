@@ -21,6 +21,7 @@ import Icon from "react-native-vector-icons/FontAwesome"; // Import FontAwesome 
 import { AuthContext } from "../auth/AuthContext";
 import Toast from "react-native-toast-message";
 import { useToast } from "../components/ToastContext";
+import LoadingScreen from "../components/LoadingScreen";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState<string>("");
@@ -30,12 +31,14 @@ const LoginScreen = ({ navigation }) => {
   const { signIn, setUserType, userType, user, errorMessage } =
     useContext(AuthContext);
   const { showToast } = useToast();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigateTo = (routeName: string) => {
     navigation.navigate(routeName); // Navigate to the specified route
   };
 
   const signInToApp = async () => {
+    setIsLoading(true)
     try {
       await signIn(email, password);
       if (errorMessage) {
@@ -43,6 +46,7 @@ const LoginScreen = ({ navigation }) => {
         showToast("Error signing in - " + errorMessage, "danger", "top");
       }
       navigateTo("Dashboard"); // Navigate after successful sign-in
+      setIsLoading(false)
     } catch (error) {
       console.error("error signing in - " + error);
       // Alert.alert("Login failed", error.message);
@@ -55,7 +59,7 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  return (
+  return !isLoading ? (
     <ImageBackground
       source={{ uri: "https://hairdu2024.web.app/hairdubraidsbackground3.png" }}
       style={globalStyles.backgroundImage}
@@ -95,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
                 <InputComponent
                   iconName="mail-outline"
                   value={email}
-                  keyboardType="email-address"
+                  keyboardType="default"
                   onChangeText={(text: string) => setEmail(text)}
                   onSubmitEditing={focusNextInput}
                   ref={emailRef}
@@ -119,7 +123,7 @@ const LoginScreen = ({ navigation }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </ImageBackground>
-  );
+  ):<LoadingScreen/>;
 };
 
 export default LoginScreen;

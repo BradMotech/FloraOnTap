@@ -7,6 +7,7 @@ import ButtonComponent from "./buttonComponent";
 import TimePicker from "./TimePicker";
 import { Ionicons } from "@expo/vector-icons";
 import { formatReadableDate } from "../utils/dateFormat";
+import Badge from "./Badge";
 
 interface CalendarComponentProps {
   events: Record<
@@ -100,9 +101,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           >
             <Ionicons name={"person-circle-outline"} size={15} color={"#fff"} />
             {" " +
-              item.appointmentDetails.userCustomerInfo[0].name +
+              item.appointmentDetails.userCustomerInfo[0]?.name +
               " " +
-              item.appointmentDetails.userCustomerInfo[0].surname}
+              item.appointmentDetails.userCustomerInfo[0]?.surname}
           </Text>
           <Text
             style={[
@@ -113,15 +114,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <Ionicons name={"call"} size={15} color={"#fff"} />
             {" " + item.appointmentDetails.userCustomerInfo[0].phone}
           </Text>
-          <Text
-            style={[
-              globalStyles.GorditaMedium,
-              { color: backgroundColor === "#fff" ? "black" : "white" },
-            ]}
+          <View
+            style={{width:'100%',alignItems:'flex-start',display:'flex',flexDirection:'row'}}
           >
-            <Ionicons name={"watch-outline"} size={15} color={"#fff"} />
-            {" " + formatReadableDate(item.appointmentDetails.events[0].start)}
-          </Text>
+           <Badge variant='success' text={formatReadableDate(item.appointmentDetails.events[0].start)}/> 
+          </View>
           <View style={styles.badge}>
             <Text
               style={{

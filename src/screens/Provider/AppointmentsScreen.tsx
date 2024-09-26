@@ -15,6 +15,8 @@ import {
   acceptBooking,
   declineBooking,
   fetchAppointmentsByHairstylistId,
+  updateHairStylistSubscriptionCredits,
+  updateUserSubscriptionCredits,
 } from "../../firebase/dbFunctions";
 import AppointmentModal from "../../components/AppointmentModal";
 import { useToast } from "../../components/ToastContext";
@@ -29,7 +31,7 @@ const AppointmentsScreen = () => {
       agendaItems: {},
     });
     
-    const { user } = useContext(AuthContext);
+    const { user,userData } = useContext(AuthContext);
     const { showToast } = useToast();
   
     const formatDateToYYYYMMDD = (isoDateString) => {
@@ -45,6 +47,26 @@ const AppointmentsScreen = () => {
       }
     };
   
+    useEffect(() => {
+      console.log(JSON.stringify(userData.subscription.totalCredits));
+      console.log(JSON.stringify(userData.subscription.creditsLeft));
+      /**
+       *  subscription: {
+            plan: "Free Trial",
+            expires: new Date(),
+            paid: false,
+            paidAt: new Date(),
+            paidUntil: new Date(),
+            totalCredits: 40,
+            creditsLeft: 40,
+            paidMethod: "",
+            paidAmount: 0,
+            paidCurrency: "ZAR",
+            paidStatus: "Free Trial",
+            paidDate: new Date(),
+          },
+       */
+    }, []);
     useEffect(() => {
       const unsubscribe = fetchAppointmentsByHairstylistId(user.uid, (fetchedData) => {
         const events = {};
@@ -101,6 +123,8 @@ const AppointmentsScreen = () => {
     acceptBooking(appointment.appointmentDetails.id).then((data) => {
       setModalVisible(false);
       setBookingFlag(true);
+      updateUserSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
+      updateHairStylistSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
       showToast(
         "Appointment approved successfully, the Customer has been notified",
         "success",

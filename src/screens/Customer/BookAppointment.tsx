@@ -16,7 +16,6 @@ import { TITLES } from "../../utils/Constants/constantTexts";
 import { Ionicons } from "@expo/vector-icons";
 import CalendarComponent from "../../components/CalendarComponent";
 import CustomModal from "../../components/CustomModal";
-import { formatDate } from "../../utils/dateFormat";
 import {
   fetchAppointmentsByHairstylistId,
   makeBooking,
@@ -25,6 +24,9 @@ import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../components/ToastContext";
 import LoadingScreen from "../../components/LoadingScreen";
 import { sendNotification } from "../../utils/sendNotification";
+import { formatToRands } from "../../utils/currencyUtil";
+import ReceiptModal from "../../components/RecieptModal";
+import PatronsListScreen from "../../components/PatronsList";
 
 const BookAppointment = () => {
   const [selectedTime, setSelectedTime] = useState();
@@ -42,6 +44,10 @@ const BookAppointment = () => {
     events: {},
     agendaItems: {},
   });
+  const [recieptModalVisible, setRecieptModalVisible] = useState(false);
+  const [receiptData, setReceiptData] = useState(null); // State to hold receipt data
+  const [selectedPatron, setSelectedPatron] = useState({});
+  const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
 
   const formatDateToYYYYMMDD = (isoDateString) => {
     try {
@@ -51,7 +57,7 @@ const BookAppointment = () => {
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     } catch (error) {
-      console.error("Error formatting date:", error);
+      console.error("Error formatting date:", error); 
       return "";
     }
   };
@@ -110,10 +116,10 @@ const BookAppointment = () => {
   function renderModalChildren(data: any) {
     return (
       <View>
-        <Text>Confirm Appointment</Text>
-        <Text>Do you want to proceed with booking this appointment?</Text>
-        <Text>Date: {selectedDate}</Text>
-        <Text>Time: {selectedTime}</Text>
+        <Text style={[globalStyles.GorditaBold,{marginBottom:16,fontSize:22}]}>Confirm Appointment</Text>
+        <Text style={globalStyles.GorditaRegular}>Do you want to proceed with booking this appointment?</Text>
+        <Text style={globalStyles.GorditaRegular}>Date: {selectedDate}</Text>
+        <Text style={globalStyles.GorditaRegular}>Patron: {selectedPatron.name}</Text>
       </View>
     );
   }
@@ -219,11 +225,18 @@ const BookAppointment = () => {
       events,
       userDataArray as any
     ).then(async (data) => {
+      setIsSubmittingAppointment(true);
+      setRecieptModalVisible(true);
+      setReceiptData(data.receipt);
       setModalVisible(false);
       // alert("here is the booking made" + hairstyleDetails.fcmtoken);
       setMakeBookingFlag(true);
       showToast("successfully placed an appoitment", "success", "top");
       setIsLoading(false);
+      setTimeout(() => {
+        
+        setIsSubmittingAppointment(false);
+      }, 3000);
       await sendNotification(
         hairstyleDetails.fcmtoken,
         "testing within app",
@@ -234,11 +247,16 @@ const BookAppointment = () => {
     });
   }
 
+  function handleSelectedPatron(data: any) {
+    setSelectedPatron(data);
+  }
+
   return !isLoading ? (
     <SafeAreaView
       style={[globalStyles.safeArea, { marginTop: tokens.spacing.xs * 0 }]}
     >
       <ScrollView contentContainerStyle={globalStyles.scroll}>
+        <View style={globalStyles.separatorNoColor}></View>
         <View style={globalStyles.imageView}>
           {/* Image Gallery */}
           <ImageGalleryItem uris={hairstyleDetails.images}></ImageGalleryItem>
@@ -259,11 +277,19 @@ const BookAppointment = () => {
           {/* Detail Items with Icons */}
           <View style={styles.flexStart}>
             <View style={styles.detailItem}>
+              <Ionicons name="list-outline" size={15} style={styles.icon} />
+              <Text style={styles.detailText}>
+                {" "}
+                <Text style={[globalStyles.title, globalStyles.value]}>
+                  {hairstyleDetails.name}
+                </Text>
+              </Text>
+            </View>
+            <View style={styles.detailItem}>
               <Ionicons name="cash-outline" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
-                {`Price: R`}{" "}
                 <Text style={[styles.price, globalStyles.value]}>
-                  {hairstyleDetails.price}
+                  {formatToRands(hairstyleDetails.price)}
                 </Text>
               </Text>
             </View>
@@ -293,6 +319,18 @@ const BookAppointment = () => {
             </View>
           </View>
           <View style={globalStyles.separatorNoColor}></View>
+          <View style={{ width: "100%", paddingLeft: 16, marginBottom: 10 }}>
+            <Text style={globalStyles.title}>Select hairdresser</Text>
+          </View>
+          <View style={[styles.flexStart, { width: "100%" }]}>
+            <PatronsListScreen
+              uid={hairstyleDetails.hairstylistId}
+              onSelectPatron={(data) => {
+                handleSelectedPatron(data);
+              }}
+            />
+          </View>
+          <View style={globalStyles.separatorNoColor}></View>
           <CalendarComponent
             onEventClick={() => {}}
             onTimeClick={(time) => {
@@ -309,8 +347,9 @@ const BookAppointment = () => {
         </View>
       </ScrollView>
 
-      <CustomModal
+      {modalVisible ? <CustomModal
         visible={modalVisible}
+        isSubmititng={isSubmittingAppointment}
         onClose={function (): void {
           setModalVisible(false);
           setSelectedDate(null);
@@ -319,7 +358,15 @@ const BookAppointment = () => {
         onConfirm={() => {
           confirmSettingBooking();
         }}
-      ></CustomModal>
+      ></CustomModal>:null}
+
+      {receiptData && (
+        <ReceiptModal
+          visible={recieptModalVisible}
+          onClose={() => setRecieptModalVisible(false)}
+          receipt={receiptData}
+        />
+      )}
     </SafeAreaView>
   ) : (
     <LoadingScreen />

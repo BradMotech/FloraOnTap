@@ -5,6 +5,7 @@ import tokens from '../styles/tokens'; // Adjust the path to your tokens or styl
 import Rating from './Rating';
 import globalStyles from '../styles/globalStyles';
 import Badge from './Badge';
+import { formatToRands } from '../utils/currencyUtil';
 
 interface ProductItemCardProps {
   image: string;
@@ -33,7 +34,7 @@ const ProductItemCard: React.FC<ProductItemCardProps> = ({
           <Text numberOfLines={2} style={[styles.title,{ flexWrap: 'wrap', maxWidth: '100%',}]}><Ionicons name="book-outline" size={12} color={tokens.colors.iconColor} />{" "+title}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={[globalStyles.planPrice]}><Ionicons name="cash" size={12} color={tokens.colors.hairduMainColor} />{"  "}R {price}</Text>
+          <Text style={[globalStyles.planPrice]}><Ionicons name="cash" size={12} color={tokens.colors.hairduMainColor} />{"  "}{formatToRands(price)}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.description} numberOfLines={3}><Ionicons name="information-circle" size={14} color={tokens.colors.iconColor} />{" "+description}</Text>

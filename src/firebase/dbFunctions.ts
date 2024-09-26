@@ -206,6 +206,23 @@ export const fetchAppointmentsByHairstylistId = (hairstylistId: string, onUpdate
   }
 };
 
+const generateReceipt = (bookingId, selectedHairstyle, appointmentDate, customerInfo, notes) => {
+  // Create a receipt object
+  const receipt = {
+    bookingId,
+    hairstyle: selectedHairstyle.name, // Assuming the hairstyle has a name property
+    stylist: selectedHairstyle.hairstylistName, // Assuming the hairstylist has a name property
+    appointmentDate,
+    customerName: `${customerInfo.firstName} ${customerInfo.lastName}`, // Assuming customerInfo has these fields
+    notes: notes || 'No additional notes provided',
+    createdAt: new Date().toLocaleString(), // Format date as needed
+  };
+
+  // Return the formatted receipt
+  return receipt;
+};
+
+
 // Create a new booking
 export const makeBooking = async (
   customerId: string,
@@ -238,8 +255,19 @@ export const makeBooking = async (
       id: newBooking.id, // Add document ID as 'id' field
     });
 
+    // Generate a receipt
+    const receipt = generateReceipt(
+      newBooking.id,
+      selectedHairstyle,
+      appointmentDate,
+      userCustomerInfo[0], // Assuming the first element has the customer info
+      notes
+    );
+
+    console.log('Receipt generated:', receipt);
+
     console.log('Booking created successfully with ID:', newBooking.id);
-    return { success: true, bookingId: newBooking.id };
+    return { success: true, bookingId: newBooking.id,receipt };
   } catch (error) {
     console.error('Error creating booking:', error);
     return { success: false, message: error.message };
@@ -549,5 +577,292 @@ export const addReview = async (review: {
     });
   } catch (error) {
     console.error("Error adding review: ", error);
+  }
+};
+
+// Function to update the subscription totalCredits for the user
+export const updateUserSubscriptionCredits = async (uid: string, valueToSubtract: number) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found, update their subscription.totalCredits
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        const userData = userDoc.data();
+
+        // Extract the current totalCredits from subscription
+        const currentCredits = userData?.subscription?.totalCredits ?? 0;
+
+        // Calculate the new totalCredits by subtracting the value
+        const newTotalCredits = currentCredits - valueToSubtract;
+
+        // Ensure the totalCredits doesn't go below zero
+        const updatedTotalCredits = newTotalCredits >= 0 ? newTotalCredits : 0;
+
+        // Update the subscription.totalCredits in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          { subscription: { totalCredits: updatedTotalCredits } },
+          { merge: true }
+        );
+
+        console.log(`Updated totalCredits for ${uid} to: ${updatedTotalCredits}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating user subscription credits:', error);
+  }
+};
+// Function to update the subscription totalCredits for the hairstylist
+export const updateHairStylistSubscriptionCredits = async (uid: string, valueToSubtract: number) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'hairstylists');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found, update their subscription.totalCredits
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        const userData = userDoc.data();
+
+        // Extract the current totalCredits from subscription
+        const currentCredits = userData?.subscription?.totalCredits ?? 0;
+
+        // Calculate the new totalCredits by subtracting the value
+        const newTotalCredits = currentCredits - valueToSubtract;
+        console.warn("🚀 ~ querySnapshot.forEach ~ newTotalCredits:", newTotalCredits)
+
+        // Ensure the totalCredits doesn't go below zero
+        const updatedTotalCredits = newTotalCredits >= 0 ? newTotalCredits : 0;
+        console.warn("🚀 ~ querySnapshot.forEach ~ updatedTotalCredits:", updatedTotalCredits)
+
+        // Update the subscription.totalCredits in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          { subscription: { totalCredits: updatedTotalCredits } },
+          { merge: true }
+        );
+
+        console.log(`Updated totalCredits for ${uid} to: ${updatedTotalCredits}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating user subscription credits:', error);
+  }
+};
+
+// Function to update user details in the Users collection
+export const updateUserProfileDetails = async (uid: string, updatedData: object) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found, update their details
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        // Update the user details in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          updatedData,
+          { merge: true }
+        );
+
+        console.log(`Updated user details for ${uid}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating user profile details:', error);
+  }
+};
+
+// Function to update hairstylist details in the Hairstylists collection
+export const updateHairStylistProfileDetails = async (uid: string, updatedData: object) => {
+  try {
+    // Create a query to find the hairstylist where the 'id' field matches the uid
+    const usersRef = collection(db, 'hairstylists');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching hairstylist is found, update their details
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        // Update the hairstylist details in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          updatedData,
+          { merge: true }
+        );
+
+        console.log(`Updated hairstylist details for ${uid}`);
+      });
+    } else {
+      console.log('No hairstylist found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating hairstylist profile details:', error);
+  }
+};
+
+// Function to upload image to Firebase Storage and get the URL
+export const uploadImageToStorage = async (imageUri, uid) => {
+  if (!imageUri) return '';
+
+  try {
+    // Convert image to a Blob for Firebase Storage
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+
+    const storageRef = ref(storage, `hairstylists/${uid}.jpg`);
+    await uploadBytes(storageRef, blob);
+    const url = await getDownloadURL(storageRef);
+
+    return url;
+  } catch (error) {
+    console.error('Error uploading image to Firebase:', error);
+    throw new Error('Image upload failed');
+  }
+};
+
+// Function to update Patrons array in the Users collection
+export const updateUserPatrons = async (uid: string, patronData: object) => {
+  try {
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        await setDoc(
+          userDoc.ref,
+          {
+            patrons: arrayUnion(patronData) // Adds patron to the patrons array
+          },
+          { merge: true }
+        );
+        console.log(`Added patron to user ${uid}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating user patrons:', error);
+  }
+};
+
+// Function to update Patrons array in the Hairstylists collection
+export const updateHairStylistPatrons = async (uid: string, patronData: object) => {
+  try {
+    const stylistsRef = collection(db, 'hairstylists');
+    const q = query(stylistsRef, where('id', '==', uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (stylistDoc) => {
+        await setDoc(
+          stylistDoc.ref,
+          {
+            patrons: arrayUnion(patronData) // Adds patron to the patrons array
+          },
+          { merge: true }
+        );
+        console.log(`Added patron to hairstylist ${uid}`);
+      });
+    } else {
+      console.log('No hairstylist found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating hairstylist patrons:', error);
+  }
+};
+
+// Function to retrieve Patrons from the Users collection
+export const getUserPatrons = async (uid: string) => {
+  try {
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      return userData.patrons || [];
+    } else {
+      console.log('No user found with the given UID.');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error retrieving user patrons:', error);
+    return [];
+  }
+};
+
+// Function to retrieve Patrons from the Hairstylists collection
+export const getHairStylistPatrons = async (uid: string) => {
+  try {
+    const stylistsRef = collection(db, 'hairstylists');
+    const q = query(stylistsRef, where('id', '==', uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const stylistDoc = querySnapshot.docs[0];
+      const stylistData = stylistDoc.data();
+      return stylistData.patrons || [];
+    } else {
+      console.log('No hairstylist found with the given UID.');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error retrieving hairstylist patrons:', error);
+    return [];
+  }
+};
+
+export const subscribeToHairstylists = (uid, callback) => {
+  try {
+    const usersRef = collection(db, 'Users');
+    let q;
+
+    // Create a query based on whether uid is provided or not
+    if (uid) {
+      q = query(usersRef, where('id', '==', uid));
+    } else {
+      q = query(usersRef);
+    }
+
+    // Subscribe to Firestore changes using onSnapshot
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const hairstylistsData = querySnapshot.docs.map(doc => doc.data());
+      
+      // Call the callback function with the new data
+      callback(hairstylistsData);
+    }, (error) => {
+      console.error('Error subscribing to hairstylists:', error);
+    });
+
+    // Return the unsubscribe function to clean up the listener when no longer needed
+    return unsubscribe;
+  } catch (error) {
+    console.error('Error setting up Firestore listener:', error);
+    return null;
   }
 };

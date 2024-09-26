@@ -11,18 +11,14 @@ import {
 import globalStyles from "../../styles/globalStyles";
 import tokens from "../../styles/tokens";
 import PayFastModal from "../../components/PayFastModal";
+import { formatToRands } from "../../utils/currencyUtil";
 
-const PRICINGOPTIONS = [
-  //   {
-  //     id: 0,
-  //     name: 'Free Plan - Trial',
-  //     price: 0.0,
-  //     features: ['10 credits pack', '2 appointment approval', 'Minimal Support'],
-  //   },
+export const PRICINGOPTIONS = [
   {
     id: 0,
     name: "Basic Plan - 10% off",
     price: 439.99,
+    credits:20,
     features: [
       "20 credits pack",
       "4 appointment approval",
@@ -34,6 +30,7 @@ const PRICINGOPTIONS = [
     id: 1,
     name: "Starter Plan - 15% off",
     price: 839.99,
+    credits:40,
     features: [
       "40 credits pack",
       "8 appointment approval",
@@ -45,6 +42,7 @@ const PRICINGOPTIONS = [
     id: 2,
     name: "Business Plan - 20% off",
     price: 1499.99,
+    credits:80,
     features: [
       "80 credits pack",
       "16 appointment approval",
@@ -94,7 +92,7 @@ const PriceList = () => {
       onPress={() => handleSelectPlan(item.id)}
     >
       <Text style={styles.planTitle}>{item.name}</Text>
-      <Text style={styles.planPrice}>R {item.price.toFixed(2)}</Text>
+      <Text style={styles.planPrice}>{formatToRands(item.price)}</Text>
       <View style={styles.featuresContainer}>
         {item.features.map((feature, index) => (
           <Text key={index} style={styles.featureText}>

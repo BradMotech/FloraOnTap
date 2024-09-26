@@ -6,6 +6,7 @@ import ProfileScreen from '../screens/Provider/ProfileScreen';
 import AppointmentsScreen from '../screens/Provider/AppointmentsScreen';
 import ChatScreen from '../screens/Provider/ChatScreen';
 import tokens from '../styles/tokens';
+import FinancialProjections from '../screens/Provider/FinancialProjections';
 
 const ProviderStack = createStackNavigator(
   {
@@ -31,6 +32,12 @@ const ProviderStack = createStackNavigator(
       screen: ChatScreen,
       navigationOptions: {
         title: 'Chat',
+      },
+    },
+    Projections: {
+      screen: FinancialProjections,
+      navigationOptions: {
+        title: 'Projections',
       },
     },
   },

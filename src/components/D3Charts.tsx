@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import * as d3 from 'd3';
 import { Svg, Rect, G, Text as SvgText } from 'react-native-svg';
+import { formatToRands } from '../utils/currencyUtil';
+import tokens from '../styles/tokens';
 
 interface BarChartProps {
   data: { label: string; value: number }[];
@@ -12,9 +14,10 @@ interface BarChartProps {
 
 const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
   const [tooltip, setTooltip] = useState<{ label: string; value: number } | null>(null);
-  const [selectedBar, setSelectedBar] = useState<string | null>(null); // Track the selected bar
+  const [selectedBar, setSelectedBar] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const chartWidth = width || Dimensions.get('window').width * 1.5; // Increase width for horizontal scroll
+  const [scrollOffset, setScrollOffset] = useState(0); // Track scroll offset
+  const chartWidth = width || Dimensions.get('window').width * 1.5;
   const chartHeight = height || 300;
 
   const margin = { top: 20, right: 30, bottom: 30, left: 40 };
@@ -36,14 +39,18 @@ const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
 
   const handlePress = (label: string, value: number, barX: number, barY: number) => {
     setTooltip({ label, value });
-    setSelectedBar(label); // Set the clicked bar as the selected one
+    setSelectedBar(label);
     setTooltipPosition({ x: barX, y: barY });
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setScrollOffset(event.nativeEvent.contentOffset.x); // Capture horizontal scroll position
   };
 
   return (
     <View style={styles.chartContainer}>
       <Text style={styles.title}>{title}</Text>
-      <ScrollView horizontal>
+      <ScrollView horizontal onScroll={handleScroll} scrollEventThrottle={16}>
         <Svg width={chartWidth} height={chartHeight}>
           {/* X-axis labels */}
           <G transform={`translate(${margin.left},${chartInnerHeight + margin.top})`}>
@@ -80,7 +87,7 @@ const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
                     width={xScale.bandwidth()}
                     height={chartInnerHeight - barY}
                     fill={getColor(d.value)}
-                    onPress={() => handlePress(d.label, d.value, barX + xScale.bandwidth() / 2, barY)}
+                    onPress={() => handlePress(d.label, d.value, barX! + xScale.bandwidth() / 2, barY)}
                   />
                   {/* Display value inside the clicked bar */}
                   {selectedBar === d.label && (
@@ -88,11 +95,12 @@ const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
                       x={barX! + xScale.bandwidth() / 2}
                       y={barY - 5} // Position the text above the bar
                       fontSize="12"
-                      fill="black"
+                      fill={tokens.colors.circularProgress}
                       textAnchor="middle"
                       fontWeight={'800'}
+                      fontFamily='GorditaMedium'
                     >
-                      {"R "+d.value}
+                      {formatToRands(d.value)}
                     </SvgText>
                   )}
                 </G>
@@ -103,9 +111,14 @@ const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
       </ScrollView>
 
       {tooltip && (
-        <View style={[styles.tooltip, { left: tooltipPosition.x + margin.left, top: tooltipPosition.y + margin.top - 40 }]}>
+        <View
+          style={[
+            styles.tooltip,
+            { left: tooltipPosition.x - scrollOffset - margin.left, top: tooltipPosition.y + margin.top - 15 },
+          ]}
+        >
           <Text style={styles.tooltipText}>
-            On {tooltip.label}: you made R{tooltip.value}
+            On {tooltip.label}: you made {formatToRands(tooltip.value)}
           </Text>
         </View>
       )}
@@ -125,11 +138,6 @@ const D3Charts: React.FC<BarChartProps> = ({ data, title, width, height }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
   chartContainer: {
     marginBottom: 20,
   },
@@ -138,6 +146,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 10,
+    fontFamily:'GorditaMedium'
   },
   tooltip: {
     position: 'absolute',
@@ -150,11 +159,13 @@ const styles = StyleSheet.create({
   tooltipText: {
     color: '#fff',
     fontSize: 12,
+    fontFamily:'GorditaRegular'
   },
   legend: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 10,
+    fontFamily:'GorditaRegular'
   },
   legendItem: {
     flexDirection: 'row',
@@ -169,6 +180,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 14,
+    fontFamily:'GorditaRegular'
   },
 });
 

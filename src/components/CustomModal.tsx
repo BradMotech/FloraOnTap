@@ -1,15 +1,16 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import tokens from '../styles/tokens';
 
 interface CustomModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isSubmititng?:boolean;
   children: React.ReactNode; // Accept children from the parent
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,onConfirm }) => {
+const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,onConfirm,isSubmititng }) => {
   return (
     <Modal
       animationType="slide"
@@ -24,9 +25,9 @@ const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,on
 
           {/* Button Section */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={onConfirm} style={styles.button}>
+            {!isSubmititng ? <TouchableOpacity onPress={onConfirm} style={styles.button}>
               <Text style={styles.buttonText}>Proceed booking</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> : <ActivityIndicator size={'small'} color={tokens.colors.hairduMainColor}/>}
             <TouchableOpacity onPress={onClose} style={styles.buttonCancel}>
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
