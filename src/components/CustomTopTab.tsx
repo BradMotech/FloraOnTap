@@ -78,7 +78,7 @@ const CustomTabView = ({
     const firstLetter = data.name.charAt(0).toUpperCase();
     return (
       <View>
-      <Image source={{ uri: data.bannerImage }} style={{ width: '100%', height: 200, borderRadius: 12 }} />
+      <Image source={{ uri: data.bannerImage ? data.bannerImage :'https://cdn.dribbble.com/users/246611/screenshots/10748226/media/f17b711e4e14bb11e518f804352548ef.png?resize=800x600&vertical=center' }} style={{ width: '100%', height: 200, borderRadius: 12 }} />
         <View style={{ width: Dimensions.get("screen").width - 22 }}>
           <View
             style={[

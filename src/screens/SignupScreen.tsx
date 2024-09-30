@@ -146,12 +146,15 @@ const SignupScreen = ({ navigation }) => {
     try {
       const response = await fetch(apiUrl);
       const data = await response.json();
-      
-      if (data.predictions ) {
+
+      if (data.predictions) {
         setSuggestions(data.predictions);
-        console.warn("🚀 ~ fetchPlaceSuggestions ~ response:"+JSON.stringify(data.predictions));
+        console.warn(
+          "🚀 ~ fetchPlaceSuggestions ~ response:" +
+            JSON.stringify(data.predictions)
+        );
         const placeId = data.predictions[0].place_id;
-        
+
         // Fetch place details using the place_id to get the province
         const placeDetails = await fetchPlaceDetails(placeId);
 
@@ -159,7 +162,10 @@ const SignupScreen = ({ navigation }) => {
         if (placeDetails) {
           handleInputChange("province", placeDetails.province);
           // handleInputChange("location", placeDetails.placeName);
-          console.warn("🚀 ~ fetchPlaceSuggestions ~ placeDetails.province:", placeDetails.province)
+          console.warn(
+            "🚀 ~ fetchPlaceSuggestions ~ placeDetails.province:",
+            placeDetails.province
+          );
         }
       }
     } catch (error) {
@@ -179,8 +185,8 @@ const SignupScreen = ({ navigation }) => {
         const addressComponents = data.result.address_components;
 
         // Find the province from the address components
-        const provinceComponent = addressComponents.find(component =>
-          component.types.includes('administrative_area_level_1')
+        const provinceComponent = addressComponents.find((component) =>
+          component.types.includes("administrative_area_level_1")
         );
 
         const placeName = data.result.name;
@@ -394,7 +400,9 @@ const SignupScreen = ({ navigation }) => {
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP_LOCATION}
             </Text>
-            <Text style={[globalStyles.subtitle, { marginTop: tokens.spacing.md }]}>
+            <Text
+              style={[globalStyles.subtitle, { marginTop: tokens.spacing.md }]}
+            >
               {SUBTITLES.SIGN_UP_SUBTITLE}
             </Text>
             <View>
@@ -402,9 +410,8 @@ const SignupScreen = ({ navigation }) => {
                 iconName="pin-outline"
                 value={formData.location}
                 onChangeText={(text) => {
-                  handleInputChange('location',text);
+                  handleInputChange("location", text);
                   setTimeout(() => {
-                    
                     fetchPlaceSuggestions(text); // Fetch places as user types
                   }, 5000);
                 }}
@@ -413,7 +420,7 @@ const SignupScreen = ({ navigation }) => {
                 returnKeyType="next"
                 onSubmitEditing={() => provinceRef.current?.focus()}
               />
-      
+
               {/* Display the suggestions */}
               {suggestions.length > 0 && (
                 <FlatList
@@ -422,14 +429,16 @@ const SignupScreen = ({ navigation }) => {
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.suggestionItem}
-                      onPress={() =>  {handlePlaceSelect(item.description)}}
+                      onPress={() => {
+                        handlePlaceSelect(item.description);
+                      }}
                     >
                       <Text>{item.description}</Text>
                     </TouchableOpacity>
                   )}
                 />
               )}
-      
+
               {/* <DropdownComponent
                 items={[
                   "Eastern Cape",
@@ -522,20 +531,27 @@ const SignupScreen = ({ navigation }) => {
       source={{ uri: "https://hairdu2024.web.app/hairdubraidsbackground3.png" }}
       style={globalStyles.backgroundImage}
     >
+      <TouchableOpacity
+        style={{ zIndex: 1000000 }}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="chevron-left" style={styles.backIcon} size={20} />
+      </TouchableOpacity>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={globalStyles.container}>
-              <Icon
-                onPress={() => navigation.goBack()}
-                name="chevron-left"
-                style={styles.backIcon}
-                size={20}
-              />
-              <ContainerCard>{renderStepContent()}</ContainerCard>
+            <View
+              style={{
+                height: "100%",
+                padding: 18,
+                marginTop: Dimensions.get("screen").height / 18,
+                backgroundColor: "white",
+              }}
+            >
+              {renderStepContent()}
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -558,6 +574,6 @@ const styles = {
   suggestionItem: {
     padding: tokens.spacing.sm,
     borderBottomWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
 };
