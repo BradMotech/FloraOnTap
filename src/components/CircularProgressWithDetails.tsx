@@ -10,8 +10,8 @@ const CircularProgressWithDetails = ({ user, onRenewSubscription, onFinanceProje
   const { name, email, subscription } = user;
   
   const userPlan = PRICINGOPTIONS.find((plan) => plan.name === subscription?.plan);
-  const totalCredits = userPlan ? userPlan?.credits : subscription.totalCredits;
-  const creditsLeft = totalCredits - subscription?.totalCredits;
+  const totalCredits =  subscription?.totalCredits;
+  const creditsLeft = totalCredits - subscription?.totalCreditsUsed;
   
   const radius = 100;
   const stroke = 16;
@@ -31,11 +31,16 @@ const CircularProgressWithDetails = ({ user, onRenewSubscription, onFinanceProje
 
   const strokeColor = animatedProgress.interpolate({
     inputRange: [0, 70, 100],
-    outputRange: [tokens.colors.circularProgress, tokens.colors.circularProgress, 'red'],
+    outputRange: [
+      tokens.colors.circularProgress,  // Default color for low progress
+      tokens.colors.circularProgress,  // Default color for medium progress
+      creditsLeft === totalCredits ? 'green' : 'red',  // Green if credits are full, red otherwise
+    ],
     extrapolate: 'clamp',
   });
 
   useEffect(() => {
+    console.warn(subscription)
     Animated.timing(animatedProgress, {
       toValue: safeProgress,
       duration: 1000,
@@ -75,22 +80,27 @@ const CircularProgressWithDetails = ({ user, onRenewSubscription, onFinanceProje
               fontSize="13"
               fill="#333"
             >
-              {`${creditsLeft} / ${totalCredits} credits`} 
+              {`${subscription?.totalCreditsUsed} / ${totalCredits} credits`} 
             </SvgText>
           </Svg>
         </View>
         <View style={styles.userDetails}>
-          <Text style={styles.detailText}>
+          {/* <Text style={styles.detailText}>
             <Text style={styles.label}>Name: </Text>
             <Text style={styles.value}>{name}</Text>
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Email: </Text>
             <Text style={styles.value}>{email}</Text>
+          </Text> */}
+          <Text style={styles.detailText}>
+            <Text style={styles.label}>Credits Used: </Text>
+           { subscription?.totalCreditsUsed && <Text style={styles.value}>{subscription?.totalCreditsUsed}</Text>}
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Credits Left: </Text>
-            <Text style={styles.value}>{totalCredits - creditsLeft}</Text>
+           { totalCredits !== creditsLeft ? <Text style={styles.value}>{totalCredits - subscription?.totalCreditsUsed}</Text>:
+           <Text style={styles.value}>{totalCredits}</Text>}
           </Text>
           <Text style={styles.detailText}>
             <Text style={styles.label}>Total Credits: </Text>

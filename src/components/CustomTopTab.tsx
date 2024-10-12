@@ -111,7 +111,7 @@ const CustomTabView = ({
               style={{
                 alignItems: "baseline",
                 justifyContent: "center",
-                display: "flex",
+                display: "flex",width:'100%',marginLeft:16
               }}
             >
               <Text
@@ -239,12 +239,17 @@ const CustomTabView = ({
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Location details</Text>
             <View style={{marginTop:16}}>
+            <Text style={[{ margin: 0 }, styles.linkUnderlinedLocation]}>
+                  {data.location}
+                </Text>
             {/* <MapComponent region={undefined}/> */}
             </View>
           </View>
           <View style={globalStyles.separator}></View>
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Social Media</Text>
+            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Website:</Text> <Text style={styles.linkUnderlined}>{data.website}</Text></Text>
+            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Instagram:</Text> <Text style={styles.linkUnderlined}>{data.instagram}</Text></Text>
           </View>
           <View style={globalStyles.imageView}>{/* map here */}</View>
         </View>
@@ -448,6 +453,22 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 18,
     color: "#333",
+  },
+  links:{
+    color:"#333",
+    margin:12
+  },
+  linkUnderlined:{
+    textDecorationLine:"underline",
+    color:tokens.colors.circularProgress,
+    margin:12,
+    textTransform:'lowercase'
+  },
+  linkUnderlinedLocation: {
+    textDecorationLine: "underline",
+    color: tokens.colors.circularProgress,
+    // margin:12,
+    textTransform: "lowercase",
   },
 });
 

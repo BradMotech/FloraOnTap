@@ -275,7 +275,7 @@ const BookAppointment = () => {
           </Text>
           <View style={globalStyles.separatorNoColor}></View>
           {/* Detail Items with Icons */}
-          <View style={styles.flexStart}>
+          <View style={[styles.flexStart,{width:'100%'}]}>
             <View style={styles.detailItem}>
               <Ionicons name="list-outline" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
@@ -320,7 +320,7 @@ const BookAppointment = () => {
           </View>
           <View style={globalStyles.separatorNoColor}></View>
           <View style={{ width: "100%", paddingLeft: 16, marginBottom: 10 }}>
-            <Text style={globalStyles.title}>Select hairdresser</Text>
+            <Text style={globalStyles.title}>Select Preferred Stylist</Text>
           </View>
           <View style={[styles.flexStart, { width: "100%" }]}>
             <PatronsListScreen

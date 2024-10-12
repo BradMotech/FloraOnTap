@@ -21,8 +21,10 @@ import {
 import AppointmentModal from "../../components/AppointmentModal";
 import { useToast } from "../../components/ToastContext";
 import tokens from "../../styles/tokens";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const AppointmentsScreen = () => {
+  const [isLoading, setIsLoading] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [bookingFlag, setBookingFlag] = useState<boolean>(false);
@@ -120,16 +122,18 @@ const AppointmentsScreen = () => {
   };
 
   function acceptClientBooking(appointment: any): void {
+    setIsLoading(true)
     acceptBooking(appointment.appointmentDetails.id).then((data) => {
       setModalVisible(false);
       setBookingFlag(true);
-      updateUserSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
-      updateHairStylistSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
+      updateUserSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.serviceValue);
+      updateHairStylistSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.serviceValue);
       showToast(
         "Appointment approved successfully, the Customer has been notified",
         "success",
         "top"
       );
+      setIsLoading(false)
     });
   }
 
@@ -145,7 +149,7 @@ const AppointmentsScreen = () => {
     });
   }
 
-  return (
+  return !isLoading ? (
     <SafeAreaView  style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
       {selectedEvent && (
         <AppointmentModal
@@ -175,7 +179,7 @@ const AppointmentsScreen = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+  ):(<LoadingScreen/>);
 };
 
 const styles = StyleSheet.create({});

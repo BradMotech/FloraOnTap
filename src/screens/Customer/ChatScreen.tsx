@@ -7,6 +7,7 @@ import tokens from '../../styles/tokens';
 import LoadingScreen from '../../components/LoadingScreen';
 import { useRoute } from '@react-navigation/native';
 import globalStyles from '../../styles/globalStyles';
+import PlaceholderComponent from '../../components/placeholderComponent';
 
 
 interface Friend {
@@ -82,7 +83,7 @@ const ChatScreen = () => {
     <SafeAreaView   style={[globalStyles.safeArea,{marginTop:tokens.spacing.lg * 2.4}]}>
     <View style={{ flex: 1, width: "100%" }}>
       <View style={styles.container}>
-        <Text style={styles.title}>Salons:</Text>
+        {friends.length ? <Text style={styles.title}>Salons:</Text> : null}
         <FlatList
           data={friends}
           keyExtractor={(item) => item.id}
@@ -92,7 +93,7 @@ const ChatScreen = () => {
               {isLoading ? <ActivityIndicator
                 size="large"
                 color={tokens.colors.hairduMainColor}
-              /> :  <Text>No friends found.</Text>}
+              /> :  <PlaceholderComponent text={'No friends found'}/>}
              
             </>
           }
@@ -109,7 +110,7 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: tokens.colors.background,
     padding: 20,
   },
   title: {

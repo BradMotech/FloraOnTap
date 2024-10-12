@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -34,12 +34,14 @@ import {
 import { useToast } from "../components/ToastContext";
 import { getTokenFromStorage } from "../utils/getTokenFromStorage";
 import TextAreaComponent from "../components/TextAreaComponent";
+import { AuthContext } from "../auth/AuthContext";
 const GOOGLE_PLACES_API_KEY = "AIzaSyCbCTiO9UHe5adLop_2AZux7QwBDBljYVQ";
 
 const SignupScreen = ({ navigation }) => {
   const [step, setStep] = useState(1); // Step state to manage form steps
   const [selectedDays, setSelectedDays] = useState([]);
   const [description, setDescription] = useState();
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [tokenValue, setTokenValue] = useState("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const { showToast } = useToast();
@@ -57,7 +59,13 @@ const SignupScreen = ({ navigation }) => {
     availability: [],
     userSelectedRole: "",
     description: "",
+    userSelectedRoleType: "",
+    website: "",
+    instagram: "",
+    twitter: "",
   });
+
+  const { logOut } = useContext(AuthContext);
 
   // Input references
   const surnameRef = useRef(null);
@@ -68,7 +76,10 @@ const SignupScreen = ({ navigation }) => {
   const locationRef = useRef(null);
   const provinceRef = useRef(null);
   const userSelectedRoleRef = useRef(null);
+  const userSelectedSalonTypeRef = useRef(null);
   const userDescriptionRef = useRef(null);
+  const userInstagramRef = useRef(null);
+  const userWebsiteRef = useRef(null);
 
   // Handle input change
   const handleInputChange = (field, value) => {
@@ -205,11 +216,23 @@ const SignupScreen = ({ navigation }) => {
 
   const handlePlaceSelect = (description) => {
     // Handle the selection of the place
-    handleInputChange("location", description);
+    setSelectedLocation(description);  
     setSuggestions([]); // Clear suggestions after selection
+    handleInputChange("location", '');
   };
 
-  async function loginAndUpdateUsersCollections() {
+  const handleLogout = () => {
+    logOut(); // Clear the user's authentication
+    // Reset the navigation stack and navigate to the Login screen inside AuthNavigator
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "AuthNavigator" }],
+    });
+  };
+
+  
+
+  async function signUpAndUpdateUsersCollections() {
     try {
       const data = await signUp(formData.email, formData.password);
       if (data?.user) {
@@ -224,6 +247,8 @@ const SignupScreen = ({ navigation }) => {
           image: formData.profileImage,
           username: "@" + formData.name + "_" + formData.surname,
           name: formData.name,
+          phone: formData.phone,
+          location: selectedLocation,
           surname: formData.surname,
           province: formData.province,
           description: formData.description,
@@ -231,11 +256,9 @@ const SignupScreen = ({ navigation }) => {
           createdAt: new Date(),
           availability: formData.availability ? formData.availability : [],
           services: [],
-          website: "",
-          twitter: "",
-          instagram: "",
-          totalCredits: 30,
-          creditsLeft: 30,
+          website: formData.website,
+          instagram: formData.instagram,
+          salonType:formData.userSelectedRoleType,
           subscription: {
             plan: "Free Trial",
             expires: new Date(),
@@ -249,6 +272,7 @@ const SignupScreen = ({ navigation }) => {
             paidCurrency: "ZAR",
             paidStatus: "Free Trial",
             paidDate: new Date(),
+            totalCreditsUsed:0
           },
           subscriptionPlan: "Free Trial",
           fcmtoken: tokenValue,
@@ -261,6 +285,7 @@ const SignupScreen = ({ navigation }) => {
           await setHairstylistInFirestore(uid, userData);
         }
         //   alert("Registration successful");
+        handleLogout();
         navigation.navigate("Login");
         setStep(step + 1); // Only increment if registration and Firestore update are successful
       } else {
@@ -274,22 +299,15 @@ const SignupScreen = ({ navigation }) => {
   }
 
   const handleNextStep = async () => {
-    // alert(step+formData.userSelectedRole)
     if (step === 3 && formData.userSelectedRole !== "Provider") {
-      // alert("comes here and should not")
-      //   Alert.alert(
-      //     "Role Restriction",
-      //     "Only providers can proceed to set availability."
-      //   );
-      await loginAndUpdateUsersCollections();
+      await signUpAndUpdateUsersCollections();
     } else {
       if (step === 3 && formData.userSelectedRole === "Provider") {
-        // alert("comes here and should")
         setStep(step + 1);
         // await loginAndUpdateUsersCollections();
       } else if (step === 4) {
         // alert("yeeeee")
-        await loginAndUpdateUsersCollections();
+        await signUpAndUpdateUsersCollections();
       } else if (step === 1) {
         setStep(step + 1);
       } else if (step == 2) {
@@ -303,7 +321,7 @@ const SignupScreen = ({ navigation }) => {
     switch (step) {
       case 1:
         return (
-          <View style={{ height: Dimensions.get("screen").height }}>
+          <View style={{ height: Dimensions.get("screen").height + 300 }}>
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP}
             </Text>
@@ -322,34 +340,64 @@ const SignupScreen = ({ navigation }) => {
                 onSubmitEditing={() => surnameRef.current?.focus()}
                 keyboardType={"default"}
               />
-              <InputComponent
-                ref={surnameRef}
-                iconName="person-outline"
-                value={formData.surname}
-                onChangeText={(text) => handleInputChange("surname", text)}
-                placeholder="Surname"
-                keyboardType={"default"}
-                onSubmitEditing={() => emailRef.current?.focus()}
-              />
-              <InputComponent
-                ref={emailRef}
-                iconName="mail-outline"
-                value={formData.email}
-                onChangeText={(text) => handleInputChange("email", text)}
-                keyboardType="email-address"
-                placeholder="Email address"
-                onSubmitEditing={() => phoneRef.current?.focus()}
-              />
-              <InputComponent
-                ref={phoneRef}
-                iconName="call-outline"
-                value={formData.phone}
-                onChangeText={(text) => handleInputChange("phone", text)}
-                keyboardType="phone-pad"
-                placeholder="Phone"
-                returnKeyType="next"
-                onSubmitEditing={() => passwordRef.current?.focus()}
-              />
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={surnameRef}
+                  iconName="person-outline"
+                  value={formData.surname}
+                  onChangeText={(text) => handleInputChange("surname", text)}
+                  placeholder="Surname"
+                  keyboardType={"default"}
+                  onSubmitEditing={() => emailRef.current?.focus()}
+                />
+              </View>
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={emailRef}
+                  iconName="mail-outline"
+                  value={formData.email}
+                  onChangeText={(text) => handleInputChange("email", text)}
+                  keyboardType="email-address"
+                  placeholder="Email address"
+                  onSubmitEditing={() => phoneRef.current?.focus()}
+                />
+              </View>
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={phoneRef}
+                  iconName="call-outline"
+                  value={formData.phone}
+                  onChangeText={(text) => handleInputChange("phone", text)}
+                  keyboardType="phone-pad"
+                  placeholder="Phone"
+                  returnKeyType="next"
+                  onSubmitEditing={() => userWebsiteRef.current?.focus()}
+                />
+              </View>
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={userWebsiteRef}
+                  iconName="globe-outline"
+                  value={formData.website}
+                  onChangeText={(text) => handleInputChange("website", text)}
+                  keyboardType="default"
+                  placeholder="Website"
+                  returnKeyType="next"
+                  onSubmitEditing={() => userInstagramRef.current?.focus()}
+                />
+              </View>
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={userInstagramRef}
+                  iconName="person-outline"
+                  value={formData.instagram}
+                  onChangeText={(text) => handleInputChange("instagram", text)}
+                  keyboardType="default"
+                  placeholder="Instagram"
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                />
+              </View>
               <DropdownComponent
                 items={["Customer", "Provider"]}
                 ref={userSelectedRoleRef}
@@ -363,40 +411,66 @@ const SignupScreen = ({ navigation }) => {
                   handleInputChange("userSelectedRole", selected);
                 }}
               />
-              <TextAreaComponent
-                ref={userDescriptionRef}
-                onTextChange={(textDescr) =>
-                  handleInputChange("description", textDescr)
-                }
-              />
-              <InputComponent
-                ref={passwordRef}
-                iconName="key-outline"
-                value={formData.password}
-                onChangeText={(text) => handleInputChange("password", text)}
-                placeholder="Password"
-                secureTextEntry
-                keyboardType={"default"}
-                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-              />
-              <InputComponent
-                ref={confirmPasswordRef}
-                iconName="key-outline"
-                value={formData.confirmPassword}
-                onChangeText={(text) =>
-                  handleInputChange("confirmPassword", text)
-                }
-                keyboardType={"default"}
-                placeholder="Confirm password"
-                secureTextEntry
-              />
+              {formData.userSelectedRole === "Provider" && (
+                <DropdownComponent
+                  items={[
+                    "Hair Salon",
+                    "Barbershop",
+                    "Nail Salon",
+                    "Skin Care Salon",
+                  ]}
+                  ref={userSelectedSalonTypeRef}
+                  iconName="globe-outline"
+                  value={formData.province}
+                  onChangeText={(text) =>
+                    handleInputChange("userSelectedRoleType", text)
+                  }
+                  placeholder="Select salon type"
+                  onItemSelected={(selected) => {
+                    handleInputChange("userSelectedRoleType", selected);
+                  }}
+                />
+              )}
+              <View style={{ marginTop: 16 }}>
+                <TextAreaComponent
+                  ref={userDescriptionRef}
+                  onTextChange={(textDescr) =>
+                    handleInputChange("description", textDescr)
+                  }
+                />
+              </View>
+              <View style={{ marginTop: 16 }}>
+                <InputComponent
+                  ref={passwordRef}
+                  iconName="key-outline"
+                  value={formData.password}
+                  onChangeText={(text) => handleInputChange("password", text)}
+                  placeholder="Password"
+                  secureTextEntry
+                  keyboardType={"default"}
+                  onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                />
+              </View>
+              <View style={{ marginTop: -16 }}>
+                <InputComponent
+                  ref={confirmPasswordRef}
+                  iconName="key-outline"
+                  value={formData.confirmPassword}
+                  onChangeText={(text) =>
+                    handleInputChange("confirmPassword", text)
+                  }
+                  keyboardType={"default"}
+                  placeholder="Confirm password"
+                  secureTextEntry
+                />
+              </View>
               <ButtonComponent text="Next" onPress={handleNextStep} />
             </View>
           </View>
         );
       case 2:
         return (
-          <View>
+          <View style={{ height: Dimensions.get("screen").height }}>
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP_LOCATION}
             </Text>
@@ -420,6 +494,7 @@ const SignupScreen = ({ navigation }) => {
                 returnKeyType="next"
                 onSubmitEditing={() => provinceRef.current?.focus()}
               />
+              <Text style={[globalStyles.textAlignCenter,{marginBottom:12}]}>{selectedLocation}</Text>
 
               {/* Display the suggestions */}
               {suggestions.length > 0 && (
@@ -438,25 +513,6 @@ const SignupScreen = ({ navigation }) => {
                   )}
                 />
               )}
-
-              {/* <DropdownComponent
-                items={[
-                  "Eastern Cape",
-                  "Free State",
-                  "Gauteng",
-                  "KwaZulu-Natal",
-                  "Limpopo",
-                  "Mpumalanga",
-                  "Northern Cape",
-                  "North West",
-                  "Western Cape",
-                ]}
-                ref={provinceRef}
-                iconName="globe-outline"
-                value={formData.province}
-                onChangeText={(text) => handleInputChange("province", text)}
-                placeholder="Province"
-              /> */}
               <ButtonComponent text="Next" onPress={handleNextStep} />
             </View>
           </View>
@@ -502,8 +558,8 @@ const SignupScreen = ({ navigation }) => {
               {SUBTITLES.SIGN_UP_SELECT_AVAILABILITY}
             </Text>
             <WeekdaySelector
-              selectedDays={selectedDays}
-              setSelectedDays={setSelectedDays}
+              selectedDaysData={selectedDays}
+              setSelectedDaysData={setSelectedDays}
             />
             <ButtonComponent
               text="Submit"
@@ -522,15 +578,12 @@ const SignupScreen = ({ navigation }) => {
   // Registration handler
   const handleRegister = async () => {
     console.log("Form Data Submitted: ", formData);
-    await loginAndUpdateUsersCollections();
+    await signUpAndUpdateUsersCollections();
     // Add registration logic (e.g., API call or Firebase integration)
   };
 
   return (
-    <ImageBackground
-      source={{ uri: "https://hairdu2024.web.app/hairdubraidsbackground3.png" }}
-      style={globalStyles.backgroundImage}
-    >
+    <ImageBackground style={[globalStyles.backgroundImage,{backgroundColor:tokens.colors.background}]}>
       <TouchableOpacity
         style={{ zIndex: 1000000 }}
         onPress={() => navigation.goBack()}
@@ -542,7 +595,7 @@ const SignupScreen = ({ navigation }) => {
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1, }}>
             <View
               style={{
                 height: "100%",

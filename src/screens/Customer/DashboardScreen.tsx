@@ -23,6 +23,7 @@ import {
 import SalonItemCard from "../../components/SalonItem";
 import PanoramaScrollCarousel from "../../components/PanoramScrollCarousel";
 import Tab from "../../components/Tab";
+import PlaceholderComponent from "../../components/placeholderComponent";
 
 const promotionImages = [
   {
@@ -181,14 +182,54 @@ const DashboardScreen = ({ navigation }) => {
           </View>
           <View style={globalStyles.separatorNoColor}></View>
           {activeTab === "All" && (
-            <FlatList
+            (filteredData.length ? <FlatList
               data={filteredData}
               renderItem={renderItem}
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={globalStyles.columnWrapper}
               contentContainerStyle={globalStyles.gridContainer}
-            />
+            />:<PlaceholderComponent text={"No salons to show"}/>)
+          )}
+          {activeTab === "Barbershop" && (
+            (filteredData.filter((x)=>x.salonType === "Barbershop").length ? <FlatList
+              data={filteredData.filter((x)=>x.salonType === "Barbershop")}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={globalStyles.columnWrapper}
+              contentContainerStyle={globalStyles.gridContainer}
+            />:<PlaceholderComponent text={"No Barbershop to show"}/>)
+          )}
+          {activeTab === "Hair Salon" && (
+            (filteredData.filter((x)=>x.salonType === "Hair Salon").length ? <FlatList
+              data={filteredData.filter((x)=>x.salonType === "Hair Salon")}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={globalStyles.columnWrapper}
+              contentContainerStyle={globalStyles.gridContainer}
+            />:<PlaceholderComponent text={"No Hair Salon to show"}/>)
+          )}
+          {activeTab === "Nail Salon" && (
+            (filteredData.filter((x)=>x.salonType === "Nail Salon").length ? <FlatList
+              data={filteredData.filter((x)=>x.salonType === "Nail Salon")}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={globalStyles.columnWrapper}
+              contentContainerStyle={globalStyles.gridContainer}
+            />:<PlaceholderComponent text={"No Nail Salon to show"}/>)
+          )}
+          {activeTab === "Skin Care" && (
+            (filteredData.filter((x)=>x.salonType === "Skin Care").length ? <FlatList
+              data={filteredData.filter((x)=>x.salonType === "Skin Care")}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={globalStyles.columnWrapper}
+              contentContainerStyle={globalStyles.gridContainer}
+            />:<PlaceholderComponent text={"No Skin Care to show"}/>)
           )}
           {/* Add similar FlatList rendering for other tabs as needed */}
         </View>

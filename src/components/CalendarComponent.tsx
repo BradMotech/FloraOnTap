@@ -79,7 +79,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             ]}
           >
             <Text style={globalStyles.placeholderText}>
-              {item.appointmentDetails.userCustomerInfo[0].name
+              {item.appointmentDetails.userCustomerInfo[0]?.name
                 .charAt(0)
                 .toUpperCase()}
             </Text>
@@ -112,7 +112,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             ]}
           >
             <Ionicons name={"call"} size={15} color={"#fff"} />
-            {" " + item.appointmentDetails.userCustomerInfo[0].phone}
+            {" " + item.appointmentDetails.userCustomerInfo[0]?.phone}
           </Text>
           <View
             style={{width:'100%',alignItems:'flex-start',display:'flex',flexDirection:'row'}}

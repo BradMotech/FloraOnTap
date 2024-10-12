@@ -49,15 +49,31 @@ const PatronsListScreen = ({ uid, onSelectPatron }) => {
       ]}
       onPress={() => handleSelectPatron(item)}
     >
-      <Image source={{ uri: item.imageUrl }} style={styles.patronImage} />
+      {item.imageUrl && (
+        <Image source={{ uri: item.imageUrl }} style={styles.patronImage} />
+      )}
+      {!item.imageUrl && (
+        <View
+          style={[
+            globalStyles.imagePlaceholder,
+            { height: 30, width: 30, borderRadius: 15, marginBottom: 10 },
+          ]}
+        >
+          <Text style={globalStyles.placeholderText}>
+            {item.name
+              .charAt(0)
+              .toUpperCase()}
+          </Text>
+        </View>
+      )}
       <View style={styles.patronDetails}>
         <Text style={styles.patronName}>{item.name}</Text>
         <Text style={styles.patronEmail}>{item.email}</Text>
-        {selectedPatron?.email === item.email && <View
-          style={{ alignItems: "flex-end", display: "flex" }}
-        >
-          <Badge text={"Selected Patron"} />
-        </View>}
+        {selectedPatron?.email === item.email && (
+          <View style={{ alignItems: "flex-end", display: "flex" }}>
+            <Badge text={"Selected Patron"} />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -113,7 +129,8 @@ const styles = StyleSheet.create({
   },
   patronDetails: {
     justifyContent: 'center',
-    width:Dimensions.get('screen').width/1.6
+    width:Dimensions.get('screen').width/1.6,
+    marginLeft:10
   },
   patronName: {
     fontSize: 16,

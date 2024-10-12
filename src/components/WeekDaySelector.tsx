@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Button, TouchableOpacity } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import tokens from "../styles/tokens";
 
 const daysOfWeek = [
-  { id: 0, name: "Sunday" },
-  { id: 1, name: "Monday" },
-  { id: 2, name: "Tuesday" },
-  { id: 3, name: "Wednesday" },
-  { id: 4, name: "Thursday" },
-  { id: 5, name: "Friday" },
-  { id: 6, name: "Saturday" },
+  { id: 0, name: "Sun" },
+  { id: 1, name: "Mon" },
+  { id: 2, name: "Tue" },
+  { id: 3, name: "Wed" },
+  { id: 4, name: "Thu" },
+  { id: 5, name: "Fri" },
+  { id: 6, name: "Sat" },
 ];
 
-const WeekdaySelector = ({ selectedDays, setSelectedDays }) => {
+const WeekdaySelector = ({ selectedDaysData, setSelectedDaysData }) => {
+  const [selectedDays, setSelectedDays] = useState([]);
   const [showTimePicker, setShowTimePicker] = useState({
     dayId: null,
     type: null, // 'start' or 'end'
@@ -54,6 +55,21 @@ const WeekdaySelector = ({ selectedDays, setSelectedDays }) => {
       ? `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`
       : "--:--";
   };
+
+  // Return the selected days data to parent component
+  useEffect(() => {
+    const selectedDaysWithTime = selectedDays.map((dayId) => {
+      const day = daysOfWeek.find((d) => d.id === dayId);
+      return {
+        day: day.name,
+        startTime: formatTime(timeSelection[dayId]?.start),
+        endTime: formatTime(timeSelection[dayId]?.end),
+      };
+    });
+
+    // Pass data to the parent component
+    setSelectedDaysData(selectedDaysWithTime);
+  }, [selectedDays, timeSelection, setSelectedDaysData]);
 
   return (
     <View>
@@ -124,7 +140,6 @@ const WeekdaySelector = ({ selectedDays, setSelectedDays }) => {
                     End: {formatTime(timeSelection[day.id]?.end)}
                   </Text>
                 </View>
-                {/* <Text>End: {formatTime(timeSelection[day.id]?.end)}</Text> */}
               </TouchableOpacity>
             </View>
           )}

@@ -93,8 +93,8 @@ const FinancialProjections = () => {
     <SafeAreaView style={[globalStyles.safeArea, { marginTop: tokens.spacing.lg * 2.4 }]}>
       <ScrollView style={styles.container}>
         <ButtonComponent buttonColor={tokens.colors.blackColor} text="Print projections" onPress={handlePrint} />
-        <D3Charts data={weeklyData} title="Weekly Projections" />
-        <D3Charts data={monthlyData} title="Monthly Projections" />
+        <D3Charts timeFrame='days' data={weeklyData} title="Weekly Projections" />
+        <D3Charts timeFrame='months' data={monthlyData} title="Monthly Projections" />
       </ScrollView>
     </SafeAreaView>
   ) : (

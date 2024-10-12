@@ -19,7 +19,9 @@ import ButtonComponent from "./buttonComponent";
 import InputComponent from "./InputComponent";
 import ImagePicker from "react-native-image-picker";
 import {
+  updateHairStylistAvailability,
   updateHairStylistProfileDetails,
+  updateUserAvailability,
   updateUserFriends,
   updateUserProfileDetails,
 } from "../firebase/dbFunctions";
@@ -35,6 +37,7 @@ import MasonryFlatList from "./MasonryFlatlist";
 import MansoryImageGalleryItem from "./MansoryImageGalleryItem";
 import ProfileEdit from "./ProfileEdit";
 import PatronsListScreen from "./PatronsList";
+import UpdateOperatingHoursModal from "./UpdateOperatingHoursModal";
 
 // Tab button component
 const TabButton = ({ title, isActive, onPress }) => (
@@ -60,6 +63,8 @@ const CustomTabViewProvider = ({
   const [editProfile, setEditProfile] = useState<boolean>(false);
   const [editProfileDetails, setEditProfileDetails] = useState<boolean>(false);
   const [filterByFlag, setFilterByFlag] = useState<boolean>(false);
+  const [updateOperatingHoursModal, setUpdateOperatingHoursModal] =
+    useState<boolean>(false);
   const { showToast } = useToast();
   const { user } = useContext(AuthContext);
   // State to hold the filtered data
@@ -104,108 +109,38 @@ const CustomTabViewProvider = ({
 
   function renderSalonProfileDetails(data): React.ReactNode {
     const firstLetter = data.name.charAt(0).toUpperCase();
-    return (
-      <View>
-        <Image
-          source={{ uri: data.bannerImage }}
-          style={{ width: "100%", height: 200, borderRadius: 12 }}
-        />
-        <View style={{ width: Dimensions.get("screen").width - 22 }}>
-          <View
-            style={[
-              globalStyles.imageView,
-              {
-                display: "flex",
-                alignItems: "flex-start",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                backgroundColor: tokens.colors.barkInspiredColor,
-                padding: 8,
-                borderRadius: 12,
-              },
-            ]}
-          >
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              {data.image ? (
-                <Image src={data.image} style={[globalStyles.Storycontainer]} />
-              ) : (
-                <View
-                  style={[
-                    globalStyles.imagePlaceholder,
-                    {
-                      height: 80,
-                      width: 80,
-                      borderRadius: 40,
-                      marginRight: 10,
-                    },
-                  ]}
-                >
-                  <Text style={globalStyles.placeholderText}>
-                    {firstLetter}
-                  </Text>
-                </View>
-              )}
-              <View
-                style={{
-                  alignItems: "baseline",
-                  justifyContent: "center",
-                  display: "flex",
-                }}
-              >
-                <Text
-                  style={{
-                    color: tokens.colors.barkInspiredTextColor,
-                    textAlign: "center",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Ionicons
-                    name={"person-circle-outline"}
-                    size={15}
-                    color={tokens.colors.gray}
-                  />
-                  {"  " + data.name}
-                </Text>
-                <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
-                  <Ionicons
-                    name={"mail-outline"}
-                    size={15}
-                    color={tokens.colors.gray}
-                  />
-                  {"  " + data.email}
-                </Text>
-                <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
-                  <Ionicons
-                    name={"call-outline"}
-                    size={15}
-                    color={tokens.colors.gray}
-                  />
-                  {"  " + data.phone}
-                </Text>
-                <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
-                  <Ionicons
-                    name={"globe-outline"}
-                    size={15}
-                    color={tokens.colors.gray}
-                  />
-                  {"  " + data.province}
-                </Text>
+    async function updateUserAvailabilityDetails(data: any) {
+      // For users
+      await updateUserAvailability(user.uid, data).then(() => {
+        setUpdateOperatingHoursModal(false);
+      });
 
-                <View style={globalStyles.separatorNoColor}></View>
-                <View style={styles.separator}></View>
-                <View style={globalStyles.separatorNoColor}></View>
-                {/* buttons */}
-              </View>
-            </View>
-            {isProvider ? (
+      // For hairstylists
+      await updateHairStylistAvailability(user.uid, data);
+    }
+
+    return (
+      <>
+        <View>
+          <Image
+            source={{ uri: data.bannerImage }}
+            style={{ width: "100%", height: 200, borderRadius: 12 }}
+          />
+          <View style={{ width: Dimensions.get("screen").width - 22 }}>
+            <View
+              style={[
+                globalStyles.imageView,
+                {
+                  display: "flex",
+                  alignItems: "flex-start",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  backgroundColor: tokens.colors.barkInspiredColor,
+                  padding: 8,
+                  borderRadius: 12,
+                },
+              ]}
+            >
               <View
                 style={{
                   display: "flex",
@@ -214,93 +149,209 @@ const CustomTabViewProvider = ({
                   justifyContent: "space-between",
                 }}
               >
-                <TouchableOpacity
+                {data.image ? (
+                  <Image
+                    src={data.image}
+                    style={[globalStyles.Storycontainer]}
+                  />
+                ) : (
+                  <View
+                    style={[
+                      globalStyles.imagePlaceholder,
+                      {
+                        height: 80,
+                        width: 80,
+                        borderRadius: 40,
+                        marginRight: 10,
+                      },
+                    ]}
+                  >
+                    <Text style={globalStyles.placeholderText}>
+                      {firstLetter}
+                    </Text>
+                  </View>
+                )}
+                <View
                   style={{
-                    // height: 24,
-                    alignItems: "center",
+                    alignItems: "baseline",
                     justifyContent: "center",
-                    flex: 1,
+                    display: "flex",
                   }}
-                  onPress={() => setEditProfileDetails(true)}
                 >
                   <Text
                     style={{
-                      fontSize: 15,
-                      fontWeight: "bold",
-                      color: tokens.colors.text,
-                      fontFamily: "GorditaMedium",
-                      width: "100%",
-                      textAlign: "left",
+                      color: tokens.colors.barkInspiredTextColor,
+                      textAlign: "center",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    <Ionicons name="person-outline" size={16} color={tokens.colors.gray} />
-                    {"  Edit Profile"}
+                    <Ionicons
+                      name={"person-circle-outline"}
+                      size={15}
+                      color={tokens.colors.gray}
+                    />
+                    {"  " + data.name}
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    // height: 24,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flex: 1,
-                  }}
-                  onPress={() => navigation.navigate("AddProduct")}
-                >
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "bold",
-                      color: tokens.colors.text,
-                      fontFamily: "GorditaMedium",
-                      width: "100%",
-                      textAlign: "right",
-                    }}
-                  >
-                    <Ionicons name="book-outline" size={16} color={tokens.colors.gray} />
-                    {"  Add Portfolio"}
+                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                    <Ionicons
+                      name={"mail-outline"}
+                      size={15}
+                      color={tokens.colors.gray}
+                    />
+                    {"  " + data.email}
                   </Text>
-                </TouchableOpacity>
+                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                    <Ionicons
+                      name={"call-outline"}
+                      size={15}
+                      color={tokens.colors.gray}
+                    />
+                    {"  " + data.phone}
+                  </Text>
+                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                    <Ionicons
+                      name={"globe-outline"}
+                      size={15}
+                      color={tokens.colors.gray}
+                    />
+                    {"  " + data.province}
+                  </Text>
+
+                  <View style={globalStyles.separatorNoColor}></View>
+                  <View style={styles.separator}></View>
+                  <View style={globalStyles.separatorNoColor}></View>
+                  {/* buttons */}
+                </View>
               </View>
-            ) : null}
-          </View>
-          <View
-            style={{ display: "flex", flexDirection: "row", marginTop: 12 }}
-          >
-            <Badge variant="details" text={"Online booking priority"} />
-            <Badge variant="prebooking" text={"Allows pre-booking"} />
-          </View>
-          <View style={styles.separator}></View>
-          <View
-            style={[
-              {
-                backgroundColor: tokens.colors.fadedBackgroundGey,
-                borderRadius: 12,
-                padding: 6,
-              },
-            ]}
-          >
-            <Text style={{ color: tokens.colors.textColor, padding: 6 }}>
-              {data.description}
-            </Text>
-          </View>
-          <View style={styles.separator}></View>
-          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
-            <Text style={globalStyles.title}>Operating hours</Text>
-            <OpeningHours hours={data.availability} />
-          </View>
-          <View style={globalStyles.separator}></View>
-          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
-            <Text style={globalStyles.title}>Location details</Text>
-            <View style={{ marginTop: 16 }}>
-              {/* <MapComponent region={undefined} /> */}
+              {isProvider ? (
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "100%",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{
+                      // height: 24,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flex: 1,
+                    }}
+                    onPress={() => setEditProfileDetails(true)}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "bold",
+                        color: tokens.colors.text,
+                        fontFamily: "GorditaMedium",
+                        width: "100%",
+                        textAlign: "left",
+                      }}
+                    >
+                      <Ionicons
+                        name="person-outline"
+                        size={16}
+                        color={tokens.colors.gray}
+                      />
+                      {"  Edit Profile"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      // height: 24,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flex: 1,
+                    }}
+                    onPress={() => navigation.navigate("AddProduct")}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "bold",
+                        color: tokens.colors.text,
+                        fontFamily: "GorditaMedium",
+                        width: "100%",
+                        textAlign: "right",
+                      }}
+                    >
+                      <Ionicons
+                        name="book-outline"
+                        size={16}
+                        color={tokens.colors.gray}
+                      />
+                      {"  Add Portfolio"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
             </View>
+            <View
+              style={{ display: "flex", flexDirection: "row", marginTop: 12 }}
+            >
+              <Badge variant="details" text={"Online booking priority"} />
+              <Badge variant="prebooking" text={"Allows pre-booking"} />
+            </View>
+            <View style={styles.separator}></View>
+            <View
+              style={[
+                {
+                  backgroundColor: tokens.colors.fadedBackgroundGey,
+                  borderRadius: 12,
+                  padding: 6,
+                },
+              ]}
+            >
+              <Text style={{ color: tokens.colors.textColor, padding: 6 }}>
+                {data.description}
+              </Text>
+            </View>
+            <View style={styles.separator}></View>
+            <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+              <Text style={globalStyles.title}>Operating hours</Text>
+              <View style={styles.updateOperatingHours}>
+                <ButtonComponent
+                  onPress={() => setUpdateOperatingHoursModal(true)}
+                  text={"Update operating hours"}
+                />
+              </View>
+              <OpeningHours hours={data.availability} />
+            </View>
+            <View style={globalStyles.separator}></View>
+            <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+              <Text style={globalStyles.title}>Location details</Text>
+              <View style={{ marginTop: 16 }}>
+                <Text style={[{ margin: 0 }, styles.linkUnderlinedLocation]}>
+                  {data.location}
+                </Text>
+                {/* <MapComponent region={undefined} /> */}
+              </View>
+            </View>
+            <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+              <Text style={globalStyles.title}>Social Media</Text>
+              <View style={{ marginTop: 16 }}></View>
+              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                <Text style={styles.links}>Website:</Text>{" "}
+                <Text style={styles.linkUnderlined}>{data.website}</Text>
+              </Text>
+              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                <Text style={styles.links}>Instagram:</Text>{" "}
+                <Text style={styles.linkUnderlined}>{data.instagram}</Text>
+              </Text>
+            </View>
+            <View style={globalStyles.imageView}>{/* map here */}</View>
           </View>
-          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
-            <Text style={globalStyles.title}>Social Media</Text>
-          </View>
-          <View style={globalStyles.imageView}>{/* map here */}</View>
         </View>
-      </View>
+        <UpdateOperatingHoursModal
+          isVisible={updateOperatingHoursModal}
+          onClose={() => setUpdateOperatingHoursModal(false)}
+          onUpdate={(data) => updateUserAvailabilityDetails(data)}
+        />
+      </>
     );
   }
 
@@ -572,6 +623,26 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     marginTop: 6,
     marginBottom: 6,
+  },
+  updateOperatingHours: {
+    margin: 12,
+    marginTop: 18,
+  },
+  links: {
+    color: "#333",
+    margin: 12,
+  },
+  linkUnderlined: {
+    textDecorationLine: "underline",
+    color: tokens.colors.circularProgress,
+    margin: 12,
+    textTransform: "lowercase",
+  },
+  linkUnderlinedLocation: {
+    textDecorationLine: "underline",
+    color: tokens.colors.circularProgress,
+    // margin:12,
+    textTransform: "lowercase",
   },
 });
 

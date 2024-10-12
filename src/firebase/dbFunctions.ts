@@ -597,17 +597,20 @@ export const updateUserSubscriptionCredits = async (uid: string, valueToSubtract
 
         // Extract the current totalCredits from subscription
         const currentCredits = userData?.subscription?.totalCredits ?? 0;
+        const currentCreditsUsed = userData?.subscription?.totalCreditsUsed ?? 0;
+        console.warn("current credits as recieved : "+ currentCredits)
 
         // Calculate the new totalCredits by subtracting the value
         const newTotalCredits = currentCredits - valueToSubtract;
-
+        const newTotalCreditsUsed = currentCreditsUsed + valueToSubtract;
+        console.warn("new total credits : " + newTotalCredits, valueToSubtract)
         // Ensure the totalCredits doesn't go below zero
         const updatedTotalCredits = newTotalCredits >= 0 ? newTotalCredits : 0;
 
         // Update the subscription.totalCredits in Firestore for the found user
         await setDoc(
           userDoc.ref,
-          { subscription: { totalCredits: updatedTotalCredits } },
+          { subscription: { totalCredits: updatedTotalCredits, totalCreditsUsed: newTotalCreditsUsed } },
           { merge: true }
         );
 
@@ -637,9 +640,10 @@ export const updateHairStylistSubscriptionCredits = async (uid: string, valueToS
 
         // Extract the current totalCredits from subscription
         const currentCredits = userData?.subscription?.totalCredits ?? 0;
-
+        const currentCreditsUsed = userData?.subscription?.totalCreditsUsed ?? 0;
         // Calculate the new totalCredits by subtracting the value
         const newTotalCredits = currentCredits - valueToSubtract;
+        const newTotalCreditsUsed = currentCreditsUsed + valueToSubtract;
         console.warn("🚀 ~ querySnapshot.forEach ~ newTotalCredits:", newTotalCredits)
 
         // Ensure the totalCredits doesn't go below zero
@@ -649,7 +653,7 @@ export const updateHairStylistSubscriptionCredits = async (uid: string, valueToS
         // Update the subscription.totalCredits in Firestore for the found user
         await setDoc(
           userDoc.ref,
-          { subscription: { totalCredits: updatedTotalCredits } },
+          { subscription: { totalCredits: updatedTotalCredits, totalCreditsUsed: newTotalCreditsUsed } },
           { merge: true }
         );
 
@@ -866,3 +870,156 @@ export const subscribeToHairstylists = (uid, callback) => {
     return null;
   }
 };
+
+// Function to update the availability for the user
+export const updateUserAvailability = async (uid: string, newAvailability: any) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        const userData = userDoc.data();
+        const currentAvailability = userData?.availability ?? [];
+
+        // Update or add the new availability
+        const updatedAvailability = updateAvailabilityArray(currentAvailability, newAvailability);
+
+        // Save the updated availability array to Firestore
+        await setDoc(
+          userDoc.ref,
+          { availability: updatedAvailability },
+          { merge: true } // Merge to ensure other fields remain intact
+        );
+
+        console.log(`Updated availability for User ${uid} to:`, updatedAvailability);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating user availability:', error);
+  }
+};
+
+// Function to update the availability for the hairstylist
+export const updateHairStylistAvailability = async (uid: string, newAvailability: any) => {
+  try {
+    // Create a query to find the hairstylist where the 'id' field matches the uid
+    const hairstylistsRef = collection(db, 'hairstylists');
+    const q = query(hairstylistsRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching hairstylist is found
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (stylistDoc) => {
+        const stylistData = stylistDoc.data();
+        const currentAvailability = stylistData?.availability ?? [];
+
+        // Update or add the new availability
+        const updatedAvailability = updateAvailabilityArray(currentAvailability, newAvailability);
+
+        // Save the updated availability array to Firestore
+        await setDoc(
+          stylistDoc.ref,
+          { availability: updatedAvailability },
+          { merge: true } // Merge to ensure other fields remain intact
+        );
+
+        console.log(`Updated availability for Hairstylist ${uid} to:`, updatedAvailability);
+      });
+    } else {
+      console.log('No hairstylist found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating hairstylist availability:', error);
+  }
+};
+
+// Helper function to update or add availability without duplicating days
+const updateAvailabilityArray = (currentAvailability: any[], newAvailability: any[]) => {
+  const updatedAvailability = [...currentAvailability];
+
+  newAvailability.forEach((newDay) => {
+    const index = updatedAvailability.findIndex((day) => day.day === newDay.day);
+
+    if (index !== -1) {
+      // If the day exists, update its startTime and endTime
+      updatedAvailability[index] = { ...updatedAvailability[index], ...newDay };
+    } else {
+      // If the day doesn't exist, add the new day to the array
+      updatedAvailability.push(newDay);
+    }
+  });
+
+  return updatedAvailability;
+};
+// Function to update the subscription totalCredits and plan for the user and hairstylist
+export const SubscribeToPlanForUserAndHairstylist = async (
+  uid: string, 
+  valueToAdd: number, 
+  newPlan: string
+) => {
+  try {
+    // Create references for both the 'Users' and 'hairstylists' collections
+    const usersRef = collection(db, 'Users');
+    const hairstylistsRef = collection(db, 'hairstylists');
+
+    // Create a query to find the user in both collections where the 'id' field matches the uid
+    const userQuery = query(usersRef, where('id', '==', uid));
+    const hairstylistQuery = query(hairstylistsRef, where('id', '==', uid));
+
+    // Get the documents that match the query in both collections
+    const userSnapshot = await getDocs(userQuery);
+    const hairstylistSnapshot = await getDocs(hairstylistQuery);
+
+    // Helper function to update documents
+    const updateCreditsAndPlan = async (doc: any, collectionName: string) => {
+      const data = doc.data();
+
+      // Extract the current totalCredits from subscription
+      const currentCredits = data?.subscription?.totalCredits ?? 0;
+
+      // Calculate the new totalCredits by adding the value
+      const newTotalCredits = currentCredits + valueToAdd;
+
+      // Update the subscription details in Firestore for the found document
+      await setDoc(
+        doc.ref,
+        { 
+          subscription: { 
+            totalCredits: newTotalCredits, 
+            plan: newPlan 
+          } 
+        },
+        { merge: true }
+      );
+
+      console.log(`Updated totalCredits for ${collectionName} with UID ${uid} to: ${newTotalCredits}, Plan set to: ${newPlan}`);
+    };
+
+    // If a matching user is found in 'Users', update their subscription.totalCredits and plan
+    if (!userSnapshot.empty) {
+      userSnapshot.forEach((doc) => updateCreditsAndPlan(doc, 'Users'));
+    } else {
+      console.log('No user found with the given UID in Users collection.');
+    }
+
+    // If a matching hairstylist is found in 'hairstylists', update their subscription.totalCredits and plan
+    if (!hairstylistSnapshot.empty) {
+      hairstylistSnapshot.forEach((doc) => updateCreditsAndPlan(doc, 'hairstylists'));
+    } else {
+      console.log('No hairstylist found with the given UID in hairstylists collection.');
+    }
+  } catch (error) {
+    console.error('Error updating subscription credits and plan in Users and hairstylists:', error);
+  }
+};
+

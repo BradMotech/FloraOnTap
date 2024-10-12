@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import globalStyles from "../../styles/globalStyles";
 import tokens from "../../styles/tokens";
 import PayFastModal from "../../components/PayFastModal";
 import { formatToRands } from "../../utils/currencyUtil";
+import { SubscribeToPlanForUserAndHairstylist } from "../../firebase/dbFunctions";
+import { AuthContext } from "../../auth/AuthContext";
 
 export const PRICINGOPTIONS = [
   {
@@ -54,7 +56,8 @@ export const PRICINGOPTIONS = [
 ];
 
 const PriceList = () => {
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const { user } = useContext(AuthContext);
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const paymentData = {
@@ -77,10 +80,20 @@ const PriceList = () => {
 
   const closeModal = () => {
     setModalVisible(false);
+    updateSubscriptionPlan()
   };
+
+ const updateSubscriptionPlan = async () => {
+   await SubscribeToPlanForUserAndHairstylist(
+     user.uid,
+     PRICINGOPTIONS[selectedPlan].credits,
+     PRICINGOPTIONS[selectedPlan].name
+   );
+ };
 
   const handleSelectPlan = (id: number) => {
     setSelectedPlan(id);
+    console.warn(PRICINGOPTIONS[id])
   };
 
   const renderPlan = ({ item }: { item: (typeof PRICINGOPTIONS)[0] }) => (
