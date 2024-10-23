@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "HairduApp",
-    "slug": "HairduApp",
+    "name": "FloraOnTap",
+    "slug": "FloraOnTap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,7 +12,7 @@
     "splash": {
       "image": "./assets/splashMobile.png",
       "resizeMode": "contain",
-      "backgroundColor": "#7FBF73"
+      "backgroundColor": "#E3C6C8"
     },
     "ios": {
       "supportsTablet": true,
@@ -22,7 +22,7 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#7FBF73"
+        "backgroundColor": "#E3C6C8"
       },
       "package": "com.bradleyxcodes.hairdu"
     },
