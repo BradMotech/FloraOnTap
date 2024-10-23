@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Alert,
   ImageBackground,
@@ -22,8 +22,12 @@ import { AuthContext } from "../auth/AuthContext";
 import Toast from "react-native-toast-message";
 import { useToast } from "../components/ToastContext";
 import LoadingScreen from "../components/LoadingScreen";
+import Walkthrough from "../components/walkthrough";
 
 const LoginScreen = ({ navigation }) => {
+  const [isWalkthroughVisible, setIsWalkthroughVisible] = useState(false);
+  const buttonRef = useRef(null);
+  const buttonRef2 = useRef(null);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>(""); // Fixed typo: passowrd -> password
   const emailRef = useRef<TextInput>(null);
@@ -36,6 +40,22 @@ const LoginScreen = ({ navigation }) => {
   const navigateTo = (routeName: string) => {
     navigation.navigate(routeName); // Navigate to the specified route
   };
+
+  const walkthroughElements = [
+    {
+      ref: buttonRef,
+      description: "This button allows you to create a new task.",
+    },
+    {
+      ref: buttonRef2,
+      description: "This button allows you to edit the task.",
+    },
+    // Add more steps as needed
+  ];
+
+  useEffect(() => {
+    setIsWalkthroughVisible(true);
+  }, []);
 
   const signInToApp = async () => {
     setIsLoading(true)
@@ -64,10 +84,10 @@ const LoginScreen = ({ navigation }) => {
       source={{ uri: "https://hairdu2024.web.app/hairdubraidsbackground3.png" }}
       style={globalStyles.backgroundImage}
     >
-      <KeyboardAvoidingView
+      {/* <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-      >
+      > */}
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={globalStyles.container}>
             <Icon
@@ -98,7 +118,7 @@ const LoginScreen = ({ navigation }) => {
               <View style={globalStyles.imageView}>
                 <InputComponent
                   iconName="mail-outline"
-                  value={email}
+                  value={email.trim()}
                   keyboardType="default"
                   onChangeText={(text: string) => setEmail(text)}
                   onSubmitEditing={focusNextInput}
@@ -121,7 +141,14 @@ const LoginScreen = ({ navigation }) => {
             </ContainerCard>
           </View>
         </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      {/* </KeyboardAvoidingView> */}
+      {/* Walkthrough here */}
+      {/* Walkthrough component */}
+      {/* <Walkthrough
+        elements={walkthroughElements}
+        isVisible={isWalkthroughVisible}
+        onClose={() => setIsWalkthroughVisible(false)}
+      /> */}
     </ImageBackground>
   ):<LoadingScreen/>;
 };

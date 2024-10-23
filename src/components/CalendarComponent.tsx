@@ -8,6 +8,7 @@ import TimePicker from "./TimePicker";
 import { Ionicons } from "@expo/vector-icons";
 import { formatReadableDate } from "../utils/dateFormat";
 import Badge from "./Badge";
+import { maskPhoneNumber, maskText } from "../utils/maskPhoneNumber";
 
 interface CalendarComponentProps {
   events: Record<
@@ -19,6 +20,8 @@ interface CalendarComponentProps {
   onEventClick?: (event: any) => void; // New prop for event click handler
   onTimeClick?: (event: any) => void; // New prop for event click handler
   allowBooking: boolean; // New prop for event click handler
+  maskPhone:boolean,
+  maskTextValue:boolean,
 }
 
 const CalendarComponent: React.FC<CalendarComponentProps> = ({
@@ -28,6 +31,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   onEventClick, // Accept the event click handler
   allowBooking,
   onTimeClick,
+  maskPhone = false,
+  maskTextValue = false,
 }) => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -55,13 +60,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
   // Render agenda items as clickable
   const renderItem = (item: any) => {
-    console.log("🚀 ~ renderItem ~ item:", item);
-    // Get the dot color for the date of the event
     const eventDate = selectedDate || "";
     const eventStyle = events[eventDate] || {};
-    const backgroundColor = events[eventDate].dotColor
-    ? `${events[eventDate].dotColor}80` // Add 80 for 50% opacity in hex
-    : "rgba(255, 255, 255, 0.5)"; // Default to white with 50% opacity
+    const backgroundColor = item.appointmentDetails.appointmentStatus === "OUT FOR DELIVERY"
+    ? `${'#47BF9C'}80` // Add 80 for 50% opacity in hex
+    : `${tokens.colors.skyBlueColor}`; // Default to white with 50% opacity
 
     return (
       <TouchableOpacity
@@ -93,7 +96,18 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <Ionicons name={"person-circle-outline"} size={15} color={"#fff"} />
             {" " + item.name}
           </Text>
-          <Text
+          {maskTextValue ? <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"person-circle-outline"} size={15} color={"#fff"} />
+            {" " +
+              maskText(item.appointmentDetails.userCustomerInfo[0]?.name +
+              " " +
+              item.appointmentDetails.userCustomerInfo[0]?.surname)}
+          </Text>:<Text
             style={[
               globalStyles.GorditaMedium,
               { color: backgroundColor === "#fff" ? "black" : "white" },
@@ -104,16 +118,62 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
               item.appointmentDetails.userCustomerInfo[0]?.name +
               " " +
               item.appointmentDetails.userCustomerInfo[0]?.surname}
-          </Text>
-          <Text
+          </Text>}
+         { maskPhone ? <Text
             style={[
               globalStyles.GorditaMedium,
               { color: backgroundColor === "#fff" ? "black" : "white" },
             ]}
           >
             <Ionicons name={"call"} size={15} color={"#fff"} />
-            {" " + item.appointmentDetails.userCustomerInfo[0]?.phone}
-          </Text>
+            {" Cell number : " + maskPhoneNumber(item.appointmentDetails.userCustomerInfo[0]?.phone)}
+          </Text> :
+          <Text
+          style={[
+            globalStyles.GorditaMedium,
+            { color: backgroundColor === "#fff" ? "black" : "white" },
+          ]}
+        >
+          <Ionicons name={"call"} size={15} color={"#fff"} />
+          {" Cell number : " + item.appointmentDetails.userCustomerInfo[0]?.phone}
+        </Text>
+          }
+         { maskPhone ? <Text
+            style={[
+              globalStyles.GorditaMedium,
+              { color: backgroundColor === "#fff" ? "black" : "white" },
+            ]}
+          >
+            <Ionicons name={"call"} size={15} color={"#fff"} />
+            {" Whatsapp number : " + maskPhoneNumber(item.appointmentDetails.events[0]?.whatsappNumber)}
+          </Text> :
+          <Text
+          style={[
+            globalStyles.GorditaMedium,
+            { color: backgroundColor === "#fff" ? "black" : "white" },
+          ]}
+        >
+          <Ionicons name={"call"} size={15} color={"#fff"} />
+          {" Whatsapp number : " + item.appointmentDetails.events[0]?.whatsappNumber}
+        </Text>
+          }
+        <Text style={[
+            globalStyles.GorditaMedium,
+            { color: backgroundColor === "#fff" ? "black" : "white",marginTop:6 },
+          ]}>
+          {"Location :  " + '\n'} <Text style={{color:tokens.colors.skyBlueColor}}>{item.appointmentDetails.events[0]?.end.placeName}</Text>
+        </Text>
+        {maskTextValue ? <Text style={[
+            globalStyles.GorditaMedium,
+            { color: backgroundColor === "#fff" ? "black" : "white" },
+          ]}>
+          {"Special Message :  " + '\n' + '\n' +  maskText(item.appointmentDetails.events[0]?.specialMessage)}
+        </Text>:<Text style={[
+            globalStyles.GorditaMedium,
+            { color: backgroundColor === "#fff" ? "black" : "white" },
+          ]}>
+          {"Special Message :  " + '\n' + '\n' +  item.appointmentDetails.events[0]?.specialMessage}
+        </Text>}
           <View
             style={{width:'100%',alignItems:'flex-start',display:'flex',flexDirection:'row'}}
           >
@@ -123,7 +183,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <Text
               style={{
                 color:
-                  item.appointmentDetails.appointmentStatus === "ACCEPTED"
+                  item.appointmentDetails.appointmentStatus === "OUT FOR DELIVERY"
                     ? "green"
                     : "red",
                 fontWeight: "800",
@@ -138,15 +198,32 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     );
   };
   // Custom marked dates
-  const markedDates = {
-    ...events,
-    [selectedDate || ""]: {
-      selected: true,
-      selectedColor: tokens.colors.hairduMainColor,
-      selectedTextColor: "white",
-      ...events[selectedDate || ""],
-    },
+  const markedDates = Object.keys(events).reduce((acc, date) => {
+    const appointmentStatus = agendaItems[date]?.[0]?.appointmentDetails.appointmentStatus;
+    console.warn("🚀 ~ markedDates ~ appointmentStatus:", appointmentStatus)
+    acc[date] = {
+      ...events[date],
+      dotColor: appointmentStatus === "OUT FOR DELIVERY" ? "#47BF9C" : tokens.colors.skyBlueColor, // Match with background logic
+    };
+    return acc;
+  }, {});
+  
+  // Also handle the selected date
+  markedDates[selectedDate || ""] = {
+    selected: true,
+    selectedColor: tokens.colors.floraOnTapMainColor,
+    selectedTextColor: "white",
+    ...events[selectedDate || ""],
   };
+  // const markedDates = {
+  //   ...events,
+  //   [selectedDate || ""]: {
+  //     selected: true,
+  //     selectedColor: tokens.colors.floraOnTapMainColor,
+  //     selectedTextColor: "white",
+  //     ...events[selectedDate || ""],
+  //   },
+  // };
 
   // Handle booking event
   const handleBookEvent = () => {
@@ -201,7 +278,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <TimePicker onTimeChange={(time) => onTimeClick(time)}></TimePicker>
           ) : null}
           {allowBooking ? (
-            <ButtonComponent text="Book Event" onPress={handleBookEvent} />
+            <ButtonComponent text="Place an Order" onPress={handleBookEvent} />
           ) : null}
         </View>
       )}
@@ -237,7 +314,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: "white",
-    width: 80,
+    width: undefined,
+    maxWidth:150,
     padding: 2,
     borderRadius: 14,
     alignItems: "center",

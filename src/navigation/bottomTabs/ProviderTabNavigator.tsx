@@ -17,6 +17,9 @@ import ProductEditScreen from '../../screens/Provider/ProductEditScreen';
 import { Dimensions } from 'react-native';
 import FinancialProjections from '../../screens/Provider/FinancialProjections';
 import Patrons from '../../screens/Provider/Patrons';
+import MerchantSettings from '../../screens/Provider/MerchantSettings';
+import Notifications from '../../common/Notifications';
+import ImmediateChat from '../../common/ImmediateChat';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); 
@@ -46,8 +49,11 @@ const DashboardStack = () => (
           case 'Subscription':
             title = 'Subscription';
             break;
+          case 'MerchantSettings':
+            title = 'Mercant Settings';
+            break;
           default:
-            title = 'Hairdu';
+            title = 'Flora On tap';
         }
 
         return (
@@ -59,7 +65,7 @@ const DashboardStack = () => (
         );
       },
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
@@ -75,6 +81,9 @@ const DashboardStack = () => (
     <Stack.Screen name="EditProduct" component={ProductEditScreen} />
     <Stack.Screen name="Projections" component={FinancialProjections} />
     <Stack.Screen name="Subscription" component={PriceList} />
+    <Stack.Screen name="MerchantSettings" component={MerchantSettings} />
+    <Stack.Screen name="Notifications" component={Notifications} />
+    <Stack.Screen name="ChatToFlorist" component={ImmediateChat} />
   </Stack.Navigator>
 );
 const AppointmentsStack = () => (
@@ -83,7 +92,7 @@ const AppointmentsStack = () => (
     screenOptions={({ navigation }) => ({
       header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
@@ -92,7 +101,7 @@ const AppointmentsStack = () => (
       },
     })}
   >
-    <Stack.Screen name="Appointments" component={AppointmentsScreen} />
+    <Stack.Screen name="Orders" component={AppointmentsScreen} />
   </Stack.Navigator>
 );
 const ChatsStack = () => (
@@ -101,7 +110,7 @@ const ChatsStack = () => (
     screenOptions={({ navigation }) => ({
       header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
@@ -119,7 +128,7 @@ const SettingsStack = () => (
     screenOptions={({ navigation }) => ({
       header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerTintColor: '#fff',
       headerShown:true,
@@ -143,18 +152,18 @@ const ProviderTabNavigator = () => {
           let iconName;
 
           if (route.name === 'Dashboard') {
-            iconName = color !== tokens.colors.hairduMainColor ? 'home-outline':'home';
+            iconName = color !== tokens.colors.floraOnTapMainColor ? 'home-outline':'home';
           } else if (route.name === 'Settings') {
-            iconName = color !== tokens.colors.hairduMainColor ?  'settings-outline':'settings';
+            iconName = color !== tokens.colors.floraOnTapMainColor ?  'settings-outline':'settings';
           } else if (route.name === 'Appointments') {
-            iconName = color !== tokens.colors.hairduMainColor ?  'calendar-outline':'calendar';
+            iconName = color !== tokens.colors.floraOnTapMainColor ?  'calendar-outline':'calendar';
           } else if (route.name === 'Chat') {
-            iconName = color !== tokens.colors.hairduMainColor ? 'chatbubble-outline':'chatbubble';
+            iconName = color !== tokens.colors.floraOnTapMainColor ? 'chatbubble-outline':'chatbubble';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: tokens.colors.hairduMainColor,
+        tabBarActiveTintColor: tokens.colors.floraOnTapMainColor,
         tabBarInactiveTintColor: tokens.colors.inactive,
         tabBarShowLabel: false, // Optionally hide the labels for tabs
         headerShown: false, // Hide the header for the tab navigator

@@ -6,7 +6,7 @@ import tokens from '../styles/tokens';
 const LoadingScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={tokens.colors.hairduMainColor} />
+      <ActivityIndicator size="large" color={tokens.colors.floraOnTapMainColor} />
       <Text style={styles.text}>Loading...</Text>
     </View>
   );
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 20,
     fontSize: 18,
-    color: tokens.colors.hairduMainColor, // Adjust text color to fit your theme
+    color: tokens.colors.floraOnTapMainColor, // Adjust text color to fit your theme
   },
 });
 

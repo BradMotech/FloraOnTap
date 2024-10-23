@@ -23,8 +23,8 @@ export const PRICINGOPTIONS = [
     credits:20,
     features: [
       "20 credits pack",
-      "4 appointment approval",
-      "100MB Storage",
+      "4 Flora orders",
+      "100MB Gallery Storage",
       "Basic Support",
     ],
   },
@@ -35,8 +35,8 @@ export const PRICINGOPTIONS = [
     credits:40,
     features: [
       "40 credits pack",
-      "8 appointment approval",
-      "1GB Storage",
+      "8 Flora orders",
+      "1GB Gallery Storage",
       "Priority Support",
     ],
   },
@@ -47,9 +47,10 @@ export const PRICINGOPTIONS = [
     credits:80,
     features: [
       "80 credits pack",
-      "16 appointment approval",
+      "16 Flora orders",
       "Chat system to manage appointment follow ups",
       "Financial projections",
+      "Unlimited Gallery Storage",
       "Dedicated Support",
     ],
   },

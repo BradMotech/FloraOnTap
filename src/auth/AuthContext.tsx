@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase'; // Firebase setup
-import { fetchHairstylistsFromFirestore, fetchUserFromFirestore } from '../firebase/dbFunctions';
+import { fetchFloraProvidersFromFirestore, fetchUserFromFirestore } from '../firebase/dbFunctions';
 import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -9,8 +9,8 @@ import Toast from 'react-native-toast-message';
 interface AuthContextProps {
   user: any;
   userData:any,
-  hairstylistsData:any,
-  setHairstylistsData:any,
+  flowerProvidersData:any,
+  setFloraProvidersData:any,
   hairstylesData:any,
   setHairstylesData:any,
   signIn: (email: string, password: string) => Promise<void>;
@@ -27,10 +27,10 @@ interface AuthContextProps {
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
   userData:null,
-  hairstylistsData:null,
+  flowerProvidersData:null,
   hairstylesData:null,
   setHairstylesData:null,
-  setHairstylistsData:null,
+  setFloraProvidersData:null,
   signIn: async () => {},
   logOut: async () => {},
   userType: null,
@@ -44,7 +44,7 @@ export const AuthContext = createContext<AuthContextProps>({
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
-  const [hairstylistsData, setHairstylistsData] = useState<any>(null);
+  const [flowerProvidersData, setFloraProvidersData] = useState<any>(null);
   const [hairstylesData, setHairstylesData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string | null>(null);
@@ -60,16 +60,16 @@ export const AuthProvider = ({ children }) => {
       const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
       console.log("🚀 ~ signIn ~ fetchedUserType:", fetchedUserType)
       const fetchedUserdata = await fetchUserFromFirestore(user.uid);
-      let fetchedHairstylists = null;
+      let fetchedFloraProviders = null;
       if(fetchedUserType === "Provider"){
-       fetchedHairstylists = await fetchHairstylistsFromFirestore(user.uid);
+       fetchedFloraProviders = await fetchFloraProvidersFromFirestore(user.uid);
       }else if(fetchedUserType === "Customer"){
-        fetchedHairstylists = await fetchHairstylistsFromFirestore();
+        fetchedFloraProviders = await fetchFloraProvidersFromFirestore();
       }
       setUserType(fetchedUserType);
       setUser(user);
       setUserData(fetchedUserdata)
-      setHairstylistsData(fetchedHairstylists)
+      setFloraProvidersData(fetchedFloraProviders)
     } catch (error) {
       console.error('Error signing in:', error);
       setErrorMessage(error)
@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user,userData,hairstylistsData,hairstylesData,setHairstylesData,setHairstylistsData, signIn, logOut, userType, setUserType, isAuthenticated, loading,setErrorMessage,errorMessage }}>
+    <AuthContext.Provider value={{ user,userData,flowerProvidersData,hairstylesData,setHairstylesData,setFloraProvidersData, signIn, logOut, userType, setUserType, isAuthenticated, loading,setErrorMessage,errorMessage }}>
       {children}
     </AuthContext.Provider>
   );

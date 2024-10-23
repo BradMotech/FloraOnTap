@@ -93,7 +93,7 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ hairstylistId,provider })
         renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.reviewsList}
-      />:<ActivityIndicator size={'large'} color={tokens.colors.hairduMainColor}/>}
+      />:<ActivityIndicator size={'large'} color={tokens.colors.floraOnTapMainColor}/>}
     </View>
   );
 };

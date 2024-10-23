@@ -32,7 +32,7 @@ const ButtonComponent = ({
           marginTop: marginTop,
           borderColor: borderColor ? borderColor : null,
           borderWidth: borderWidth ? borderWidth : null,
-          backgroundColor:buttonColor ? buttonColor : tokens.colors.hairduMainColor,
+          backgroundColor:buttonColor ? buttonColor : tokens.colors.floraOnTapMainColor,
           width:width ? width :'100%'
         },
       ]}

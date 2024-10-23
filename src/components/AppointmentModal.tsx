@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, View, Text, Button, StyleSheet, Dimensions } from "react-native";
 import ButtonComponent from "./buttonComponent";
 import tokens from "../styles/tokens";
+import { FontAwesome } from '@expo/vector-icons'; // For the blue dot and pin
 
 interface AppointmentModalProps {
   visible: boolean;
@@ -25,12 +26,14 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({ visible, onClose, e
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
           <Text style={styles.modalBody}>{event.name}</Text>
-
+          <Text style={styles.modalBody}>{"Special Message : "}<Text style={{color:tokens.colors.skyBlueColor}}>{event.appointmentDetails.events[0].specialMessage}</Text> { '\n'+'\n' } <Text style={{color:tokens.colors.gray}}>Copy Message </Text><FontAwesome name="copy" size={17} color={tokens.colors.gray} /></Text>
+          <Text style={styles.modalBody}>{"Location : "}<Text style={{color:tokens.colors.skyBlueColor}}>{event.appointmentDetails.events[0].end.placeName}</Text></Text>
           {/* Footer with buttons */}
           <View style={styles.modalFooter}>
             <View style={{width:Dimensions.get("screen").width/3.4}}>
             <ButtonComponent
               text={leftButtonTitle}
+              buttonColor={tokens.colors.skyBlueColor}
               onPress={() => {
                 console.log("Declined");
                 onConfirm(); // Close the modal after decline

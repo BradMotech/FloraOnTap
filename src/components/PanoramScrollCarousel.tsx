@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, Image, TouchableOpacity, StyleSheet, View, Dimensions } from 'react-native';
+import { ScrollView, Image, TouchableOpacity, StyleSheet, View, Dimensions, Text } from 'react-native';
+import globalStyles from '../styles/globalStyles';
 
 const { width } = Dimensions.get('window'); // Get device width to size images
 
@@ -10,9 +11,10 @@ interface ImageItem {
 
 interface PanoramaScrollCarouselProps {
   images: ImageItem[];
+  onPress:()=> void
 }
 
-const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images }) => {
+const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images,onPress }) => {
   return (
     <View style={styles.carouselContainer}>
       <ScrollView
@@ -23,16 +25,29 @@ const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images 
         contentContainerStyle={styles.scrollContent}
       >
         {images.map((imageItem, index) => (
-          <TouchableOpacity
-            key={index}
-            activeOpacity={0.8}
-            onPress={() => {
-              // Handle press navigation to the `href`
-              // For example, you can use navigation.navigate if using react-navigation
-              console.log(`Navigating to: ${imageItem.href}`);
-            }}
-          >
+          <TouchableOpacity key={index} activeOpacity={0.8} onPress={onPress}>
             <Image source={{ uri: imageItem.url }} style={styles.image} />
+            <View
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                marginLeft: 22,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent:'center',
+                alignItems:'center',
+                marginBottom:15,backgroundColor:'#000',
+                padding:6,
+                borderRadius:12
+              }}
+            >
+              <Image
+                source={{ uri: imageItem.url }}
+                style={{ height: 40, width: 40, borderRadius: 20 }}
+              />
+              <Text style={[globalStyles.title,{color:'#fff'}]}>{" Burgeon Flora"}</Text>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>

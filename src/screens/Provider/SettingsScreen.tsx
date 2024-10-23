@@ -19,7 +19,7 @@ const ListItem = ({ title, onPress }) => (
     <MaterialIcons
       name="chevron-right"
       size={24}
-      color={tokens.colors.hairduMainColor}
+      color={tokens.colors.floraOnTapMainColor}
     />
   </TouchableOpacity>
 );

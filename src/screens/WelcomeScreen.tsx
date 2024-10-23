@@ -62,10 +62,10 @@ const [resetPassword, setResetPassword] = useState<boolean>(false);
             {TITLES.WELCOME}
           </Text>
           <View style={globalStyles.imageView}>
-            <Image
-              source={{ uri: "https://hairdu2024.web.app/hairdulogo.png" }}
-              style={{ width: 100, height: 100 }} // Adjust the width and height as needed
-            />
+            {/* <Image
+             source={require('../../assets/images/icon.png')}
+              style={{ width: 50, height: 50 }} // Adjust the width and height as needed
+            /> */}
           </View>
           <View style={globalStyles.imageView}>
             <ButtonComponent text="login" onPress={() => navigateTo("Login")} />
@@ -73,9 +73,9 @@ const [resetPassword, setResetPassword] = useState<boolean>(false);
               text="Register"
               marginTop={tokens.spacing.sm}
               buttonColor={tokens.colors.background}
-              borderColor={tokens.colors.hairduMainColor}
+              borderColor={tokens.colors.floraOnTapMainColor}
               borderWidth={0.4}
-              textColor={tokens.colors.hairduMainColor}
+              textColor={tokens.colors.floraOnTapMainColor}
               onPress={() => navigateTo("SignUp")}
             />
           </View>

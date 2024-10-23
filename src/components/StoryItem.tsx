@@ -19,12 +19,12 @@ const StoryItem: React.FC<StoryItemProps> = ({ onPress, src ,name}) => {
           cx="40"
           cy="40"
           r="40"
-          stroke={tokens.colors.hairduMainColor} // Color for the border
+          stroke={tokens.colors.floraOnTapMainColor} // Color for the border
           strokeWidth="3"
           fill="transparent"
         />
       </Svg>
-      {src ? <Image source={{ uri: src }} style={globalStyles.StoryImage} />:<View style={[globalStyles.StoryImage,{backgroundColor:tokens.colors.hairduMainColor,alignItems:'center',justifyContent:'center'}]}><Text style={globalStyles.placeholderText}>{firstLetter}</Text></View>}
+      {src ? <Image source={{ uri: src }} style={globalStyles.StoryImage} />:<View style={[globalStyles.StoryImage,{backgroundColor:tokens.colors.floraOnTapMainColor,alignItems:'center',justifyContent:'center'}]}><Text style={globalStyles.placeholderText}>{firstLetter}</Text></View>}
     </TouchableOpacity>
   );
 };

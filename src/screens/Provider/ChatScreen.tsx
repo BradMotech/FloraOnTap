@@ -86,7 +86,7 @@ const ChatScreen = () => {
         ListEmptyComponent={ <>
           {isLoading ? <ActivityIndicator
             size="large"
-            color={tokens.colors.hairduMainColor}
+            color={tokens.colors.floraOnTapMainColor}
           /> :  <Text>No friends found.</Text>}
          
         </>}
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: tokens.colors.hairduMainColor, // Placeholder background color
+        backgroundColor: tokens.colors.floraOnTapMainColor, // Placeholder background color
         justifyContent: 'center',
         alignItems: 'center',
       },

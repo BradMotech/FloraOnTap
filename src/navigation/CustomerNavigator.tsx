@@ -3,7 +3,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import DashboardScreen from '../screens/Customer/DashboardScreen';
 import ProfileScreen from '../screens/Customer/ProfileScreen';
-import AppointmentsScreen from '../screens/Customer/AppointmentsScreen';
+import AppointmentsScreen from '../screens/Customer/OrdersScreen';
 import ChatScreen from '../screens/Customer/ChatScreen';
 import tokens from '../styles/tokens';
 import Header from '../components/header';
@@ -43,7 +43,7 @@ const CustomerStack = createStackNavigator(
     initialRouteName: 'Dashboard',
     defaultNavigationOptions: {
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerShown:false,
       headerTintColor: '#fff',

@@ -16,6 +16,7 @@ import {
   declineBooking,
   fetchAppointmentsByHairstylistId,
   updateHairStylistSubscriptionCredits,
+  updateNotificationReadStatus,
   updateUserSubscriptionCredits,
 } from "../../firebase/dbFunctions";
 import AppointmentModal from "../../components/AppointmentModal";
@@ -122,18 +123,23 @@ const AppointmentsScreen = () => {
   };
 
   function acceptClientBooking(appointment: any): void {
+    const bookingTitle = 'Booking out for delivery.';
+    const bookingDetails = 'Booking out for delivery. Please ensure you are available to recieve your flowers';
     setIsLoading(true)
-    acceptBooking(appointment.appointmentDetails.id).then((data) => {
+    acceptBooking(appointment.appointmentDetails.id).then(async (data) => {
       setModalVisible(false);
       setBookingFlag(true);
-      updateUserSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.serviceValue);
-      updateHairStylistSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.serviceValue);
+      // updateUserSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
+      // updateHairStylistSubscriptionCredits(user.uid,appointment.appointmentDetails.selectedHairstyle.creditValue);
       showToast(
-        "Appointment approved successfully, the Customer has been notified",
+        "Order delivery notification sent to customer successfully, Please make arrangements to deliver on booked delivery time",
         "success",
         "top"
       );
       setIsLoading(false)
+      // console.warn(JSON.stringify(appointment));
+      await updateNotificationReadStatus(null,'unread',appointment.appointmentDetails.customerId,bookingTitle,bookingDetails,user?.uid);
+
     });
   }
 
@@ -156,9 +162,9 @@ const AppointmentsScreen = () => {
           visible={modalVisible}
           event={selectedEvent}
           onClose={() => confirmCancelBooking(selectedEvent)}
-          title={"Appointment management"}
-          leftButtonTitle={"Accept"}
-          rightButtonTitle={"Decline"}
+          title={"Order Management"}
+          leftButtonTitle={"Deliver"}
+          rightButtonTitle={"Message User"}
           onConfirm={() => acceptClientBooking(selectedEvent)}
         />
       )}
@@ -167,6 +173,26 @@ const AppointmentsScreen = () => {
           {/* <View style={globalStyles.separatorNoColor}></View> */}
           {/* <View style={globalStyles.separatorNoColor}></View> */}
           {/* <Text style={globalStyles.title}>{TITLES.APPOINTMENTS}</Text> */}
+          <View style={styles.container}>
+            <Text style={styles.title}>Legend Explainer</Text>
+            <Text style={globalStyles.subtitle}>{"Click on the calendar date to see the Orders you've recieved"}</Text>
+            <View style={globalStyles.separatorNoColor}></View>
+            <View style={styles.legendContainer}>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, { backgroundColor: "#47BF9C" }]} />
+                <Text style={ globalStyles.subtitle}>- Out for Delivery Orders</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View
+                  style={[
+                    styles.dot,
+                    { backgroundColor: tokens.colors.skyBlueColor },
+                  ]}
+                />
+                <Text style={ globalStyles.subtitle}>- Not Out Yet</Text>
+              </View>
+            </View>
+          </View>
           <CalendarComponent
             allowBooking={false}
             onEventClick={handleEventClick}
@@ -174,14 +200,42 @@ const AppointmentsScreen = () => {
             agendaItems={formattedEvents.agendaItems}
             onBookEvent={function (date: string): void {
               //  alert(date);
-            }}
-          />
+            } }
+            maskPhone={true} maskTextValue={false}          />
         </View>
       </ScrollView>
     </SafeAreaView>
   ):(<LoadingScreen/>);
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    width: "100%",
+    alignItems: "flex-start",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  legendContainer: {
+    flexDirection: "column",
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  dot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 8,
+  },
+  legendText: {
+    fontSize: 16,
+  },
+});
 
 export default AppointmentsScreen;

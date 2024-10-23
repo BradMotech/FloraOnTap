@@ -5,13 +5,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDgh_IzW6TzrscXMX0Xw_-ne8jLtg2xrU0",
-  authDomain: "hairdu2024.firebaseapp.com",
-  projectId: "hairdu2024",
-  storageBucket: "hairdu2024.appspot.com",
-  messagingSenderId: "648264423943",
-  appId: "1:648264423943:web:ab00d0d2e5846fae0aa8a2",
-  measurementId: "G-4P3Z3YDHPV",
+  apiKey: "AIzaSyASNuwv-cwrbfC8qDgU95x2nLPJx4b2IDM",
+  authDomain: "floraontap.firebaseapp.com",
+  projectId: "floraontap",
+  storageBucket: "floraontap.appspot.com",
+  messagingSenderId: "382642693652",
+  appId: "1:382642693652:web:9cf7932be2442bd6466901",
+  measurementId: "G-YHJQ33J857"
 };
 
 // Initialize Firebase

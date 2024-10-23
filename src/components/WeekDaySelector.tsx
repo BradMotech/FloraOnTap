@@ -80,7 +80,7 @@ const WeekdaySelector = ({ selectedDaysData, setSelectedDaysData }) => {
             style={{
               padding: 10,
               backgroundColor: selectedDays.includes(day.id)
-                ? tokens.colors.hairduMainColor
+                ? tokens.colors.floraOnTapMainColor
                 : "#fff",
               marginVertical: 5,
               borderRadius: tokens.borderRadius.medium,
@@ -115,7 +115,7 @@ const WeekdaySelector = ({ selectedDaysData, setSelectedDaysData }) => {
                 <View
                   style={{
                     borderRadius: 10,
-                    backgroundColor: tokens.colors.hairduMainColor,
+                    backgroundColor: tokens.colors.floraOnTapMainColor,
                     padding: 3,
                   }}
                 >
@@ -132,7 +132,7 @@ const WeekdaySelector = ({ selectedDaysData, setSelectedDaysData }) => {
                 <View
                   style={{
                     borderRadius: 10,
-                    backgroundColor: tokens.colors.hairduMainColor,
+                    backgroundColor: tokens.colors.floraOnTapMainColor,
                     padding: 3,
                   }}
                 >

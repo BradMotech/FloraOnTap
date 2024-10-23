@@ -54,7 +54,7 @@ const AddPatronScreen = () => {
         imageUrl,
       };
   
-      // Add the patron to both the Users and Hairstylists collections
+      // Add the patron to both the Users and FloraProviders collections
       await updateUserPatrons(user.uid, patronData);
       await updateHairStylistPatrons(user.uid, patronData);
   

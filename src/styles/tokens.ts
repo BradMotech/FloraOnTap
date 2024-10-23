@@ -10,8 +10,8 @@ const tokens = {
     background: "#ffffff",
     text: "#333333",
     gray: "#7f8c8d",
-    hairduMainColor:'#7fbf73',
-    hairduTextColorGreen:'#7fbf73',
+    floraOnTapMainColor:'#E3C6C8',
+    hairduTextColorGreen:'#E3C6C8',
     shadow:"#7f8c8d",
     iconColor:"#9ca3af",
     inactive:'#d1d1d1',
@@ -24,6 +24,8 @@ const tokens = {
     barkInspiredTextColor:'#111637',
     barkInspiredDescriptionTextColor:'#9ea0b6',
     gold:'gold',
+    darkBlueColor:'#111637',
+    skyBlueColor:'#2d7af1',
     error: '#e74c3c', // Red color for error
   },
   fontSize: {

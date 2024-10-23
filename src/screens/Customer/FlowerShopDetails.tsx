@@ -6,7 +6,7 @@ import { useRoute } from "@react-navigation/native";
 import { AuthContext } from "../../auth/AuthContext";
 import globalStyles from "../../styles/globalStyles";
 
-const SalonDetails = ({ navigation }) => {
+const FlowerShopDetails = ({ navigation }) => {
   const { hairstylesData } = useContext(AuthContext);
   const route = useRoute();
   const { hairStylistDetails }: any = route.params;
@@ -20,7 +20,7 @@ const SalonDetails = ({ navigation }) => {
           salonData={hairstylesData}
           ratingData={undefined}
           navigation={navigation}
-          salonDetails={hairStylistDetails}
+          flowerProvidersDetails={hairStylistDetails}
           isProvider={false}
         />
       </View>
@@ -30,4 +30,4 @@ const SalonDetails = ({ navigation }) => {
 
 const styles = StyleSheet.create({});
 
-export default SalonDetails;
+export default FlowerShopDetails;

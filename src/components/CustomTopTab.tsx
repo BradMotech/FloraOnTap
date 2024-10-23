@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Dimensions,
+  Platform,
 } from "react-native";
 import tokens from "../styles/tokens";
 import ProductItemCard from "./ProductItem";
@@ -46,7 +47,7 @@ const CustomTabView = ({
   salonData,
   ratingData,
   navigation,
-  salonDetails,
+  flowerProvidersDetails,
   isProvider,
 }) => {
   const [activeTab, setActiveTab] = useState("Details");
@@ -56,7 +57,8 @@ const CustomTabView = ({
 
   function sendMessageToUser(data: { id: string }) {
     updateUserFriends(data);
-    navigation.navigate("Chat");
+    // navigation.navigate("Chat");
+    navigation.navigate("ChatToFlorist",{selectedFriendId:data.id,selectedFriendName:flowerProvidersDetails.name});
   }
 
   const renderItem = ({ item }: { item: any }) => (
@@ -65,10 +67,11 @@ const CustomTabView = ({
       title={item.name}
       price={item.price}
       description={item.description}
+      stockStatus={item.stockStatus}
       addedOn={formatDate(item.createdAt)}
       onViewDetails={() => {
         // Handle view details button press
-        navigation.navigate("BookAppointment", { hairstyleDetails: item });
+        navigation.navigate("PlaceOrder", { floraDetails: item,flowerProvidersDetails:flowerProvidersDetails });
       }}
       phone={item.phone}
     />
@@ -78,7 +81,7 @@ const CustomTabView = ({
     const firstLetter = data.name.charAt(0).toUpperCase();
     return (
       <View>
-      <Image source={{ uri: data.bannerImage ? data.bannerImage :'https://cdn.dribbble.com/users/246611/screenshots/10748226/media/f17b711e4e14bb11e518f804352548ef.png?resize=800x600&vertical=center' }} style={{ width: '100%', height: 200, borderRadius: 12 }} />
+      {/* {data.bannerImage && <Image source={{ uri: data.bannerImage ? data.bannerImage :'https://cdn.dribbble.com/users/246611/screenshots/10748226/media/f17b711e4e14bb11e518f804352548ef.png?resize=800x600&vertical=center' }} style={{ width: '100%', height: 200, borderRadius: 12 }} />} */}
         <View style={{ width: Dimensions.get("screen").width - 22 }}>
           <View
             style={[
@@ -88,10 +91,11 @@ const CustomTabView = ({
                 alignItems: "center",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                backgroundColor: tokens.colors.barkInspiredColor,
+                backgroundColor: tokens.colors.darkBlueColor,
                 padding: 8,
                 borderRadius: 12,
                 width: "100%",
+                marginTop:4
               },
             ]}
           >
@@ -116,20 +120,22 @@ const CustomTabView = ({
             >
               <Text
                 style={{
-                  color: tokens.colors.barkInspiredTextColor,
+                  color: tokens.colors.background,
                   textAlign: "center",
                   alignItems: "center",
                   justifyContent: "center",
+                  fontSize:25
                 }}
               >
-                <Ionicons
+                {/* <Ionicons
                   name={"person-circle-outline"}
                   size={15}
                   color={tokens.colors.gray}
-                />
-                {"  " + data.name}
+                /> */}
+                {data.name}
               </Text>
-              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+              <View style={{marginBottom:12}}></View>
+              <Text style={{ color: tokens.colors.background }}>
                 <Ionicons
                   name={"mail-outline"}
                   size={15}
@@ -137,7 +143,7 @@ const CustomTabView = ({
                 />
                 {"  " + data.email}
               </Text>
-              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+              <Text style={{ color: tokens.colors.background }}>
                 <Ionicons
                   name={"call-outline"}
                   size={15}
@@ -145,7 +151,7 @@ const CustomTabView = ({
                 />
                 {"  " + data.phone}
               </Text>
-              <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+              <Text style={{ color: tokens.colors.background }}>
                 <Ionicons
                   name={"globe-outline"}
                   size={15}
@@ -167,20 +173,28 @@ const CustomTabView = ({
                     height: 24,
                     alignItems: "center",
                     justifyContent: "center",
+                    alignContent:'center',
+                    flexDirection:'row',
                     flex: 1,
+                    backgroundColor: tokens.colors.skyBlueColor,
+                    padding:6,
+                    borderRadius: 5,
+                    borderColor:tokens.colors.skyBlueColor,
+                    borderWidth:0.3,
+                    marginLeft:Platform.OS === 'ios' ? 70 : 0
                   }}
                   onPress={() => sendMessageToUser(data)}
                 >
+                  <Ionicons color={tokens.colors.background} name="chatbubble-outline" size={20} />
                     <Text
                       style={{
                         fontSize: 15,
                         fontWeight: "bold",
-                        color: tokens.colors.text,
+                        color: tokens.colors.background,
                         fontFamily: "GorditaMedium",
                       }}
                     >
-                      <Ionicons name="chatbubble-outline" size={15} />
-                      {" Send Message"}
+                      {" Send us a message"}
                     </Text>
 
                 </TouchableOpacity>
@@ -188,28 +202,12 @@ const CustomTabView = ({
               {/* buttons */}
             </View>
           </View>
-          {isProvider ? (
-            <View
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <ButtonComponent
-                marginTop={10}
-                text={"Edit profile"}
-                onPress={() => setEditProfile(true)}
-              />
-              <ButtonComponent marginTop={10} text={"Renew subscription"} />
-            </View>
-          ) : null}
           {/* <View style={globalStyles.separator}></View> */}
           <View
             style={{ display: "flex", flexDirection: "row", marginTop: 12 }}
           >
             <Badge variant="details" text={"Online booking priority"} />
-            <Badge variant="prebooking" text={"Allows pre-booking"} />
+            <Badge variant="prebooking" text={"Allows Delivery"} />
           </View>
           <View
             style={[
@@ -231,11 +229,11 @@ const CustomTabView = ({
             </Text>
           </View>
           <View style={globalStyles.separator}></View>
-          <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+          {data.availability.length ? <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Operating hours</Text>
             <OpeningHours hours={data.availability} />
-          </View>
-          <View style={globalStyles.separator}></View>
+          </View>:null}
+          {data.availability.length ? <View style={globalStyles.separator}></View> : null}
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Location details</Text>
             <View style={{marginTop:16}}>
@@ -316,11 +314,11 @@ const renderGallery = (): React.ReactNode => {
       <ScrollView style={styles.content}>
         {activeTab === "Details" && (
           <View style={styles.pageContent}>
-            {salonDetails ? (
+            {flowerProvidersDetails ? (
               <View>
                 {/* Render salon data */}
                 {!editProfile ? (
-                  <View>{renderSalonProfileDetails(salonDetails)}</View>
+                  <View>{renderSalonProfileDetails(flowerProvidersDetails)}</View>
                 ) : (
                   <View>{null}</View>
                 )}
@@ -393,7 +391,7 @@ const renderGallery = (): React.ReactNode => {
         )}
         {activeTab === "Ratings" && (
           <View style={styles.pageContent}>
-            <ReviewsScreen provider={false} hairstylistId={salonDetails.id} />
+            <ReviewsScreen provider={false} hairstylistId={flowerProvidersDetails.id} />
           </View>
         )}
         {activeTab === "Gallery" && (

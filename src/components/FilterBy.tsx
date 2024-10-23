@@ -4,12 +4,50 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Modal }
 // Sample data for filtering
 const PROVINCES = ['Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape', 'Limpopo'];
 const LOCATIONS = ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria', 'Polokwane'];
+
 const CATEGORIES = [
-  { id: 1, name: 'Braids' },
-  { id: 2, name: 'Straightback' },
-  { id: 3, name: 'Faux Locs' },
-  { id: 4, name: 'Cornrows' },
-  { id: 5, name: 'Dreadlocks' },
+  { name: "Roses", id: 1 }, // Major
+  { name: "Tulips", id: 2 }, // Minor
+  { name: "Lilies", id: 3 }, // Major
+  { name: "Daisies", id: 4 }, // Minor
+  { name: "Sunflowers", id: 5 }, // Major
+  { name: "Orchids", id: 6 }, // Major
+  { name: "Hydrangeas", id: 7 }, // Major
+  { name: "Peonies", id: 8 }, // Major
+  { name: "Carnations", id: 9 }, // Minor
+  { name: "Chrysanthemums", id: 10 }, // Minor
+  { name: "Gardenias", id: 11 }, // Major
+  { name: "Iris", id: 12 }, // Major
+  { name: "Lavender", id: 13 }, // Major
+  { name: "Daffodils", id: 14 }, // Minor
+  { name: "Geraniums", id: 15 }, // Minor
+  { name: "Marigolds", id: 16 }, // Minor
+  { name: "Petunias", id: 17 }, // Minor
+  { name: "Begonias", id: 18 }, // Minor
+  { name: "Violets", id: 19 }, // Minor
+  { name: "Snapdragons", id: 20 }, // Major
+  { name: "Hibiscus", id: 21 }, // Major
+  { name: "Anemones", id: 22 }, // Major
+  { name: "Azaleas", id: 23 }, // Major
+  { name: "Camellias", id: 24 }, // Major
+  { name: "Ranunculus", id: 25 }, // Major
+  { name: "Bluebells", id: 26 }, // Minor
+  { name: "Clematis", id: 27 }, // Major
+  { name: "Freesias", id: 28 }, // Major
+  { name: "Hellebores", id: 29 }, // Major
+  { name: "Pansies", id: 30 }, // Minor
+  { name: "Zinnias", id: 31 }, // Minor
+  { name: "Calendulas", id: 32 }, // Minor
+  { name: "Cosmos", id: 33 }, // Minor
+  { name: "Sweet Peas", id: 34 }, // Minor
+  { name: "Foxgloves", id: 35 }, // Major
+  { name: "Amaryllis", id: 36 }, // Major
+  { name: "Poppies", id: 37 }, // Major
+  { name: "Delphiniums", id: 38 }, // Major
+  { name: "Dahlias", id: 39 }, // Major
+  { name: "Gladiolus", id: 40 }, // Major
+  { name: "Morning Glories", id: 41 }, // Minor
+  { name: "Primroses", id: 42 }, // Minor
 ];
 
 const FilterBy = ({ onApplyFilter }: { onApplyFilter: (filters: any) => void }) => {
@@ -58,12 +96,12 @@ const FilterBy = ({ onApplyFilter }: { onApplyFilter: (filters: any) => void }) 
       <Text style={styles.title}>Filter By</Text>
 
       {/* Filter by Province */}
-      <Text style={styles.filterLabel}>Province</Text>
-      {renderDropdown(PROVINCES, selectedProvince, setSelectedProvince, isProvinceDropdownOpen, setIsProvinceDropdownOpen)}
+      {/* <Text style={styles.filterLabel}>Province</Text>
+      {renderDropdown(PROVINCES, selectedProvince, setSelectedProvince, isProvinceDropdownOpen, setIsProvinceDropdownOpen)} */}
 
       {/* Filter by Location */}
-      <Text style={styles.filterLabel}>Location</Text>
-      {renderDropdown(LOCATIONS, selectedLocation, setSelectedLocation, isLocationDropdownOpen, setIsLocationDropdownOpen)}
+      {/* <Text style={styles.filterLabel}>Location</Text>
+      {renderDropdown(LOCATIONS, selectedLocation, setSelectedLocation, isLocationDropdownOpen, setIsLocationDropdownOpen)} */}
 
       {/* Filter by Categories */}
       <Text style={styles.filterLabel}>Categories</Text>

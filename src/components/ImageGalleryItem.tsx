@@ -1,42 +1,3 @@
-// import React from 'react';
-// import { View, Image, StyleSheet, FlatList } from 'react-native';
-
-// interface ImageGalleryItemProps {
-//   uris: { uri: string }[]; // Array of objects with a `uri` property
-// }
-
-// const ImageGalleryItem: React.FC<ImageGalleryItemProps> = ({ uris }) => {
-//   // Render each image
-//   const renderItem = ({ item }: { item: { url: string } }) => (
-//     <Image source={{ uri: item.url }} style={styles.image} />
-//   );
-
-//   return (
-//     <FlatList
-//       data={uris}
-//       renderItem={renderItem}
-//       keyExtractor={(item) => item.uri} // Ensure URIs are unique
-//       numColumns={3} // Adjust this based on the number of images per row
-//       contentContainerStyle={styles.container}
-//     />
-//   );
-// };
-
-// // Styles
-// const styles = StyleSheet.create({
-//   container: {
-//     // justifyContent: 'center',
-//     // alignItems: 'center',
-//   },
-//   image: {
-//     width: 100, // Fixed width
-//     height: 100, // Fixed height
-//     margin: 5,  // Optional margin between images
-//     resizeMode: 'cover', // Ensure images cover the area without distortion
-//   },
-// });
-
-// export default ImageGalleryItem;
 
 import React, { useEffect, useState } from "react";
 import {
@@ -45,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import ImageView from "./ImageView";
 
@@ -69,7 +31,7 @@ const ImageGalleryItem: React.FC<ImageGalleryItemProps> = ({ uris }) => {
 
   const renderItem = ({ item, index }: { item: { url: string }; index }) => (
     <TouchableOpacity onPress={() => openModal(index)}>
-      <Image source={{ uri: item.url }} style={styles.image} />
+      <Image source={{ uri: item.url }} style={[styles.image,{width:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100,height:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100}]} />
     </TouchableOpacity>
   );
 
@@ -79,7 +41,7 @@ const ImageGalleryItem: React.FC<ImageGalleryItemProps> = ({ uris }) => {
         data={uris}
         renderItem={renderItem}
         keyExtractor={(item) => item.uri}
-        numColumns={3} // Adjust based on the number of images per row
+        numColumns={uris.length <= 3 ? 2 : 3} // Adjust based on the number of images per row
         contentContainerStyle={styles.container}
       />
 
@@ -106,6 +68,7 @@ const styles = StyleSheet.create({
     width: 100, // Fixed width
     height: 100, // Fixed height
     margin: 5, // Optional margin between images
+    borderRadius:8,
     resizeMode: "cover", // Ensure images cover the area without distortion
   },
 });

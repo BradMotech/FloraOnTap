@@ -6,6 +6,10 @@ import {
   SafeAreaView,
   ScrollView,
   Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
 import ImageGalleryItem from "../../components/ImageGalleryItem";
 import { useRoute } from "@react-navigation/native";
@@ -19,6 +23,9 @@ import CustomModal from "../../components/CustomModal";
 import {
   fetchAppointmentsByHairstylistId,
   makeBooking,
+  updateHairStylistSubscriptionCredits,
+  updateNotificationReadStatus,
+  updateUserSubscriptionCredits,
 } from "../../firebase/dbFunctions";
 import { AuthContext } from "../../auth/AuthContext";
 import { useToast } from "../../components/ToastContext";
@@ -27,19 +34,26 @@ import { sendNotification } from "../../utils/sendNotification";
 import { formatToRands } from "../../utils/currencyUtil";
 import ReceiptModal from "../../components/RecieptModal";
 import PatronsListScreen from "../../components/PatronsList";
+import TextAreaComponent from "../../components/TextAreaComponent";
+import LocationInput from "../../components/LocationInput";
+import { locationDetails } from "../../components/SalonItem";
+import InputComponent from "../../components/InputComponent";
+import PayFastModal from "../../components/PayFastModal";
 
-const BookAppointment = () => {
+const PlaceOrder = () => {
   const [selectedTime, setSelectedTime] = useState();
   const [makeBookingFlag, setMakeBookingFlag] = useState<boolean>(false);
   const [selectedBookingTimeSlot, setSelectedBookingTimeSlot] = useState();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>();
-  const { userData, user, setHairstylesData, setHairstylistsData } =
+  const [phoneEntered, setPhoneEntered] = useState<string>('');
+  const { userData, user, setHairstylesData, setFloraProvidersData } =
     useContext(AuthContext);
   const route = useRoute();
   const { showToast } = useToast();
-  const { hairstyleDetails }: any = route.params; // Assuming hairstyleDetails has images, price, description, etc.
+  const { floraDetails, flowerProvidersDetails }: any = route.params; // Assuming floraDetails has images, price, description, etc.
   const [formattedEvents, setFormattedEvents] = useState({
     events: {},
     agendaItems: {},
@@ -48,6 +62,14 @@ const BookAppointment = () => {
   const [receiptData, setReceiptData] = useState(null); // State to hold receipt data
   const [selectedPatron, setSelectedPatron] = useState({});
   const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
+  const [specialMessage, setSpecialMessage] = useState("");
+  const [deliverylocationDetails, setDeliverylocationDetails] = useState<locationDetails>(null);
+  const [paymentData, setPaymentData] = useState<any>();
+
+  const handleLocationSelect = (locationDetails) => {
+    console.warn('Location Selected', `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`);
+    setDeliverylocationDetails(locationDetails)
+  };
 
   const formatDateToYYYYMMDD = (isoDateString) => {
     try {
@@ -57,14 +79,14 @@ const BookAppointment = () => {
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     } catch (error) {
-      console.error("Error formatting date:", error); 
+      console.error("Error formatting date:", error);
       return "";
     }
   };
 
   useEffect(() => {
     const unsubscribe = fetchAppointmentsByHairstylistId(
-      hairstyleDetails.hairstylistId,
+      floraDetails.hairstylistId,
       (fetchedData) => {
         const events = {};
         const agendaItems = {};
@@ -111,27 +133,39 @@ const BookAppointment = () => {
 
     // Cleanup the listener on component unmount
     return () => unsubscribe();
-  }, [hairstyleDetails.hairstylistId, makeBookingFlag]);
+  }, [floraDetails.hairstylistId, makeBookingFlag]);
 
   function renderModalChildren(data: any) {
     return (
       <View>
-        <Text style={[globalStyles.GorditaBold,{marginBottom:16,fontSize:22}]}>Confirm Appointment</Text>
-        <Text style={globalStyles.GorditaRegular}>Do you want to proceed with booking this appointment?</Text>
+        <Text
+          style={[globalStyles.GorditaBold, { marginBottom: 16, fontSize: 22 }]}
+        >
+          Confirm Order Details
+        </Text>
+        <Text style={globalStyles.GorditaRegular}>
+          Do you want to proceed with placing this order?
+        </Text>
+        <View style={{ maxHeight: 230 }}>
+          <ImageGalleryItem uris={floraDetails.images} />
+        </View>
+        <Text style={globalStyles.GorditaRegular}>Whatsapp number : {specialMessage}</Text>
+        <Text style={globalStyles.GorditaRegular}>Card Message : {phoneEntered}</Text>
+        <Text style={globalStyles.GorditaRegular}>Delivery location: {deliverylocationDetails?.placeName}</Text>
         <Text style={globalStyles.GorditaRegular}>Date: {selectedDate}</Text>
-        <Text style={globalStyles.GorditaRegular}>Patron: {selectedPatron.name}</Text>
       </View>
     );
   }
 
   const createEventsArray = (
     start: string,
-    end: string,
+    end: any,
     description: string,
     text: string,
     arrivalTime: string,
     backColor: string,
-    serviceName: string
+    specialMessage: string,
+    whatsappNumber: string,
   ) => {
     return [
       {
@@ -141,7 +175,8 @@ const BookAppointment = () => {
         text,
         arrivalTime,
         backColor,
-        serviceName,
+        specialMessage,
+        whatsappNumber
       },
     ];
   };
@@ -176,7 +211,32 @@ const BookAppointment = () => {
     return colors[randomIndex];
   }
 
+  const closeModal = () => {
+    setPaymentModalVisible(false);
+  };
+
   function confirmSettingBooking() {
+    // alert("floral data : "+JSON.stringify(flowerProvidersDetails))
+    if(flowerProvidersDetails.merchant.paymentType !== "Whatsapp"){
+      const paymentData = {
+        merchant_id: "15553273",
+        merchant_key: "y20wnrvfcrbsk",
+        return_url: "https://google.com",
+        cancel_url: "https://google.com",
+        notify_url: "https://google.com",
+        email_address: "brad@motech.dev",
+        name_first: "bradley",
+        name_last: "mamanyoha",
+        amount: floraDetails?.price.toString(),
+        m_payment_id: "000001", 
+        item_name: floraDetails?.name.toString(),
+      };
+    setPaymentData(paymentData); 
+    setPaymentModalVisible(true)
+    }
+    
+
+    setModalVisible(false);
     setIsLoading(true);
     const googleCalendarColors = [
       "#FF6F61", // Coral
@@ -202,17 +262,18 @@ const BookAppointment = () => {
 
     const events = createEventsArray(
       startDate, // Example start time
-      startDate, // Example end time
-      hairstyleDetails.description, // Example description
-      "Booking - " + hairstyleDetails.name, // Example text
+      deliverylocationDetails, // Example end time
+      floraDetails.description, // Example description
+      "Order - " + floraDetails.name + " " +"R "+floraDetails.price, // Example text
       formattedTime, // arrival time text
       bgColor, // bgcolor text
-      "Sample text" // service name text
+      specialMessage // service name text
+      ,phoneEntered //Whatsapp number
     );
 
-    // Update hairstyleDetails with the new events array
+    // Update floraDetails with the new events array
     const updatedHairstyleDetails = {
-      ...hairstyleDetails,
+      ...floraDetails,
       events, // Add the events array here
     };
 
@@ -225,20 +286,31 @@ const BookAppointment = () => {
       events,
       userDataArray as any
     ).then(async (data) => {
+      console.warn("🚀 ~ ).then ~ data:", data)
       setIsSubmittingAppointment(true);
       setRecieptModalVisible(true);
       setReceiptData(data.receipt);
       setModalVisible(false);
-      // alert("here is the booking made" + hairstyleDetails.fcmtoken);
+      // alert("here is the booking made" + floraDetails.fcmtoken);
       setMakeBookingFlag(true);
-      showToast("successfully placed an appoitment", "success", "top");
+      showToast("successfully placed a booking", "success", "top");
+      const details = "Booking made for : "+ floraDetails.name + " " + "R "+ floraDetails.price ;
+      const orderTitle = "Order - : "+ floraDetails.name;
+      await updateNotificationReadStatus(data.bookingId,'unread',floraDetails?.hairstylistId,orderTitle,details,user?.uid);
+      updateUserSubscriptionCredits(
+        floraDetails.hairstylistId,
+        10
+      );
+      updateHairStylistSubscriptionCredits(
+        floraDetails?.hairstylistId,
+        10
+      );
       setIsLoading(false);
       setTimeout(() => {
-        
         setIsSubmittingAppointment(false);
       }, 3000);
       await sendNotification(
-        hairstyleDetails.fcmtoken,
+        floraDetails.fcmtoken,
         "testing within app",
         "you're welcome"
       ).then((data) => {
@@ -252,6 +324,11 @@ const BookAppointment = () => {
   }
 
   return !isLoading ? (
+           <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      > 
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <SafeAreaView
       style={[globalStyles.safeArea, { marginTop: tokens.spacing.xs * 0 }]}
     >
@@ -259,7 +336,7 @@ const BookAppointment = () => {
         <View style={globalStyles.separatorNoColor}></View>
         <View style={globalStyles.imageView}>
           {/* Image Gallery */}
-          <ImageGalleryItem uris={hairstyleDetails.images}></ImageGalleryItem>
+          <ImageGalleryItem uris={floraDetails.images}></ImageGalleryItem>
 
           {/* Separator */}
           <View style={globalStyles.separatorNoColor}></View>
@@ -275,21 +352,19 @@ const BookAppointment = () => {
           </Text>
           <View style={globalStyles.separatorNoColor}></View>
           {/* Detail Items with Icons */}
-          <View style={[styles.flexStart,{width:'100%'}]}>
+          <View style={[styles.flexStart, { width: "100%" }]}>
             <View style={styles.detailItem}>
-              <Ionicons name="list-outline" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
-                {" "}
                 <Text style={[globalStyles.title, globalStyles.value]}>
-                  {hairstyleDetails.name}
+                  {floraDetails.name}
                 </Text>
               </Text>
             </View>
             <View style={styles.detailItem}>
               <Ionicons name="cash-outline" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
-                <Text style={[styles.price, globalStyles.value]}>
-                  {formatToRands(hairstyleDetails.price)}
+                <Text style={[styles.price, globalStyles.planPrice]}>
+                  {formatToRands(floraDetails.price)}
                 </Text>
               </Text>
             </View>
@@ -297,68 +372,139 @@ const BookAppointment = () => {
               <Ionicons name="book-outline" size={15} style={styles.icon} />
               <Text
                 style={styles.detailText}
-              >{`Description: ${hairstyleDetails.description}`}</Text>
+              >{`Description: ${floraDetails.description}`}</Text>
             </View>
             <View style={styles.detailItem}>
-              <Ionicons name="male-female" size={15} style={styles.icon} />
+              <Ionicons name="flower-outline" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
-                {`Gender: `}{" "}
+                {`Flora type:`}{" "}
                 <Text style={globalStyles.value}>
-                  {hairstyleDetails.gender}
+                  {floraDetails.serviceType}
                 </Text>
               </Text>
             </View>
             <View style={styles.detailItem}>
-              <Ionicons name="cut-outline" size={15} style={styles.icon} />
+              <Ionicons name="cash" size={15} style={styles.icon} />
               <Text style={styles.detailText}>
-                {`Service Type:`}{" "}
+                {`Payment Method:`}{" "}
                 <Text style={globalStyles.value}>
-                  {hairstyleDetails.serviceType}
+                  {flowerProvidersDetails?.merchant.paymentType}
                 </Text>
               </Text>
             </View>
           </View>
           <View style={globalStyles.separatorNoColor}></View>
-          <View style={{ width: "100%", paddingLeft: 16, marginBottom: 10 }}>
+          {/* <View style={{ width: "100%", paddingLeft: 16, marginBottom: 10 }}>
             <Text style={globalStyles.title}>Select Preferred Stylist</Text>
           </View>
           <View style={[styles.flexStart, { width: "100%" }]}>
             <PatronsListScreen
-              uid={hairstyleDetails.hairstylistId}
+              uid={floraDetails.hairstylistId}
               onSelectPatron={(data) => {
                 handleSelectedPatron(data);
               }}
             />
-          </View>
+          </View> */}
           <View style={globalStyles.separatorNoColor}></View>
+          <Text
+            style={[
+              globalStyles.title,
+              {
+                textAlign: "left",
+                alignItems: "flex-start",
+                width: "100%",
+                paddingLeft: 16,
+              },
+            ]}
+          >
+            Delivery Address
+          </Text>
+          <View style={{ marginBottom: 16,width:'100%' }}>
+          <LocationInput label={undefined} placeholder={'Please enter Delivery location'} onSearchPress={undefined} onLocationSelect={handleLocationSelect} selectedLocation={deliverylocationDetails?.placeName}/>
+            </View>
+
+            <Text
+            style={[
+              globalStyles.title,
+              {
+                textAlign: "left",
+                alignItems: "flex-start",
+                width: "100%",
+                paddingLeft: 16,
+              },
+            ]}
+          >
+            Whatsapp Number
+          </Text>
+          <View style={{ marginBottom: 16,width:'100%' }}>
+          <InputComponent placeholder="+27 71 935..." value={phoneEntered} iconName={'phone-portrait-outline'} keyboardType={'phone-pad'} onChangeText={(text: string)=>{
+              setPhoneEntered(text)
+            } } />
+            </View>
+
+          <Text
+            style={[
+              globalStyles.title,
+              {
+                textAlign: "left",
+                alignItems: "flex-start",
+                width: "100%",
+                paddingLeft: 16,
+                marginBottom:16
+              },
+            ]}
+          >
+            Write Special Card Message
+          </Text>
+          <View style={{ marginBottom: 16,width:'100%' }}>
+            <TextAreaComponent
+              onTextChange={(textDescr) => setSpecialMessage(textDescr)}
+              textValue={undefined}
+            />
+          </View>
+          <Text
+            style={[
+              globalStyles.title,
+              {
+                textAlign: "left",
+                alignItems: "flex-start",
+                width: "100%",
+                paddingLeft: 16,
+              },
+            ]}
+          >
+            Select Delivery Date
+          </Text>
           <CalendarComponent
-            onEventClick={() => {}}
+            onEventClick={() => { } }
             onTimeClick={(time) => {
               setSelectedBookingTimeSlot(time);
-            }}
+            } }
             events={formattedEvents.events}
             agendaItems={formattedEvents.agendaItems}
             onBookEvent={function (date: string): void {
               setSelectedDate(date);
               setModalVisible(true);
-            }}
+            } }
             allowBooking={true}
-          />
+            maskPhone={true} maskTextValue={true}          />
         </View>
       </ScrollView>
 
-      {modalVisible ? <CustomModal
-        visible={modalVisible}
-        isSubmititng={isSubmittingAppointment}
-        onClose={function (): void {
-          setModalVisible(false);
-          setSelectedDate(null);
-        }}
-        children={renderModalChildren("")}
-        onConfirm={() => {
-          confirmSettingBooking();
-        }}
-      ></CustomModal>:null}
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          isSubmititng={isSubmittingAppointment}
+          onClose={function (): void {
+            setModalVisible(false);
+            setSelectedDate(null);
+          }}
+          children={renderModalChildren("")}
+          onConfirm={() => {
+            confirmSettingBooking();
+          }}
+        ></CustomModal>
+      )}
 
       {receiptData && (
         <ReceiptModal
@@ -367,7 +513,16 @@ const BookAppointment = () => {
           receipt={receiptData}
         />
       )}
+
+      {<PayFastModal
+        isVisible={paymentModalVisible}
+        onClose={closeModal}
+        paymentData={paymentData}
+      />}
     </SafeAreaView>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+    
   ) : (
     <LoadingScreen />
   );
@@ -383,7 +538,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 8, // Space between icon and text
-    color: tokens.colors.hairduMainColor, // Customize the icon color if needed
+    color: tokens.colors.floraOnTapMainColor, // Customize the icon color if needed
   },
   detailText: {
     fontSize: 14,
@@ -405,4 +560,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookAppointment;
+export default PlaceOrder;

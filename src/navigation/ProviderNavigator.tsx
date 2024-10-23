@@ -45,7 +45,7 @@ const ProviderStack = createStackNavigator(
     initialRouteName: 'Dashboard',
     defaultNavigationOptions: {
       headerStyle: {
-        backgroundColor: tokens.colors.hairduMainColor,
+        backgroundColor: tokens.colors.floraOnTapMainColor,
       },
       headerTintColor: '#fff',
       headerTitleStyle: {

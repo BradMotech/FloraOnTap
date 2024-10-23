@@ -13,47 +13,48 @@ import tokens from "../../styles/tokens";
 const FAQS = [
   {
     id: 0,
-    question: "How do I book an appointment with a salon?",
+    question: "How do I purchase flowers on FloraOnTap?",
     answer:
-      "To book an appointment, simply choose your preferred salon or hairstylist, select an available time, and confirm your booking.",
+      "To purchase flowers, browse through our wide selection, add your favorite items to the cart, and proceed to checkout for a seamless payment process.",
   },
   {
     id: 1,
-    question: "Can I cancel or reschedule my booking?",
+    question: "Can I cancel or modify my flower order?",
     answer:
-      "Yes, you can cancel or reschedule your booking through the app before the appointment time. Just navigate to your appointments and choose the option.",
+      "Yes, you can cancel or modify your flower order before it's shipped. Just go to your order history and select the option.",
   },
   {
     id: 2,
-    question: "What is the Hairdu app?",
+    question: "What is FloraOnTap?",
     answer:
-      "Hairdu is a convenient platform for customers to book hair services with salons and independent stylists. It helps manage bookings, payments, and much more.",
+      "FloraOnTap is a convenient platform for buying flowers online. We offer a wide range of beautiful flowers, including bouquets, potted plants, and special arrangements for all occasions.",
   },
   {
     id: 3,
     question: "Do I need to pay in advance?",
     answer:
-      "Payment policies depend on the salon or stylist. Some may require a deposit, while others allow you to pay after the service is complete.",
+      "Yes, all purchases must be paid for in advance to confirm your order. We offer a variety of secure payment options.",
   },
   {
     id: 4,
     question: "How can I contact customer support?",
     answer:
-      "You can reach out to customer support via the in-app chat or by emailing support@hairdu.com.",
+      "You can contact customer support through the in-app chat or by emailing support@floraontap.com. We're here to assist you with any questions or issues.",
   },
   {
     id: 5,
-    question: "What should I do if my stylist doesn't show up?",
+    question: "What should I do if my flowers don't arrive?",
     answer:
-      "In case of a no-show, you can report the issue through the app, and we’ll assist you in resolving the situation.",
+      "If your flowers don't arrive on time, please contact customer support immediately, and we'll help resolve the issue as quickly as possible.",
   },
   {
     id: 6,
-    question: "Can I rate and review my stylist?",
+    question: "Can I rate and review my purchase?",
     answer:
-      "Yes, after your appointment, you will have the option to rate and leave a review for your stylist. This helps others in choosing the right service provider.",
+      "Yes, after receiving your order, you can rate and leave a review for the flowers and the service. Your feedback helps us improve and helps others choose the perfect flowers.",
   },
 ];
+
 
 const FAQScreen = () => {
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);

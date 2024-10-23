@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, ImageBackground, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, ImageBackground, Platform, Keyboard } from 'react-native';
 import { collection, addDoc, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebase/firebase';
 import globalStyles from '../styles/globalStyles';
 import tokens from '../styles/tokens';
+import { updateNotificationReadStatus } from '../firebase/dbFunctions';
 
 interface Message {
   id: string;
@@ -52,6 +53,7 @@ const ChatComponent: React.FC<{ receiverId: string }> = ({ receiverId }) => {
   }, [currentUser, receiverId]);
 
   const sendMessage = async () => {
+    Keyboard.dismiss();
     if (newMessage.trim() === '' || !currentUser) return;
 
     await addDoc(collection(db, 'messages'), {
@@ -62,12 +64,13 @@ const ChatComponent: React.FC<{ receiverId: string }> = ({ receiverId }) => {
     });
 
     setNewMessage('');
+    await updateNotificationReadStatus(null,'unread',receiverId,'new message',newMessage,currentUser?.uid);
   };
 
   const formatDate = (timestamp) => {
     if (timestamp && timestamp.toDate) {
       return timestamp.toDate().toLocaleString(); // Includes both date and time
-    }
+    } 
     return '';
   };
 

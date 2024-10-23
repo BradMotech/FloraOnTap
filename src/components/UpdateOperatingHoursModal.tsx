@@ -32,7 +32,7 @@ const UpdateOperatingHoursModal = ({ isVisible, onClose,onUpdate }) => {
           {loading ? (
             <ActivityIndicator
               size="large"
-              color={tokens.colors.hairduMainColor}
+              color={tokens.colors.floraOnTapMainColor}
             />
           ) : (
             <>

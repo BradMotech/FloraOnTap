@@ -51,7 +51,7 @@ const globalStyles = StyleSheet.create({
     padding: tokens.spacing.sm,
   },
   headerColor: {
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: tokens.colors.floraOnTapMainColor,
     fontFamily:'GorditaMedium'
   },
   containerCard: {
@@ -83,9 +83,10 @@ const globalStyles = StyleSheet.create({
     alignItems: "flex-start",
     textAlign: "left",
     width: "100%",
-    fontSize: tokens.fontSize.larger,
+    fontSize: tokens.fontSize.large,
     marginTop: tokens.spacing.xl,
-    fontFamily:'GorditaBold'
+    fontFamily:'GorditaBold',
+    padding:12
   },
   imageView: {
     alignItems: "center",
@@ -95,7 +96,7 @@ const globalStyles = StyleSheet.create({
   buttonWrapper: {
     width: "100%",
     height: 45,
-    backgroundColor: tokens.colors.hairduMainColor,
+    backgroundColor: tokens.colors.floraOnTapMainColor,
     borderRadius: tokens.borderRadius.medium,
     textAlign: "center",
     justifyContent: "center",
@@ -215,8 +216,8 @@ const globalStyles = StyleSheet.create({
     resizeMode: "cover", // Or 'contain', depending on your needs
   },
   value: {
-    backgroundColor: "#e0f7fa",
-    color: "#00796b",
+    backgroundColor: "#e3c6c836",
+    color: "#DCB0B3",
     padding: 2,
     borderRadius: 5,
     fontFamily:'GorditaMedium'
@@ -232,7 +233,7 @@ const globalStyles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: tokens.colors.hairduMainColor, // Placeholder background color
+    backgroundColor: tokens.colors.floraOnTapMainColor, // Placeholder background color
     justifyContent: "center",
     alignItems: "center",
     fontFamily:'GorditaRegular',

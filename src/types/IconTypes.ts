@@ -25,4 +25,5 @@ export type IoniconName =
   | 'user'
   | 'lock'
   | 'mail-outline'
+  | 'phone-portrait-outline'
 ;

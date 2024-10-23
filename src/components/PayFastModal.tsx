@@ -136,7 +136,7 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
           {loading ? (
             <ActivityIndicator
               size="large"
-              color={tokens.colors.hairduMainColor}
+              color={tokens.colors.floraOnTapMainColor}
             />
           ) : errorMessage ? (
             <Text style={styles.errorText}>{errorMessage}</Text>
@@ -154,7 +154,7 @@ const PayFastModal = ({ isVisible, onClose, paymentData }) => {
                 renderLoading={() => (
                   <ActivityIndicator
                     size="large"
-                    color={tokens.colors.hairduMainColor}
+                    color={tokens.colors.floraOnTapMainColor}
                   />
                 )}
               />

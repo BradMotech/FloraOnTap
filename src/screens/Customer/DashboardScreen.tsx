@@ -18,55 +18,84 @@ import tokens from "../../styles/tokens";
 import { formatDate } from "../../utils/dateFormat";
 import {
   fetchHairstylesFromFirestore,
-  fetchHairstylistsFromFirestore,
+  fetchFloraProvidersFromFirestore,
+  fetchUserFromFirestore,
 } from "../../firebase/dbFunctions";
-import SalonItemCard from "../../components/SalonItem";
+import SalonItemCard, { locationDetails } from "../../components/SalonItem";
 import PanoramaScrollCarousel from "../../components/PanoramScrollCarousel";
 import Tab from "../../components/Tab";
 import PlaceholderComponent from "../../components/placeholderComponent";
+import CustomModal from "../../components/CustomModal";
+import StoriesPreview from "./StoriesPreview";
+import StoriesModal from "../../components/StoriesModal";
+import LocationInput from "../../components/LocationInput";
 
 const promotionImages = [
   {
-    url: "https://thamanibeauty.co.za/wp-content/uploads/2021/06/DSCF0707-1024x683.jpg",
+    url: "https://pbs.twimg.com/media/FtrRLRCWYAEE33e?format=jpg&name=large",
     href: "https://example.com/promo1",
   },
   {
-    url: "https://thamanibeauty.co.za/wp-content/uploads/2022/03/Thamani-Beauty-Bar4879-1024x683.jpg",
+    url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8c9FkJPdRm_WtF79deQMTLqshtjBqzMcvRw&s",
     href: "https://example.com/promo2",
   },
   {
-    url: "https://thamanibeauty.co.za/wp-content/uploads/2022/03/Thamani-Beauty-Bar4888-1024x683.jpg",
+    url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrMgC9BQGfbl0yDrhaa6E1KfaARYqPdDqCDg&s",
     href: "https://example.com/promo3",
   },
 ];
 
 const DashboardScreen = ({ navigation }) => {
-  const { user, hairstylistsData, setHairstylesData, setHairstylistsData } =
+  const { user, flowerProvidersData, setHairstylesData, setFloraProvidersData,hairstylesData } =
     useContext(AuthContext);
-
-  const [filteredData, setFilteredData] = useState(hairstylistsData || []);
-  const [originalData, setOriginalData] = useState(hairstylistsData || []);
+const [modalVisible, setModalVisible] = useState(false);
+  const [filteredData, setFilteredData] = useState(flowerProvidersData || []);
+  const [originalData, setOriginalData] = useState(flowerProvidersData || []);
+  const [floraData, setFloraData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [refreshing, setRefreshing] = useState(false); 
   const [activeTab, setActiveTab] = useState("All"); 
-
+  const [currentUserlocationDetails, setCurrentUserlocationDetails] = useState<locationDetails>(null);
+const  [currentUserData, setCurrentUserData] = useState<any>({});
+   // Function to fetch data
+   const fetchData = async () => {
+    try {
+        const userdata = await fetchUserFromFirestore(user.uid);
+        setCurrentUserData(userdata);
+        // Here we duplicate the flowerProvidersData to have 10 entries
+    // const duplicatedData = [];
+    // if (flowerProvidersData) { 
+    //   for (let i = 0; i < 4; i++) { 
+    //     duplicatedData.push({ ...flowerProvidersData[i % flowerProvidersData.length], id: `${i}` }); // Ensure each item has a unique id
+    //   }
+    //   setFloraProvidersData(duplicatedData); // Set duplicated data
+    //   setOriginalData(duplicatedData); // Set original data to duplicated as well
+    //   setFilteredData(duplicatedData); // Set filtered data to duplicated as well
+    // }
+    // Here we duplicate the flowerProvidersData to have 10 entries, can remove the code between so i don't duplicate in prod
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
   useEffect(() => {
-    if (hairstylistsData === null) {
-      fetchHairstylistsFromFirestore().then((data) => {
-        setHairstylistsData(data);
+    if (flowerProvidersData === null) {
+      fetchFloraProvidersFromFirestore().then((data) => {
+        setFloraProvidersData(data);
       });
     }
-    if (hairstylistsData) {
-      setOriginalData(hairstylistsData);
-      setFilteredData(hairstylistsData);
+    if (flowerProvidersData) {
+      setOriginalData(flowerProvidersData);
+      setFilteredData(flowerProvidersData);
     }
-  }, [hairstylistsData]);
+    fetchData();
+  }, [flowerProvidersData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      const data = await fetchHairstylistsFromFirestore();
-      setHairstylistsData(data);
+      const data = await fetchFloraProvidersFromFirestore();
+      setFloraProvidersData(data);
       setOriginalData(data);
       setFilteredData(data);
     } catch (error) {
@@ -81,22 +110,25 @@ const DashboardScreen = ({ navigation }) => {
       title={item.name}
       rating={item.rating}
       description={item.description}
+      currentUserlocationDetails={currentUserlocationDetails || currentUserData.coordinates}
+      floraUserlocationDetails={item.coordinates} 
       joinedOn={formatDate(item.createdAt)}
+      floristId={item.id}
       onViewDetails={() => {
-        fetchHairstylistsFromFirestore(item.id)
+        fetchFloraProvidersFromFirestore(item.id)
           .then((userdata) => {
-            navigation.navigate("SalonDetails", {
+            navigation.navigate("FlowerShopDetails", {
               salonData: item,
               hairStylistDetails: userdata[0],
             });
           })
-          .catch(() => {});
+          .catch(() => { });
         fetchHairstylesFromFirestore(item.id).then((hairStyles) => {
           setHairstylesData(hairStyles);
+          setFloraData(hairStyles)
         });
-      }}
-      phone={item.phone}
-    />
+      } }
+      phone={item.phone}   />
   );
 
   const filterSalons = (text) => {
@@ -116,9 +148,14 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   // Array of tab titles
-  const tabTitles = ["All", "Barbershop", "Hair Salon", "Nail Salon", "Skin Care"];
+  const tabTitles = ["All", "Florists", "Plant Sellers", "Nurseries",];
 
-  return hairstylistsData ? (
+  const handleLocationSelect = (locationDetails) => {
+    console.warn('Location Selected', `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`);
+    setCurrentUserlocationDetails(locationDetails)
+  };
+
+  return flowerProvidersData ? (
     <SafeAreaView
       style={[globalStyles.safeArea, { marginTop: tokens.spacing.lg * 2.4 }]}
     >
@@ -130,22 +167,25 @@ const DashboardScreen = ({ navigation }) => {
         }
       >
         <View style={globalStyles.dashboard}>
-          <PanoramaScrollCarousel images={promotionImages} />
-          <Text style={globalStyles.title}>Top Rated</Text>
+          <LocationInput showSubTitle={true} label={'Showing Flora near...'} placeholder={'e.g 282 Furrow rd...'} onSearchPress={undefined} onLocationSelect={handleLocationSelect} selectedLocation={currentUserData?.coordinates?.placeName} />
+          <PanoramaScrollCarousel images={promotionImages} onPress={function (): void {
+             setModalVisible(true);
+          } } />
+          <Text style={[globalStyles.title,{marginTop:22}]}>Top Rated</Text>
           <View style={globalStyles.separatorNoColor}></View>
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={globalStyles.storyContainerHorizontal}
           >
-            {hairstylistsData?.map((storyData, index) => {
+            {flowerProvidersData?.map((storyData, index) => {
               return (
                 <StoryItem
                   key={index}
                   onPress={(item) => {
-                    fetchHairstylistsFromFirestore(storyData.id)
+                    fetchFloraProvidersFromFirestore(storyData.id)
                       .then((userdata) => {
-                        navigation.navigate("SalonDetails", {
+                        navigation.navigate("FlowerShopDetails", {
                           salonData: item,
                           hairStylistDetails: userdata[0],
                         });
@@ -171,7 +211,7 @@ const DashboardScreen = ({ navigation }) => {
             }}
           />
           <View style={globalStyles.separator}></View>
-          <Text style={globalStyles.title}>Specialists</Text>
+          <Text style={globalStyles.title}>Plant vendors</Text>
           <View style={globalStyles.separatorNoColor}></View>
           <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
             <Tab 
@@ -189,50 +229,52 @@ const DashboardScreen = ({ navigation }) => {
               numColumns={2}
               columnWrapperStyle={globalStyles.columnWrapper}
               contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No salons to show"}/>)
+            />:<PlaceholderComponent text={"No stores to show"}/>)
           )}
-          {activeTab === "Barbershop" && (
-            (filteredData.filter((x)=>x.salonType === "Barbershop").length ? <FlatList
-              data={filteredData.filter((x)=>x.salonType === "Barbershop")}
+          {activeTab === "Florists" && (
+            (filteredData.filter((x)=>x.floraProviderCategory === "Florist").length ? <FlatList
+              data={filteredData.filter((x)=>x.floraProviderCategory === "Florist")}
               renderItem={renderItem}
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={globalStyles.columnWrapper}
               contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Barbershop to show"}/>)
+            />:<PlaceholderComponent text={"No Florists to show"}/>)
           )}
-          {activeTab === "Hair Salon" && (
-            (filteredData.filter((x)=>x.salonType === "Hair Salon").length ? <FlatList
-              data={filteredData.filter((x)=>x.salonType === "Hair Salon")}
+          {activeTab === "Plant Sellers" && (
+            (filteredData.filter((x)=>x.floraProviderCategory === "Plant Sellers").length ? <FlatList
+              data={filteredData.filter((x)=>x.floraProviderCategory === "Plant Sellers")}
               renderItem={renderItem}
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={globalStyles.columnWrapper}
               contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Hair Salon to show"}/>)
+            />:<PlaceholderComponent text={"No Plant Sellers to show"}/>)
           )}
-          {activeTab === "Nail Salon" && (
-            (filteredData.filter((x)=>x.salonType === "Nail Salon").length ? <FlatList
-              data={filteredData.filter((x)=>x.salonType === "Nail Salon")}
+          {activeTab === "Nurseries" && (
+            (filteredData.filter((x)=>x.floraProviderCategory === "Nurseries").length ? <FlatList
+              data={filteredData.filter((x)=>x.floraProviderCategory === "Nurseries")}
               renderItem={renderItem}
               keyExtractor={(item) => item.id}
               numColumns={2}
               columnWrapperStyle={globalStyles.columnWrapper}
               contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Nail Salon to show"}/>)
+            />:<PlaceholderComponent text={"No Nurseries to show"}/>)
           )}
-          {activeTab === "Skin Care" && (
-            (filteredData.filter((x)=>x.salonType === "Skin Care").length ? <FlatList
-              data={filteredData.filter((x)=>x.salonType === "Skin Care")}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={globalStyles.columnWrapper}
-              contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Skin Care to show"}/>)
-          )}
+          
           {/* Add similar FlatList rendering for other tabs as needed */}
         </View>
+        {modalVisible ? <StoriesModal
+        visible={modalVisible}
+        isSubmititng={null}
+        onClose={function (): void {
+          setModalVisible(false);
+        }}
+        children={<StoriesPreview images={promotionImages}/>}
+        onConfirm={() => {
+          // confirmSettingBooking();
+        }}
+      ></StoriesModal>:null}
       </ScrollView>
     </SafeAreaView>
   ) : (

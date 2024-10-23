@@ -15,7 +15,7 @@ const PatronsListScreen = ({ uid, onSelectPatron }) => {
     try {
       setLoading(true);
 
-      // Fetch patrons from both Users and Hairstylists collections
+      // Fetch patrons from both Users and FloraProviders collections
       const userPatrons = await getUserPatrons(uid);
       const hairstylistPatrons = await getHairStylistPatrons(uid);
 
@@ -79,7 +79,7 @@ const PatronsListScreen = ({ uid, onSelectPatron }) => {
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" color={tokens.colors.hairduMainColor} />;
+    return <ActivityIndicator size="large" color={tokens.colors.floraOnTapMainColor} />;
   }
 
   return (
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     borderBottomColor:tokens.colors.gray
   },
   selectedPatron: {
-    borderColor:tokens.colors.hairduMainColor,
+    borderColor:tokens.colors.floraOnTapMainColor,
     borderWidth:0.4,
     shadowColor: tokens.colors.shadow,
     backgroundColor: tokens.colors.background, // Add a highlight color for selected patron

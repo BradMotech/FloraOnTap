@@ -35,6 +35,7 @@ import { useToast } from "../components/ToastContext";
 import { getTokenFromStorage } from "../utils/getTokenFromStorage";
 import TextAreaComponent from "../components/TextAreaComponent";
 import { AuthContext } from "../auth/AuthContext";
+import LocationInput from "../components/LocationInput";
 const GOOGLE_PLACES_API_KEY = "AIzaSyCbCTiO9UHe5adLop_2AZux7QwBDBljYVQ";
 
 const SignupScreen = ({ navigation }) => {
@@ -44,6 +45,7 @@ const SignupScreen = ({ navigation }) => {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [tokenValue, setTokenValue] = useState("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const [goNext, setGoNext] = useState<boolean>(false);
   const { showToast } = useToast();
   const [suggestions, setSuggestions] = useState([]);
   const [formData, setFormData] = useState({
@@ -54,6 +56,7 @@ const SignupScreen = ({ navigation }) => {
     password: "",
     confirmPassword: "",
     location: "",
+    coordinates: {},
     province: "",
     profileImage: null, // New field for image
     availability: [],
@@ -63,6 +66,7 @@ const SignupScreen = ({ navigation }) => {
     website: "",
     instagram: "",
     twitter: "",
+    floraProviderCategory: "",
   });
 
   const { logOut } = useContext(AuthContext);
@@ -81,6 +85,15 @@ const SignupScreen = ({ navigation }) => {
   const userInstagramRef = useRef(null);
   const userWebsiteRef = useRef(null);
 
+  const typingTimeoutRef = useRef(null);
+
+  const handleLocationInputChange = (key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   // Handle input change
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -92,7 +105,6 @@ const SignupScreen = ({ navigation }) => {
 
   // Image picker handler
   const handleImageUpload = async () => {
-    setImageLoading(true);
     try {
       // Request permission to access the gallery
       const { status } =
@@ -109,12 +121,13 @@ const SignupScreen = ({ navigation }) => {
       // Open image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
+         quality: 0.5, // Adjust quality to reduce file size
+        // quality: 1,
       });
 
       if (!result.canceled) {
         const imageUri = result.assets[0].uri; // Get the selected image URI
-
+        setImageLoading(true);
         // Upload the image to Firebase and get the download URL
         const downloadURL = await uploadImageToFirebase(imageUri);
 
@@ -126,6 +139,7 @@ const SignupScreen = ({ navigation }) => {
 
         showToast("Image uploaded successfully!", "success", "top");
         setImageLoading(false);
+        setGoNext(true);
       } else {
         showToast("Image upload canceled!", "danger", "top");
         setImageLoading(false);
@@ -216,9 +230,9 @@ const SignupScreen = ({ navigation }) => {
 
   const handlePlaceSelect = (description) => {
     // Handle the selection of the place
-    setSelectedLocation(description);  
+    setSelectedLocation(description);
     setSuggestions([]); // Clear suggestions after selection
-    handleInputChange("location", '');
+    handleInputChange("location", "");
   };
 
   const handleLogout = () => {
@@ -229,8 +243,6 @@ const SignupScreen = ({ navigation }) => {
       routes: [{ name: "AuthNavigator" }],
     });
   };
-
-  
 
   async function signUpAndUpdateUsersCollections() {
     try {
@@ -249,6 +261,7 @@ const SignupScreen = ({ navigation }) => {
           name: formData.name,
           phone: formData.phone,
           location: selectedLocation,
+          coordinates: formData.coordinates,
           surname: formData.surname,
           province: formData.province,
           description: formData.description,
@@ -258,7 +271,8 @@ const SignupScreen = ({ navigation }) => {
           services: [],
           website: formData.website,
           instagram: formData.instagram,
-          salonType:formData.userSelectedRoleType,
+          floraProviderType: formData.userSelectedRoleType,
+          floraProviderCategory: formData.floraProviderCategory,
           subscription: {
             plan: "Free Trial",
             expires: new Date(),
@@ -272,7 +286,7 @@ const SignupScreen = ({ navigation }) => {
             paidCurrency: "ZAR",
             paidStatus: "Free Trial",
             paidDate: new Date(),
-            totalCreditsUsed:0
+            totalCreditsUsed: 0,
           },
           subscriptionPlan: "Free Trial",
           fcmtoken: tokenValue,
@@ -316,6 +330,14 @@ const SignupScreen = ({ navigation }) => {
     }
   };
 
+  const handleLocationSelect = (locationDetails) => {
+    setSelectedLocation(locationDetails.placeName)
+    handleLocationInputChange("location", locationDetails.placeName);
+    handleLocationInputChange("coordinates", {placeName:locationDetails.placeName,latitude:locationDetails.latitude,longitude:locationDetails.longitude});
+    console.warn('Location Selected', `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`);
+  };
+  
+
   // Render step-wise content
   const renderStepContent = () => {
     switch (step) {
@@ -331,11 +353,26 @@ const SignupScreen = ({ navigation }) => {
               {SUBTITLES.SIGN_UP_SUBTITLE}
             </Text>
             <View>
+            <View style={{ marginTop: 10 }}>
+            <DropdownComponent
+                items={["Customer", "Provider"]}
+                ref={userSelectedRoleRef}
+                iconName="globe-outline"
+                value={formData.userSelectedRoleType}
+                onChangeText={(text) =>
+                  handleInputChange("userSelectedRole", text)
+                }
+                placeholder="Select role"
+                onItemSelected={(selected) => {
+                  handleInputChange("userSelectedRole", selected);
+                }}
+              />
+              </View>
               <InputComponent
                 iconName="person-outline"
                 value={formData.name}
                 onChangeText={(text) => handleInputChange("name", text)}
-                placeholder="Name"
+                placeholder={formData.userSelectedRole === "Provider" ? 'Business Name': "Name"}
                 //   returnKeyType="next"
                 onSubmitEditing={() => surnameRef.current?.focus()}
                 keyboardType={"default"}
@@ -358,7 +395,7 @@ const SignupScreen = ({ navigation }) => {
                   value={formData.email}
                   onChangeText={(text) => handleInputChange("email", text)}
                   keyboardType="email-address"
-                  placeholder="Email address"
+                  placeholder={formData.userSelectedRole === "Provider" ? 'Business Email address': "Email address"}
                   onSubmitEditing={() => phoneRef.current?.focus()}
                 />
               </View>
@@ -374,60 +411,50 @@ const SignupScreen = ({ navigation }) => {
                   onSubmitEditing={() => userWebsiteRef.current?.focus()}
                 />
               </View>
-              <View style={{ marginTop: -16 }}>
-                <InputComponent
-                  ref={userWebsiteRef}
-                  iconName="globe-outline"
-                  value={formData.website}
-                  onChangeText={(text) => handleInputChange("website", text)}
-                  keyboardType="default"
-                  placeholder="Website"
-                  returnKeyType="next"
-                  onSubmitEditing={() => userInstagramRef.current?.focus()}
-                />
-              </View>
-              <View style={{ marginTop: -16 }}>
-                <InputComponent
-                  ref={userInstagramRef}
-                  iconName="person-outline"
-                  value={formData.instagram}
-                  onChangeText={(text) => handleInputChange("instagram", text)}
-                  keyboardType="default"
-                  placeholder="Instagram"
-                  returnKeyType="next"
-                  onSubmitEditing={() => passwordRef.current?.focus()}
-                />
-              </View>
-              <DropdownComponent
-                items={["Customer", "Provider"]}
-                ref={userSelectedRoleRef}
-                iconName="globe-outline"
-                value={formData.province}
-                onChangeText={(text) =>
-                  handleInputChange("userSelectedRole", text)
-                }
-                placeholder="Select role"
-                onItemSelected={(selected) => {
-                  handleInputChange("userSelectedRole", selected);
-                }}
-              />
+              {formData.userSelectedRole === "Provider" && (
+                <>
+                  <View style={{ marginTop: 0 }}>
+                    <InputComponent
+                      ref={userWebsiteRef}
+                      iconName="globe-outline"
+                      value={formData.website}
+                      onChangeText={(text) =>
+                        handleInputChange("website", text)
+                      }
+                      keyboardType="default"
+                      placeholder="Website"
+                      returnKeyType="next"
+                      onSubmitEditing={() => userInstagramRef.current?.focus()}
+                    />
+                  </View>
+                  <View style={{ marginTop: -16 }}>
+                    <InputComponent
+                      ref={userInstagramRef}
+                      iconName="person-outline"
+                      value={formData.instagram}
+                      onChangeText={(text) =>
+                        handleInputChange("instagram", text)
+                      }
+                      keyboardType="default"
+                      placeholder="Instagram"
+                      returnKeyType="next"
+                      onSubmitEditing={() => passwordRef.current?.focus()}
+                    />
+                  </View>
+                </>
+              )}
               {formData.userSelectedRole === "Provider" && (
                 <DropdownComponent
-                  items={[
-                    "Hair Salon",
-                    "Barbershop",
-                    "Nail Salon",
-                    "Skin Care Salon",
-                  ]}
+                  items={["Florist", "Nurseries", "Plant Sellers"]}
                   ref={userSelectedSalonTypeRef}
                   iconName="globe-outline"
                   value={formData.province}
                   onChangeText={(text) =>
-                    handleInputChange("userSelectedRoleType", text)
+                    handleInputChange("floraProviderCategory", text)
                   }
-                  placeholder="Select salon type"
+                  placeholder="Select Florist Type"
                   onItemSelected={(selected) => {
-                    handleInputChange("userSelectedRoleType", selected);
+                    handleInputChange("floraProviderCategory", selected);
                   }}
                 />
               )}
@@ -470,31 +497,52 @@ const SignupScreen = ({ navigation }) => {
         );
       case 2:
         return (
-          <View style={{ height: Dimensions.get("screen").height }}>
+          <View style={{ height: Dimensions.get("screen").height - 100 }}>
             <Text style={[globalStyles.title, globalStyles.welcomeText]}>
               {TITLES.SIGN_UP_LOCATION}
             </Text>
             <Text
-              style={[globalStyles.subtitle, { marginTop: tokens.spacing.md }]}
+              style={[globalStyles.subtitle, { marginTop: tokens.spacing.md, marginBottom: tokens.spacing.md}]}
             >
-              {SUBTITLES.SIGN_UP_SUBTITLE}
+              {SUBTITLES.SIGN_UP_LOCATION}
             </Text>
             <View>
-              <InputComponent
-                iconName="pin-outline"
-                value={formData.location}
-                onChangeText={(text) => {
-                  handleInputChange("location", text);
-                  setTimeout(() => {
-                    fetchPlaceSuggestions(text); // Fetch places as user types
-                  }, 5000);
+              <DropdownComponent
+                items={[
+                  "Eastern Cape",
+                  "Free State",
+                  "Gauteng",
+                  "KwaZulu-Natal",
+                  "Limpopo",
+                  "Mpumalanga",
+                  "Northern Cape",
+                  "North West",
+                  "Western Cape",
+                ]}
+                iconName="globe-outline"
+                value={formData.province}
+                onChangeText={(text) =>
+                  handleInputChange("province", text)
+                }
+                placeholder="Select Province"
+                onItemSelected={(selected) => {
+                  handleInputChange("province", selected);
                 }}
-                placeholder="Location"
-                ref={locationRef}
-                returnKeyType="next"
-                onSubmitEditing={() => provinceRef.current?.focus()}
               />
-              <Text style={[globalStyles.textAlignCenter,{marginBottom:12}]}>{selectedLocation}</Text>
+              <LocationInput label={'Search your location...'} placeholder={'e.g 292 furrow'} onSearchPress={undefined} onLocationSelect={handleLocationSelect} selectedLocation={undefined} />
+
+              <Text
+                style={[globalStyles.textAlignCenter, { marginBottom: 12 }]}
+              >
+                {selectedLocation}
+              </Text>
+              {formData.province && (
+                <Text
+                  style={[globalStyles.textAlignCenter, { marginBottom: 12 }]}
+                >
+                  {"Province : " + formData.province}
+                </Text>
+              )}
 
               {/* Display the suggestions */}
               {suggestions.length > 0 && (
@@ -521,18 +569,26 @@ const SignupScreen = ({ navigation }) => {
       case 3:
         return (
           <View style={{ alignItems: "center" }}>
+            <Text style={[globalStyles.title, globalStyles.welcomeText]}>
+              {TITLES.SIGN_UP_UPLOADIMAGEPLACEHOLDER}
+            </Text>
             {formData.profileImage ? (
               <>
                 <Image
                   source={{ uri: formData.profileImage }}
                   style={{ width: 100, height: 100, borderRadius: 50 }}
                 />
-                <View style={{ marginTop: 16, width: "100%" }}>
-                  <ButtonComponent text="Next" onPress={handleNextStep} />
-                </View>
+                {/* <View style={{ marginTop: 16, width: "100%" }}>
+                  {goNext && <ButtonComponent text="Next" onPress={handleNextStep} />}
+                </View> */}
               </>
             ) : (
               <View style={{ margin: tokens.spacing.lg, width: "100%" }}>
+                <Text
+              style={[globalStyles.subtitle, { marginTop: tokens.spacing.md, marginBottom: tokens.spacing.md}]}
+            >
+              {SUBTITLES.SIGN_UP_UPLOADIMAGE}
+            </Text>
                 <ButtonComponent
                   text={
                     !imageLoading ? "Select Profile Picture" : "Uploading..."
@@ -541,8 +597,10 @@ const SignupScreen = ({ navigation }) => {
                 />
               </View>
             )}
-            {imageLoading ? (
+            {goNext ? (
+              <View style={{ marginTop: 16, width: "100%" }}>
               <ButtonComponent text="Next" onPress={handleNextStep} />
+              </View>
             ) : null}
           </View>
         );
@@ -564,7 +622,7 @@ const SignupScreen = ({ navigation }) => {
             <ButtonComponent
               text="Submit"
               onPress={() => {
-                setFormData({ ...formData, availableDays: selectedDays });
+                setFormData({ ...formData, availability: selectedDays });
                 handleRegister();
               }}
             />
@@ -583,7 +641,12 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground style={[globalStyles.backgroundImage,{backgroundColor:tokens.colors.background}]}>
+    <ImageBackground
+      style={[
+        globalStyles.backgroundImage,
+        { backgroundColor: tokens.colors.background },
+      ]}
+    >
       <TouchableOpacity
         style={{ zIndex: 1000000 }}
         onPress={() => navigation.goBack()}
@@ -595,7 +658,7 @@ const SignupScreen = ({ navigation }) => {
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1, }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View
               style={{
                 height: "100%",
@@ -617,7 +680,7 @@ export default SignupScreen;
 
 const styles = {
   backIcon: {
-    color: tokens.colors.hairduMainColor,
+    color: tokens.colors.floraOnTapMainColor,
     position: "absolute",
     top: 0,
     marginTop: 44,

@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker"; // For image picking
 import globalStyles from "../styles/globalStyles";
@@ -31,7 +32,7 @@ const ProfileEdit = ({ data, isProvider, navigation, onPress,handleClose }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.canceled) {
@@ -59,10 +60,12 @@ const ProfileEdit = ({ data, isProvider, navigation, onPress,handleClose }) => {
     <View>
       {/* Banner Image */}
       {bannerImage ? (
+         <TouchableOpacity onPress={() => pickImage(setBannerImage)}>
         <Image
           source={{ uri: bannerImage }}
           style={{ width: "100%", height: 200, borderRadius: 12 }}
         />
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity onPress={() => pickImage(setBannerImage)}>
           <View
@@ -79,7 +82,7 @@ const ProfileEdit = ({ data, isProvider, navigation, onPress,handleClose }) => {
       )}
 
       {/* Profile Details */}
-      <View style={{ width: Dimensions.get("screen").width - 22 }}>
+      <View style={{ width: Dimensions.get("screen").width - 22, marginTop:17 }}>
         <View>
           {/* Profile Image */}
           <TouchableOpacity onPress={() => pickImage(setProfileImage)}>
@@ -105,7 +108,7 @@ const ProfileEdit = ({ data, isProvider, navigation, onPress,handleClose }) => {
           </TouchableOpacity>
 
           {/* Editable Details */}
-          <View>
+          <View style={{marginTop:16}}>
             <Text>Name:</Text>
             <TextInput
               value={name}

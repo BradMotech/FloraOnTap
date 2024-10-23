@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: tokens.fontSize.medium,
-    color: tokens.colors.hairduTextColorGreen,
+    color: tokens.colors.barkInspiredTextColor,
   },
   closeButton: {
     padding: tokens.spacing.md,

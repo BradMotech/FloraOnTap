@@ -19,6 +19,7 @@ import ButtonComponent from "./buttonComponent";
 import InputComponent from "./InputComponent";
 import ImagePicker from "react-native-image-picker";
 import {
+  fetchHairstylesFromFirestore,
   updateHairStylistAvailability,
   updateHairStylistProfileDetails,
   updateUserAvailability,
@@ -56,7 +57,7 @@ const CustomTabViewProvider = ({
   salonData,
   ratingData,
   navigation,
-  salonDetails,
+  flowerProvidersDetails,
   isProvider,
 }) => {
   const [activeTab, setActiveTab] = useState("Details");
@@ -66,7 +67,6 @@ const CustomTabViewProvider = ({
   const [updateOperatingHoursModal, setUpdateOperatingHoursModal] =
     useState<boolean>(false);
   const { showToast } = useToast();
-  const { user } = useContext(AuthContext);
   // State to hold the filtered data
   const [filteredData, setFilteredData] = useState(salonData || []);
 
@@ -75,7 +75,21 @@ const CustomTabViewProvider = ({
 
   // State to manage the search input value
   const [searchText, setSearchText] = useState("");
+  const { user, flowerProvidersData, setHairstylesData, hairstylesData } = useContext(AuthContext);// Get current hairstylist (user) context
+  // Function to fetch data
+  const fetchData = async () => {
+    try {
+      const hairStyles = await fetchHairstylesFromFirestore(user.uid);
+      setHairstylesData(hairStyles);
 
+      // if (hairstylistUserData === null) {
+      //   const userdata = await fetchUserFromFirestore(user.uid);
+      //   setHairstylesData(userdata);
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   useEffect(() => {
     if (salonData) {
       setOriginalData(salonData);
@@ -93,6 +107,8 @@ const CustomTabViewProvider = ({
       image={item?.images[0].url}
       title={item?.name}
       price={item?.price}
+      stockStatus={item?.stockStatus}
+      providerEdit={true}
       description={item?.description}
       addedOn={
         formatDate(item?.createdAt)
@@ -113,19 +129,20 @@ const CustomTabViewProvider = ({
       // For users
       await updateUserAvailability(user.uid, data).then(() => {
         setUpdateOperatingHoursModal(false);
+        fetchData()
       });
 
-      // For hairstylists
+      // For flowerProviders
       await updateHairStylistAvailability(user.uid, data);
     }
 
     return (
       <>
         <View>
-          <Image
+          {/* {data.bannerImage && <Image
             source={{ uri: data.bannerImage }}
-            style={{ width: "100%", height: 200, borderRadius: 12 }}
-          />
+            style={{ width: "100%", height: 200, borderTopRightRadius: 12,borderTopLeftRadius: 12 }}
+          />} */}
           <View style={{ width: Dimensions.get("screen").width - 22 }}>
             <View
               style={[
@@ -135,9 +152,10 @@ const CustomTabViewProvider = ({
                   alignItems: "flex-start",
                   flexDirection: "column",
                   justifyContent: "flex-start",
-                  backgroundColor: tokens.colors.barkInspiredColor,
+                  backgroundColor: tokens.colors.darkBlueColor,
                   padding: 8,
                   borderRadius: 12,
+                  marginTop:2
                 },
               ]}
             >
@@ -175,25 +193,27 @@ const CustomTabViewProvider = ({
                   style={{
                     alignItems: "baseline",
                     justifyContent: "center",
-                    display: "flex",
+                    display: "flex",marginLeft:12
                   }}
                 >
-                  <Text
-                    style={{
-                      color: tokens.colors.barkInspiredTextColor,
-                      textAlign: "center",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Ionicons
-                      name={"person-circle-outline"}
-                      size={15}
-                      color={tokens.colors.gray}
-                    />
-                    {"  " + data.name}
-                  </Text>
-                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                 <Text
+                style={{
+                  color: tokens.colors.background,
+                  textAlign: "center",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize:25
+                }}
+              >
+                {/* <Ionicons
+                  name={"person-circle-outline"}
+                  size={15}
+                  color={tokens.colors.gray}
+                /> */}
+                {data.name}
+              </Text>
+              <View style={{marginBottom:12}}></View>
+                  <Text style={{ color: tokens.colors.background }}>
                     <Ionicons
                       name={"mail-outline"}
                       size={15}
@@ -201,7 +221,7 @@ const CustomTabViewProvider = ({
                     />
                     {"  " + data.email}
                   </Text>
-                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                  <Text style={{ color: tokens.colors.background }}>
                     <Ionicons
                       name={"call-outline"}
                       size={15}
@@ -209,7 +229,7 @@ const CustomTabViewProvider = ({
                     />
                     {"  " + data.phone}
                   </Text>
-                  <Text style={{ color: tokens.colors.barkInspiredTextColor }}>
+                  <Text style={{ color: tokens.colors.background }}>
                     <Ionicons
                       name={"globe-outline"}
                       size={15}
@@ -238,7 +258,12 @@ const CustomTabViewProvider = ({
                       // height: 24,
                       alignItems: "center",
                       justifyContent: "center",
+                      alignContent:'center',
+                      flexDirection:'row',
                       flex: 1,
+                      backgroundColor: 'transparent',
+                      padding:4,
+                      borderRadius: 5,
                     }}
                     onPress={() => setEditProfileDetails(true)}
                   >
@@ -246,7 +271,7 @@ const CustomTabViewProvider = ({
                       style={{
                         fontSize: 15,
                         fontWeight: "bold",
-                        color: tokens.colors.text,
+                        color: tokens.colors.background,
                         fontFamily: "GorditaMedium",
                         width: "100%",
                         textAlign: "left",
@@ -255,38 +280,41 @@ const CustomTabViewProvider = ({
                       <Ionicons
                         name="person-outline"
                         size={16}
-                        color={tokens.colors.gray}
+                        color={tokens.colors.background}
                       />
                       {"  Edit Profile"}
                     </Text>
                   </TouchableOpacity>
+
                   <TouchableOpacity
-                    style={{
-                      // height: 24,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flex: 1,
-                    }}
-                    onPress={() => navigation.navigate("AddProduct")}
-                  >
+                  style={{
+                    // height: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    alignContent:'center',
+                    flexDirection:'row',
+                    flex: 1,
+                    backgroundColor:tokens.colors.skyBlueColor,
+                    padding:4,
+                    borderRadius: 5,
+                    paddingTop:8,
+                    paddingBottom:8,
+                  }}
+                  onPress={() => navigation.navigate("AddProduct")}
+                >
+                  <Ionicons color={tokens.colors.background} name="book-outline" size={20} />
                     <Text
                       style={{
                         fontSize: 15,
                         fontWeight: "bold",
-                        color: tokens.colors.text,
+                        color: tokens.colors.background,
                         fontFamily: "GorditaMedium",
-                        width: "100%",
-                        textAlign: "right",
                       }}
                     >
-                      <Ionicons
-                        name="book-outline"
-                        size={16}
-                        color={tokens.colors.gray}
-                      />
-                      {"  Add Portfolio"}
+                      {" Add Portfolio"}
                     </Text>
-                  </TouchableOpacity>
+
+                </TouchableOpacity>
                 </View>
               ) : null}
             </View>
@@ -408,6 +436,7 @@ const CustomTabViewProvider = ({
       setEditProfileDetails(false);
     });
     await updateHairStylistProfileDetails(user.uid, updatedData);
+    fetchData();
     // Optionally navigate or show a success message
   };
 
@@ -430,11 +459,6 @@ const CustomTabViewProvider = ({
           onPress={() => setActiveTab("Portfolio")}
         />
         <TabButton
-          title="Patrons"
-          isActive={activeTab === "Patrons"}
-          onPress={() => setActiveTab("Patrons")}
-        />
-        <TabButton
           title="Ratings"
           isActive={activeTab === "Ratings"}
           onPress={() => setActiveTab("Ratings")}
@@ -450,14 +474,14 @@ const CustomTabViewProvider = ({
       <ScrollView style={styles.content}>
         {activeTab === "Details" && (
           <View style={styles.pageContent}>
-            {salonDetails ? (
+            {flowerProvidersDetails ? (
               <View>
                 {/* Render salon data */}
                 {!editProfileDetails ? (
-                  <View>{renderSalonProfileDetails(salonDetails)}</View>
+                  <View>{renderSalonProfileDetails(flowerProvidersDetails)}</View>
                 ) : (
                   <ProfileEdit
-                    data={salonDetails}
+                    data={flowerProvidersDetails}
                     isProvider={true}
                     navigation={navigation}
                     onPress={handleProfileUpdate}

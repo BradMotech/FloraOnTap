@@ -11,6 +11,7 @@ import {
 import AppointmentModal from "../../components/AppointmentModal";
 import { useToast } from "../../components/ToastContext";
 import LoadingScreen from "../../components/LoadingScreen";
+import tokens from "../../styles/tokens";
 
 const AppointmentsScreen = () => {
   const [selectedEvent, setSelectedEvent] = useState();
@@ -19,8 +20,12 @@ const AppointmentsScreen = () => {
   const [cancelBookingFlag, setCancelBookingFlag] = useState<boolean>(false);
   const [foundEvents, setFoundEvents] = useState<any[]>();
   const { showToast } = useToast();
-  const { hairstylistsData, user, setHairstylesData, setHairstylistsData } =
-    useContext(AuthContext);
+  const {
+    flowerProvidersData,
+    user,
+    setHairstylesData,
+    setFloraProvidersData,
+  } = useContext(AuthContext);
   const [formattedEvents, setFormattedEvents] = useState({
     events: {},
     agendaItems: {},
@@ -121,7 +126,7 @@ const AppointmentsScreen = () => {
           visible={modalVisible}
           event={selectedEvent}
           onClose={() => setModalVisible(false)}
-          title={"Appointment management"}
+          title={"Order Management"}
           leftButtonTitle={"Cancel booking"}
           rightButtonTitle={"cancel"}
           onConfirm={() => confirmCancelBooking(selectedEvent)}
@@ -133,13 +138,34 @@ const AppointmentsScreen = () => {
           <View style={globalStyles.separatorNoColor}></View>
           <View style={globalStyles.separatorNoColor}></View>
           <View style={globalStyles.separatorNoColor}></View>
-
+          <View style={styles.container}>
+            <Text style={styles.title}>Legend Explainer</Text>
+            <Text style={globalStyles.subtitle}>{"Click on the calendar date to see the Orders you've submitted and their status"}</Text>
+            <View style={globalStyles.separatorNoColor}></View>
+            <View style={styles.legendContainer}>
+              <View style={styles.legendItem}>
+                <View style={[styles.dot, { backgroundColor: "#47BF9C" }]} />
+                <Text style={ globalStyles.subtitle}>- Out for Delivery</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View
+                  style={[
+                    styles.dot,
+                    { backgroundColor: tokens.colors.skyBlueColor },
+                  ]}
+                />
+                <Text style={ globalStyles.subtitle}>- Not Out Yet</Text>
+              </View>
+            </View>
+          </View>
           <CalendarComponent
             onEventClick={handleEventClick}
             events={formattedEvents.events}
             agendaItems={formattedEvents.agendaItems}
             onBookEvent={function (date: string): void {}}
             allowBooking={false}
+            maskPhone={false}
+            maskTextValue={false}
           />
         </View>
       </ScrollView>
@@ -149,6 +175,34 @@ const AppointmentsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    width: "100%",
+    alignItems: "flex-start",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  legendContainer: {
+    flexDirection: "column",
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  dot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 8,
+  },
+  legendText: {
+    fontSize: 16,
+  },
+});
 
 export default AppointmentsScreen;

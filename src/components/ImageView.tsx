@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   modalImage: {
     width: width,
-    height: height * 0.75,
+    height: height,
     resizeMode: 'contain',
   },
   imageIndex: {

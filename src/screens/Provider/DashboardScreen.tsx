@@ -13,13 +13,13 @@ import { AuthContext } from "../../auth/AuthContext";
 import {
   fetchHairstylesFromFirestore,
   fetchUserFromFirestore,
-  subscribeToHairstylists,
+  subscribeToFloraProviders,
 } from "../../firebase/dbFunctions";
 import tokens from "../../styles/tokens";
 import CustomTabViewProvider from "../../components/CustomTopTabProvider";
 
 const ProviderDashboard = ({ navigation }) => {
-  const { user, hairstylistsData, setHairstylesData, hairstylesData } = useContext(AuthContext);
+  const { user, flowerProvidersData, setHairstylesData, hairstylesData } = useContext(AuthContext);
   const [hairstylistUserData, setHairstylistUserData] = useState<any>([]);
   const [refreshing, setRefreshing] = useState(false); // Track refreshing status
 
@@ -50,8 +50,8 @@ const ProviderDashboard = ({ navigation }) => {
   }, [user]);
 
   useEffect(() => {
-    // Subscribe to the hairstylists collection
-    const unsubscribe = subscribeToHairstylists(user.uid, (data) => {
+    // Subscribe to the flowerProviders collection
+    const unsubscribe = subscribeToFloraProviders(user.uid, (data) => {
       setHairstylistUserData(data[0]);
     });
 
@@ -75,11 +75,12 @@ const ProviderDashboard = ({ navigation }) => {
         >
           <View style={{ flex: 1 }}>
             <View>
-              {hairstylistsData ? (
+              {flowerProvidersData ? (
                 <CircularProgressWithDetails
                   user={hairstylistUserData}
                   onRenewSubscription={() => navigation.navigate("Subscription")}
                   onFinanceProjections={() => navigation.navigate("Projections")}
+                  onLinkMerchantAccount={() => navigation.navigate("MerchantSettings")}
                 />
               ) : null}
             </View>
@@ -92,10 +93,10 @@ const ProviderDashboard = ({ navigation }) => {
                 width: "100%",
               }}
             >
-              {hairstylesData && hairstylistsData ? (
+              {hairstylesData && flowerProvidersData ? (
                 <CustomTabViewProvider
                   salonData={hairstylesData}
-                  salonDetails={hairstylistsData[0]}
+                  flowerProvidersDetails={flowerProvidersData[0]}
                   ratingData={undefined}
                   navigation={navigation}
                   isProvider={true}

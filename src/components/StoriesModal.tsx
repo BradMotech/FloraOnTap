@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import tokens from '../styles/tokens';
 
 interface CustomModalProps {
@@ -10,7 +10,7 @@ interface CustomModalProps {
   children: React.ReactNode; // Accept children from the parent
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,onConfirm,isSubmititng }) => {
+const StoriesModal: React.FC<CustomModalProps> = ({ visible, onClose, children,onConfirm,isSubmititng }) => {
   return (
     <Modal
       animationType="slide"
@@ -25,9 +25,6 @@ const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,on
 
           {/* Button Section */}
           <View style={styles.buttonContainer}>
-            {!isSubmititng ? <TouchableOpacity onPress={onConfirm} style={styles.button}>
-              <Text style={styles.buttonText}>Proceed ordering</Text>
-            </TouchableOpacity> : <ActivityIndicator size={'small'} color={tokens.colors.floraOnTapMainColor}/>}
             <TouchableOpacity onPress={onClose} style={styles.buttonCancel}>
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
@@ -38,20 +35,21 @@ const CustomModal: React.FC<CustomModalProps> = ({ visible, onClose, children,on
   );
 };
 
-export default CustomModal;
+export default StoriesModal;
 
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: tokens.colors.blackColor, // Transparent background
+    backgroundColor:'#000', // Transparent background
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
+    width: Dimensions.get('screen').width,
+    height:Dimensions.get('screen').height,
+    backgroundColor: '#000',
     borderRadius: 10,
-    padding: 20,
+    padding: 2,
     alignItems: 'flex-start',
   },
   buttonContainer: {
@@ -67,10 +65,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonCancel: {
-    backgroundColor: 'red',
+    backgroundColor: 'grey',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    position:'absolute',
+    bottom:0,
+    marginBottom:40,
+    marginRight:12,
+    right:0
   },
   buttonText: {
     color: 'white',

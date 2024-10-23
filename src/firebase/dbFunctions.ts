@@ -41,7 +41,7 @@ export const setUserInFirestore = async (uid: string, userData: any) => {
 };
 // Add or update user data in Firestore
 export const setHairstylistInFirestore = async (uid: string, userData: any) => {
-  const docRef = doc(db, 'hairstylists', uid);
+  const docRef = doc(db, 'flowerProviders', uid);
   await setDoc(docRef, userData, { merge: true });
 };
 
@@ -54,11 +54,11 @@ export const fetchAppointments = async (uid: string, selectedRoleValue: 'provide
   return querySnapshot.docs.map((doc) => doc.data());
 };
 
-// Fetch hairstylists from Firestore
-export const fetchHairstylistsFromFirestore = async (uid?: string) => {
+// Fetch flowerProviders from Firestore
+export const fetchFloraProvidersFromFirestore = async (uid?: string) => {
   try {
     // Define the collection reference
-    const usersRef = collection(db, 'hairstylists');
+    const usersRef = collection(db, 'flowerProviders');
 
     // Create a query based on whether uid is provided or not
     let q;
@@ -88,11 +88,11 @@ export const fetchHairstylistsFromFirestore = async (uid?: string) => {
   }
 };
 
-// Fetch hairstyles from Firestore based on hairstylistId
+// Fetch Flora from Firestore based on hairstylistId
 export const fetchHairstylesFromFirestore = async (uid: string) => {
   try {
     // Define the collection reference
-    const hairstylesRef = collection(db, 'hairstyles');
+    const hairstylesRef = collection(db, 'Flora');
 
     // Create a query to filter documents by 'hairstylistId'
     const q = query(hairstylesRef, where('hairstylistId', '==', uid));
@@ -104,11 +104,11 @@ export const fetchHairstylesFromFirestore = async (uid: string) => {
     if (!querySnapshot.empty) {
       return querySnapshot.docs.map(doc => doc.data());
     } else {
-      console.log('No hairstyles found for the given hairstylistId');
+      console.log('No Flora found for the given hairstylistId');
       return [];
     }
   } catch (error) {
-    console.error('Error fetching hairstyles:', error);
+    console.error('Error fetching Flora:', error);
     return [];
   }
 };
@@ -243,7 +243,7 @@ export const makeBooking = async (
       appointmentDate,
       userCustomerInfo: userCustomerInfo,
       providerId: selectedHairstyle.hairstylistId,
-      appointmentStatus: 'PENDING', // Set initial status to pending
+      appointmentStatus: 'ORDER PLACED', // Set initial status to pending
       events: events, // Events if any
       comments: notes || '', // Optional additional notes
       createdAt: new Date().toISOString(),
@@ -324,7 +324,7 @@ export const acceptBooking = async (bookingId: string) => {
 
       // Update the booking status to accepted
       await updateDoc(bookingRef, {
-        appointmentStatus: 'ACCEPTED',
+        appointmentStatus: 'OUT FOR DELIVERY',
       });
       // Extract the date and price from the booking data
       const appointmentDate = dayjs(bookingData.appointmentDate);
@@ -627,7 +627,7 @@ export const updateUserSubscriptionCredits = async (uid: string, valueToSubtract
 export const updateHairStylistSubscriptionCredits = async (uid: string, valueToSubtract: number) => {
   try {
     // Create a query to find the user where the 'id' field matches the uid
-    const usersRef = collection(db, 'hairstylists');
+    const usersRef = collection(db, 'flowerProviders');
     const q = query(usersRef, where('id', '==', uid));
 
     // Get the documents that match the query
@@ -697,11 +697,11 @@ export const updateUserProfileDetails = async (uid: string, updatedData: object)
   }
 };
 
-// Function to update hairstylist details in the Hairstylists collection
+// Function to update hairstylist details in the FloraProviders collection
 export const updateHairStylistProfileDetails = async (uid: string, updatedData: object) => {
   try {
     // Create a query to find the hairstylist where the 'id' field matches the uid
-    const usersRef = collection(db, 'hairstylists');
+    const usersRef = collection(db, 'flowerProviders');
     const q = query(usersRef, where('id', '==', uid));
 
     // Get the documents that match the query
@@ -736,7 +736,7 @@ export const uploadImageToStorage = async (imageUri, uid) => {
     const response = await fetch(imageUri);
     const blob = await response.blob();
 
-    const storageRef = ref(storage, `hairstylists/${uid}.jpg`);
+    const storageRef = ref(storage, `flowerProviders/${uid}.jpg`);
     await uploadBytes(storageRef, blob);
     const url = await getDownloadURL(storageRef);
 
@@ -773,10 +773,10 @@ export const updateUserPatrons = async (uid: string, patronData: object) => {
   }
 };
 
-// Function to update Patrons array in the Hairstylists collection
+// Function to update Patrons array in the FloraProviders collection
 export const updateHairStylistPatrons = async (uid: string, patronData: object) => {
   try {
-    const stylistsRef = collection(db, 'hairstylists');
+    const stylistsRef = collection(db, 'flowerProviders');
     const q = query(stylistsRef, where('id', '==', uid));
     const querySnapshot = await getDocs(q);
 
@@ -820,10 +820,10 @@ export const getUserPatrons = async (uid: string) => {
   }
 };
 
-// Function to retrieve Patrons from the Hairstylists collection
+// Function to retrieve Patrons from the FloraProviders collection
 export const getHairStylistPatrons = async (uid: string) => {
   try {
-    const stylistsRef = collection(db, 'hairstylists');
+    const stylistsRef = collection(db, 'flowerProviders');
     const q = query(stylistsRef, where('id', '==', uid));
     const querySnapshot = await getDocs(q);
 
@@ -841,7 +841,7 @@ export const getHairStylistPatrons = async (uid: string) => {
   }
 };
 
-export const subscribeToHairstylists = (uid, callback) => {
+export const subscribeToFloraProviders = (uid, callback) => {
   try {
     const usersRef = collection(db, 'Users');
     let q;
@@ -855,12 +855,12 @@ export const subscribeToHairstylists = (uid, callback) => {
 
     // Subscribe to Firestore changes using onSnapshot
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const hairstylistsData = querySnapshot.docs.map(doc => doc.data());
+      const flowerProvidersData = querySnapshot.docs.map(doc => doc.data());
       
       // Call the callback function with the new data
-      callback(hairstylistsData);
+      callback(flowerProvidersData);
     }, (error) => {
-      console.error('Error subscribing to hairstylists:', error);
+      console.error('Error subscribing to flowerProviders:', error);
     });
 
     // Return the unsubscribe function to clean up the listener when no longer needed
@@ -911,7 +911,7 @@ export const updateUserAvailability = async (uid: string, newAvailability: any) 
 export const updateHairStylistAvailability = async (uid: string, newAvailability: any) => {
   try {
     // Create a query to find the hairstylist where the 'id' field matches the uid
-    const hairstylistsRef = collection(db, 'hairstylists');
+    const hairstylistsRef = collection(db, 'flowerProviders');
     const q = query(hairstylistsRef, where('id', '==', uid));
 
     // Get the documents that match the query
@@ -968,9 +968,9 @@ export const SubscribeToPlanForUserAndHairstylist = async (
   newPlan: string
 ) => {
   try {
-    // Create references for both the 'Users' and 'hairstylists' collections
+    // Create references for both the 'Users' and 'flowerProviders' collections
     const usersRef = collection(db, 'Users');
-    const hairstylistsRef = collection(db, 'hairstylists');
+    const hairstylistsRef = collection(db, 'flowerProviders');
 
     // Create a query to find the user in both collections where the 'id' field matches the uid
     const userQuery = query(usersRef, where('id', '==', uid));
@@ -1012,14 +1012,219 @@ export const SubscribeToPlanForUserAndHairstylist = async (
       console.log('No user found with the given UID in Users collection.');
     }
 
-    // If a matching hairstylist is found in 'hairstylists', update their subscription.totalCredits and plan
+    // If a matching hairstylist is found in 'flowerProviders', update their subscription.totalCredits and plan
     if (!hairstylistSnapshot.empty) {
-      hairstylistSnapshot.forEach((doc) => updateCreditsAndPlan(doc, 'hairstylists'));
+      hairstylistSnapshot.forEach((doc) => updateCreditsAndPlan(doc, 'flowerProviders'));
     } else {
-      console.log('No hairstylist found with the given UID in hairstylists collection.');
+      console.log('No hairstylist found with the given UID in flowerProviders collection.');
     }
   } catch (error) {
-    console.error('Error updating subscription credits and plan in Users and hairstylists:', error);
+    console.error('Error updating subscription credits and plan in Users and flowerProviders:', error);
   }
 };
 
+// Update merchant details
+// Function to update the merchant details for the hairstylist
+export const updateFloristMerchantDetails = async (
+  uid: string,
+  merchant: { merchantId: string; merchantKey: string; paymentType: string }
+) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'flowerProviders');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found, update their merchant details
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        // Update merchant details in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          { merchant }, // Use the entire merchant object to update
+          { merge: true }
+        );
+
+        console.log(`Updated merchant details for ${uid}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating merchant details:', error);
+  }
+};
+
+// Function to update merchant details in the Users collection
+export const updateUserMerchantDetails = async (
+  uid: string,
+  merchant: { merchantId: string; merchantKey: string; paymentType: string }
+) => {
+  try {
+    // Create a query to find the user where the 'id' field matches the uid
+    const usersRef = collection(db, 'Users');
+    const q = query(usersRef, where('id', '==', uid));
+
+    // Get the documents that match the query
+    const querySnapshot = await getDocs(q);
+
+    // If a matching user is found, update their merchant details
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(async (userDoc) => {
+        // Update the merchant details in Firestore for the found user
+        await setDoc(
+          userDoc.ref,
+          { merchant }, // Use the entire merchant object to update
+          { merge: true }
+        );
+
+        console.log(`Updated merchant details for ${uid}`);
+      });
+    } else {
+      console.log('No user found with the given UID.');
+    }
+  } catch (error) {
+    console.error('Error updating merchant details:', error);
+  }
+};
+
+// Fetch notifications for a specific user in real-time
+export const fetchNotificationsRealtime = (currentUserId, onNotificationUpdate) => {
+  try {
+    const q = query(collection(db, 'notifications'), where('userId', '==', currentUserId));
+
+    // Use onSnapshot to listen for real-time updates
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const notifications = [];
+      querySnapshot.forEach((doc) => {
+        notifications.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Pass the notifications data to the callback
+      onNotificationUpdate(notifications);
+    });
+
+    // Return the unsubscribe function to stop listening when necessary
+    return unsubscribe;
+  } catch (error) {
+    console.error('Error fetching notifications in real-time:', error);
+  }
+};
+
+// Update notification read status for a specific user
+// Update or add a notification for a specific user
+export const updateNotificationReadStatus = async (id, readStatus, currentUserId,title,details,senderId) => {
+  try {
+    if (!id) {
+      // If id is null or undefined, add a new notification with an auto-generated ID
+      const newNotification = {
+        userId: currentUserId,
+        senderId: senderId,
+        read: readStatus,
+        details: details,
+        timestamp: new Date(),
+        title: title, // Customize the message as needed
+      };
+      
+      await addDoc(collection(db, 'notifications'), newNotification);
+      console.log('New notification added with auto-generated ID');
+    } else {
+      // If id is provided, attempt to update the existing notification
+      const notificationRef = doc(db, 'notifications', id);
+      const notificationSnap = await getDoc(notificationRef);
+
+      // Check if the notification exists and belongs to the current user
+      if (notificationSnap.exists()) {
+        const notificationData = notificationSnap.data();
+
+        if (notificationData.userId === currentUserId) {
+          // Update the notification read status
+          await updateDoc(notificationRef, { read: readStatus });
+          console.log('Notification read status updated');
+        } else {
+          console.warn('Notification does not belong to the current user');
+        }
+      } else {
+        // If the notification does not exist, add it as a new one
+        const newNotification = {
+          userId: currentUserId,
+          senderId: senderId,
+          read: readStatus,
+          details: details,
+          timestamp: new Date(),
+          title: title, // Customize the message as needed
+        };
+        await setDoc(notificationRef, newNotification);
+        console.log('New notification added');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating or adding notification:', error);
+  }
+};
+
+// update only status
+export const updateNotificationReadStatusOnly = async (id, readStatus, currentUserId,senderId) => {
+  try {
+    if (!id) {
+      // If id is null or undefined, add a new notification with auto-generated ID
+      const newNotification = {
+        userId: currentUserId,
+        senderId: senderId,
+        read: readStatus,
+        timestamp: new Date(),
+      };
+      
+      await addDoc(collection(db, 'notifications'), newNotification);
+      console.log('New notification added with auto-generated ID');
+    } else {
+      // If id is provided, attempt to update the existing notification
+      const notificationRef = doc(db, 'notifications', id);
+      const notificationSnap = await getDoc(notificationRef);
+
+      // Check if the notification exists and belongs to the current user
+      if (notificationSnap.exists()) {
+        const notificationData = notificationSnap.data();
+
+        if (notificationData.userId === currentUserId) {
+          // Update the notification read status
+          await updateDoc(notificationRef, { read: readStatus });
+          console.log('Notification read status updated');
+        } else {
+          console.warn('Notification does not belong to the current user');
+        }
+      } else {
+        // If the notification does not exist, add it as a new one
+        const newNotification = {
+          userId: currentUserId,
+          senderId: senderId,
+          read: readStatus,
+          timestamp: new Date(),
+        };
+        await setDoc(notificationRef, newNotification);
+        console.log('New notification added');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating or adding notification:', error);
+  }
+};
+
+
+// Delete notification for a specific user
+export const deleteNotification = async (id, currentUserId) => {
+  try {
+    const notificationRef = doc(db, 'notifications', id);
+    const notificationSnap = await getDoc(notificationRef);
+
+    if (notificationSnap.exists() && notificationSnap.data().userId === currentUserId) {
+      await deleteDoc(notificationRef);
+    } else {
+      console.warn('Notification does not belong to the current user');
+    }
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+  }
+};
