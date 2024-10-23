@@ -33,3 +33,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Secrets
+hairdu2024-firebase-adminsdk-bkwm2-f120d25942.json
