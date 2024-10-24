@@ -164,7 +164,7 @@ const SalonItemCard: React.FC<SalonItemCardProps> = ({
             },
           ]}
         >
-          <Image  style={[styles.image,]} source={{ uri: image }}/>
+          <Image style={styles.image} source={{ uri: image }}/> 
         </View>
       )}
       <View style={styles.details}>

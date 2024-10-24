@@ -11,18 +11,30 @@ import globalStyles from "../../styles/globalStyles";
 import CircularProgressWithDetails from "../../components/CircularProgressWithDetails";
 import { AuthContext } from "../../auth/AuthContext";
 import {
+  fetchAppointmentsPending,
   fetchHairstylesFromFirestore,
   fetchUserFromFirestore,
   subscribeToFloraProviders,
 } from "../../firebase/dbFunctions";
 import tokens from "../../styles/tokens";
 import CustomTabViewProvider from "../../components/CustomTopTabProvider";
+import FAB from "../../components/FAB";
 
 const ProviderDashboard = ({ navigation }) => {
-  const { user, flowerProvidersData, setHairstylesData, hairstylesData } = useContext(AuthContext);
+  const {
+    user,
+    flowerProvidersData,
+    setHairstylesData,
+    hairstylesData,
+    setAppointments,
+  } = useContext(AuthContext);
   const [hairstylistUserData, setHairstylistUserData] = useState<any>([]);
   const [refreshing, setRefreshing] = useState(false); // Track refreshing status
-
+  const actions = [
+    { iconName: "camera", label: "Camera", backgroundColor: "#f44336" },
+    // { iconName: 'chatbubbles', label: 'Chat', backgroundColor: '#2196f3' },
+    // { iconName: 'document', label: 'Docs', backgroundColor: '#4caf50' },
+  ];
   // Function to fetch data
   const fetchData = async () => {
     try {
@@ -45,8 +57,30 @@ const ProviderDashboard = ({ navigation }) => {
     setRefreshing(false);
   };
 
+  // Function to fetch user type from the database
+  const fetchUserTypeFromDatabase = async (uid: string): Promise<string> => {
+    try {
+      const userDoc = await fetchUserFromFirestore(uid);
+      return userDoc?.selectedRoleValue ?? "Customer"; // Default to 'Customer' if no type is found
+    } catch (error) {
+      console.error("Error fetching user type from database:", error);
+      return "Customer"; // Default to 'Customer' on error
+    }
+  };
+
+  async function fetchPendingAppointments() {
+    const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
+    const userType = fetchedUserType === "Provider" ? "provider" : "customer";
+    const fetchedAppointments = await fetchAppointmentsPending(
+      user?.uid,
+      userType
+    );
+    setAppointments(fetchedAppointments);
+  }
+
   useEffect(() => {
     fetchData();
+    fetchPendingAppointments();
   }, [user]);
 
   useEffect(() => {
@@ -63,6 +97,10 @@ const ProviderDashboard = ({ navigation }) => {
     };
   }, [user]); // Re-run the effect when `uid` changes
 
+  function onAddCustomersImages(): void {
+    navigation.navigate('AddCustomerImages')
+  }
+
   return (
     <View>
       <StatusBar hidden={true} />
@@ -78,9 +116,15 @@ const ProviderDashboard = ({ navigation }) => {
               {flowerProvidersData ? (
                 <CircularProgressWithDetails
                   user={hairstylistUserData}
-                  onRenewSubscription={() => navigation.navigate("Subscription")}
-                  onFinanceProjections={() => navigation.navigate("Projections")}
-                  onLinkMerchantAccount={() => navigation.navigate("MerchantSettings")}
+                  onRenewSubscription={() =>
+                    navigation.navigate("Subscription")
+                  }
+                  onFinanceProjections={() =>
+                    navigation.navigate("Projections")
+                  }
+                  onLinkMerchantAccount={() =>
+                    navigation.navigate("MerchantSettings")
+                  }
                 />
               ) : null}
             </View>
@@ -105,6 +149,7 @@ const ProviderDashboard = ({ navigation }) => {
             </View>
           </View>
         </ScrollView>
+        <FAB pressChildButon={()=> onAddCustomersImages()} position={"bottomRight"} actions={actions} />
       </SafeAreaView>
     </View>
   );

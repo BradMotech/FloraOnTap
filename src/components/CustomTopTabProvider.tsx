@@ -19,6 +19,7 @@ import ButtonComponent from "./buttonComponent";
 import InputComponent from "./InputComponent";
 import ImagePicker from "react-native-image-picker";
 import {
+  fetchCustomerImagesByFloristId,
   fetchHairstylesFromFirestore,
   updateHairStylistAvailability,
   updateHairStylistProfileDetails,
@@ -39,6 +40,8 @@ import MansoryImageGalleryItem from "./MansoryImageGalleryItem";
 import ProfileEdit from "./ProfileEdit";
 import PatronsListScreen from "./PatronsList";
 import UpdateOperatingHoursModal from "./UpdateOperatingHoursModal";
+import FAB from "./FAB";
+import PanoramaScrollCarousel from "./PanoramScrollCarousel";
 
 // Tab button component
 const TabButton = ({ title, isActive, onPress }) => (
@@ -76,6 +79,28 @@ const CustomTabViewProvider = ({
   // State to manage the search input value
   const [searchText, setSearchText] = useState("");
   const { user, flowerProvidersData, setHairstylesData, hairstylesData } = useContext(AuthContext);// Get current hairstylist (user) context
+
+  const [allCustomerImages, setAllCustomerImages] = useState([]);
+
+  const fecthAllCustomerImages=async()=>{
+    let images = []
+      await fetchCustomerImagesByFloristId(user?.uid).then((data:any)=>{
+        console.log("🚀 ~ awaitfetchAllCustomerImages ~ data:" + data)
+        data.forEach((res)=>{
+          console.log("🚀 ~ data.forEach ~ res:"+ res.images);
+          res.images.forEach((img)=>{
+            console.log("🚀 ~ res.images.forEach ~ img:", img)
+            images.push(img);
+            // alert(img)
+          })
+        })
+        setAllCustomerImages(images)
+      });
+    }
+
+    useEffect(() => {
+      fecthAllCustomerImages();
+    }, []);
   // Function to fetch data
   const fetchData = async () => {
     try {
@@ -144,6 +169,9 @@ const CustomTabViewProvider = ({
             style={{ width: "100%", height: 200, borderTopRightRadius: 12,borderTopLeftRadius: 12 }}
           />} */}
           <View style={{ width: Dimensions.get("screen").width - 22 }}>
+          <PanoramaScrollCarousel showUser={false} images={allCustomerImages} onPress={function (): void {
+            //  setModalVisible(true);
+          } } />
             <View
               style={[
                 globalStyles.imageView,
@@ -559,7 +587,7 @@ const CustomTabViewProvider = ({
         )}
         {activeTab === "Ratings" && (
           <View style={styles.pageContent}>
-            <ReviewsScreen provider={true} hairstylistId={user.uid} />
+            <ReviewsScreen provider={true} floristId={user.uid} />
           </View>
         )}
         {activeTab === "Gallery" && (

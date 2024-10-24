@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase'; // Firebase setup
-import { fetchFloraProvidersFromFirestore, fetchUserFromFirestore } from '../firebase/dbFunctions';
+import { fetchAppointmentsPending, fetchFloraProvidersFromFirestore, fetchUserFromFirestore } from '../firebase/dbFunctions';
 import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -21,6 +21,9 @@ interface AuthContextProps {
   loading: boolean;
   setErrorMessage: any;
   errorMessage: any;
+  setAppointments:any,
+  appointments: any; // Add appointments to context
+  fetchUserAppointments: (uid: string) => Promise<void>; // Function to fetch user appointments
 }
 
 // Initialize the context with default values
@@ -39,6 +42,9 @@ export const AuthContext = createContext<AuthContextProps>({
   loading: true,
   setErrorMessage:null,
   errorMessage:null,
+  setAppointments:null,
+  appointments: null, // Default value for appointments
+  fetchUserAppointments: async () => {}, // Default function for fetching appointments
 });
 
 export const AuthProvider = ({ children }) => {
@@ -49,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<any>(null);
+  const [appointments, setAppointments] = useState<any>(null); 
 
   // Sign in function
   const signIn = async (email: string, password: string) => {
@@ -90,6 +97,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+    // Function to fetch user appointments
+    const fetchUserAppointments = async (uid: string) => {
+      const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
+      const userType = fetchedUserType === "Provider" ? 'provider':'customer';
+      if (!uid) return; // Return if no user ID
+      setLoading(true);
+      try {
+        const fetchedAppointments = await fetchAppointmentsPending(uid, userType); 
+        setAppointments(fetchedAppointments);
+      } catch (error) {
+        console.error('Error fetching appointments:', error); 
+        setErrorMessage(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
   // Listen for auth state changes
   useEffect(() => {
     console.log("Setting up onAuthStateChanged listener"); // Log when listener is set up
@@ -103,6 +127,7 @@ export const AuthProvider = ({ children }) => {
           const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
           setUserType(fetchedUserType);
           setUser(user);
+          await fetchUserAppointments(user.uid); // Fetch appointments when user state changes
         } catch (error) {
           console.error('Error fetching user type: ', error);
         } finally {
@@ -112,6 +137,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setUserType(null);
         setLoading(false);
+        setAppointments(null); // Reset appointments when user is logged out
       }
     });
   
@@ -137,7 +163,9 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user,userData,flowerProvidersData,hairstylesData,setHairstylesData,setFloraProvidersData, signIn, logOut, userType, setUserType, isAuthenticated, loading,setErrorMessage,errorMessage }}>
+    <AuthContext.Provider value={{ user,userData,flowerProvidersData,hairstylesData,setHairstylesData,setFloraProvidersData, signIn, logOut, userType, setUserType, isAuthenticated, loading,setErrorMessage,errorMessage,appointments, // Include appointments in the context
+      fetchUserAppointments,setAppointments // Include fetch function in the context
+       }}>
       {children}
     </AuthContext.Provider>
   );

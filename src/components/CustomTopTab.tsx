@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import ImageGalleryItem from "./ImageGalleryItem";
 import ButtonComponent from "./buttonComponent";
 import InputComponent from "./InputComponent";
 import ImagePicker from "react-native-image-picker";
-import { updateUserFriends } from "../firebase/dbFunctions";
+import { fetchAllCustomerImages, fetchCustomerImagesByFloristId, updateUserFriends } from "../firebase/dbFunctions";
 import { useToast } from "./ToastContext";
 import SearchComponent from "./SearchComponent";
 import FilterBy from "./FilterBy";
@@ -29,6 +29,7 @@ import Badge from "./Badge";
 import MapComponent from "./MapComponent";
 import MasonryFlatList from "./MasonryFlatlist";
 import MansoryImageGalleryItem from "./MansoryImageGalleryItem";
+import PanoramaScrollCarousel from "./PanoramScrollCarousel";
 
 // Tab button component
 const TabButton = ({ title, isActive, onPress }) => (
@@ -54,11 +55,32 @@ const CustomTabView = ({
   const [editProfile, setEditProfile] = useState<boolean>(false);
   const [filterByFlag, setFilterByFlag] = useState<boolean>(false);
   const { showToast } = useToast();
+  const [allCustomerImages, setAllCustomerImages] = useState([]);
+
+  const fecthAllCustomerImages=async()=>{
+    let images = []
+      await fetchCustomerImagesByFloristId(flowerProvidersDetails.id).then((data:any)=>{
+        console.log("🚀 ~ awaitfetchAllCustomerImages ~ data:" + data)
+        data.forEach((res)=>{
+          console.log("🚀 ~ data.forEach ~ res:"+ res.images);
+          res.images.forEach((img)=>{
+            console.log("🚀 ~ res.images.forEach ~ img:", img)
+            images.push(img);
+            // alert(img)
+          })
+        })
+        setAllCustomerImages(images)
+      });
+    }
+
+    useEffect(() => {
+      fecthAllCustomerImages();
+    }, []);
 
   function sendMessageToUser(data: { id: string }) {
     updateUserFriends(data);
     // navigation.navigate("Chat");
-    navigation.navigate("ChatToFlorist",{selectedFriendId:data.id,selectedFriendName:flowerProvidersDetails.name});
+    navigation.navigate("ChatToFlorist",{selectedFriendId:data?.id,selectedFriendName:flowerProvidersDetails.name});
   }
 
   const renderItem = ({ item }: { item: any }) => (
@@ -78,11 +100,29 @@ const CustomTabView = ({
   );
 
   function renderSalonProfileDetails(data): React.ReactNode {
-    const firstLetter = data.name.charAt(0).toUpperCase();
+    const firstLetter = data?.name.charAt(0).toUpperCase();
+
+    const promotionImages = [
+      {
+        url: "https://pbs.twimg.com/media/FtrRLRCWYAEE33e?format=jpg&name=large",
+        href: "https://example.com/promo1",
+      },
+      {
+        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8c9FkJPdRm_WtF79deQMTLqshtjBqzMcvRw&s",
+        href: "https://example.com/promo2",
+      },
+      {
+        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrMgC9BQGfbl0yDrhaa6E1KfaARYqPdDqCDg&s",
+        href: "https://example.com/promo3",
+      },
+    ];
     return (
       <View>
-      {/* {data.bannerImage && <Image source={{ uri: data.bannerImage ? data.bannerImage :'https://cdn.dribbble.com/users/246611/screenshots/10748226/media/f17b711e4e14bb11e518f804352548ef.png?resize=800x600&vertical=center' }} style={{ width: '100%', height: 200, borderRadius: 12 }} />} */}
+      {/* {data?.bannerImage && <Image source={{ uri: data?.bannerImage ? data?.bannerImage :'https://cdn.dribbble.com/users/246611/screenshots/10748226/media/f17b711e4e14bb11e518f804352548ef.png?resize=800x600&vertical=center' }} style={{ width: '100%', height: 200, borderRadius: 12 }} />} */}
         <View style={{ width: Dimensions.get("screen").width - 22 }}>
+        <PanoramaScrollCarousel showUser={false} images={allCustomerImages} onPress={function (): void {
+            //  setModalVisible(true);
+          } } />
           <View
             style={[
               globalStyles.imageView,
@@ -99,8 +139,8 @@ const CustomTabView = ({
               },
             ]}
           >
-            {data.image ? (
-              <Image src={data.image} style={[globalStyles.Storycontainer]} />
+            {data?.image ? (
+              <Image src={data?.image} style={[globalStyles.Storycontainer]} />
             ) : (
               <View
                 style={[
@@ -132,7 +172,7 @@ const CustomTabView = ({
                   size={15}
                   color={tokens.colors.gray}
                 /> */}
-                {data.name}
+                {data?.name}
               </Text>
               <View style={{marginBottom:12}}></View>
               <Text style={{ color: tokens.colors.background }}>
@@ -141,7 +181,7 @@ const CustomTabView = ({
                   size={15}
                   color={tokens.colors.gray}
                 />
-                {"  " + data.email}
+                {"  " + data?.email}
               </Text>
               <Text style={{ color: tokens.colors.background }}>
                 <Ionicons
@@ -149,7 +189,7 @@ const CustomTabView = ({
                   size={15}
                   color={tokens.colors.gray}
                 />
-                {"  " + data.phone}
+                {"  " + data?.phone}
               </Text>
               <Text style={{ color: tokens.colors.background }}>
                 <Ionicons
@@ -157,7 +197,7 @@ const CustomTabView = ({
                   size={15}
                   color={tokens.colors.gray}
                 />
-                {"  " + data.province}
+                {"  " + data?.province}
               </Text>
               <View style={globalStyles.separator}></View>
               <View
@@ -225,20 +265,20 @@ const CustomTabView = ({
                 padding: 6,
               }}
             >
-              {data.description}
+              {data?.description}
             </Text>
           </View>
           <View style={globalStyles.separator}></View>
-          {data.availability.length ? <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
+          {data?.availability.length ? <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Operating hours</Text>
-            <OpeningHours hours={data.availability} />
+            <OpeningHours hours={data?.availability} />
           </View>:null}
-          {data.availability.length ? <View style={globalStyles.separator}></View> : null}
+          {data?.availability.length ? <View style={globalStyles.separator}></View> : null}
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Location details</Text>
             <View style={{marginTop:16}}>
             <Text style={[{ margin: 0 }, styles.linkUnderlinedLocation]}>
-                  {data.location}
+                  {data?.location}
                 </Text>
             {/* <MapComponent region={undefined}/> */}
             </View>
@@ -246,8 +286,8 @@ const CustomTabView = ({
           <View style={globalStyles.separator}></View>
           <View style={[globalStyles.columnWrapper, { marginTop: 16 }]}>
             <Text style={globalStyles.title}>Social Media</Text>
-            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Website:</Text> <Text style={styles.linkUnderlined}>{data.website}</Text></Text>
-            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Instagram:</Text> <Text style={styles.linkUnderlined}>{data.instagram}</Text></Text>
+            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Website:</Text> <Text style={styles.linkUnderlined}>{data?.website}</Text></Text>
+            <Text style={{ color: tokens.colors.barkInspiredTextColor }}><Text style={styles.links}>Instagram:</Text> <Text style={styles.linkUnderlined}>{data?.instagram}</Text></Text>
           </View>
           <View style={globalStyles.imageView}>{/* map here */}</View>
         </View>
@@ -391,7 +431,7 @@ const renderGallery = (): React.ReactNode => {
         )}
         {activeTab === "Ratings" && (
           <View style={styles.pageContent}>
-            <ReviewsScreen provider={false} hairstylistId={flowerProvidersDetails.id} />
+            <ReviewsScreen provider={false} floristId={flowerProvidersDetails.id} />
           </View>
         )}
         {activeTab === "Gallery" && (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons'; // Replace with your preferred icon library
 import OrdersScreen from '../../screens/Customer/OrdersScreen';
@@ -11,11 +11,12 @@ import Header from '../../components/header';
 import { createStackNavigator } from '@react-navigation/stack'; // Use @react-navigation/stack
 import FlowerShopDetails from '../../screens/Customer/FlowerShopDetails';
 import PlaceOrder from '../../screens/Customer/PlaceOrder';
-import { Dimensions, StatusBar } from 'react-native';
+import { Dimensions, StatusBar, View, Text, StyleSheet } from 'react-native';
 import FAQScreen from '../../screens/Customer/FAQScreen';
 import StoriesPreview from '../../screens/Customer/StoriesPreview';
 import ImmediateChat from '../../common/ImmediateChat';
 import Notifications from '../../common/Notifications';
+import { AuthContext } from '../../auth/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // Create the stack navigator
@@ -24,7 +25,7 @@ const DashboardStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header showCredits={true} title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.floraOnTapMainColor,
       },
@@ -47,7 +48,7 @@ const AppointmentStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header showCredits={true} title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.floraOnTapMainColor,
       },
@@ -65,7 +66,7 @@ const ChatStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header showCredits={true} title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.floraOnTapMainColor,
       },
@@ -83,7 +84,7 @@ const SettingsStack = () => (
   
   <Stack.Navigator
     screenOptions={({ navigation }) => ({
-      header: (data) =>  <Header title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
+      header: (data) =>  <Header showCredits={true} title={navigation.getState().routeNames[navigation.getState().index]} navigation={navigation} profileImageUrl={''} />,
       headerStyle: {
         backgroundColor: tokens.colors.floraOnTapMainColor,
       },
@@ -100,6 +101,8 @@ const SettingsStack = () => (
 );
 
 const CustomerTabNavigator = () => {
+  const { appointments } =
+  useContext(AuthContext);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -111,7 +114,31 @@ const CustomerTabNavigator = () => {
           } else if (route.name === 'Settings') {
             iconName = color !== tokens.colors.floraOnTapMainColor ?  'settings-outline':'settings';
           } else if (route.name === 'Appointments') {
-            iconName = color !== tokens.colors.floraOnTapMainColor ?  'calendar-outline':'calendar';
+            // iconName = color !== tokens.colors.floraOnTapMainColor ?  'calendar-outline':'calendar';
+            return (
+              <View style={{ position: "relative" }}>
+                <Ionicons
+                  name={
+                    color !== tokens.colors.floraOnTapMainColor
+                      ? "calendar-outline"
+                      : "calendar"
+                  }
+                  size={size}
+                  color={color}
+                />
+                  {appointments?.length && <View
+                    style={[
+                      styles.iconContainer,
+                      { position: "absolute", top: -12, left: -13 },
+                    ]}
+                  >
+                    {/* Notification Icon */}
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{appointments?.length}</Text>
+                    </View>
+                  </View>}
+              </View>
+            );
           } else if (route.name === 'Chat') {
             iconName = color !== tokens.colors.floraOnTapMainColor ? 'chatbubble-outline':'chatbubble';
           }
@@ -133,3 +160,29 @@ const CustomerTabNavigator = () => {
 };
 
 export default CustomerTabNavigator;
+const styles = StyleSheet.create({
+  iconContainer: {
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    right: 4, // Adjust position as needed
+    top: 4, // Adjust position as needed
+    backgroundColor: tokens.colors.green,
+    borderRadius: 8,
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});

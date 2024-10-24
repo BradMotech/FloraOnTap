@@ -15,6 +15,8 @@ import {
   acceptBooking,
   declineBooking,
   fetchAppointmentsByHairstylistId,
+  fetchAppointmentsPending,
+  fetchUserFromFirestore,
   updateHairStylistSubscriptionCredits,
   updateNotificationReadStatus,
   updateUserSubscriptionCredits,
@@ -34,7 +36,7 @@ const AppointmentsScreen = () => {
       agendaItems: {},
     });
     
-    const { user,userData } = useContext(AuthContext);
+    const { user,userData,appointments,setAppointments } = useContext(AuthContext);
     const { showToast } = useToast();
   
     const formatDateToYYYYMMDD = (isoDateString) => {
@@ -50,6 +52,23 @@ const AppointmentsScreen = () => {
       }
     };
   
+      // Function to fetch user type from the database
+  const fetchUserTypeFromDatabase = async (uid: string): Promise<string> => {
+    try {
+      const userDoc = await fetchUserFromFirestore(uid);
+      return userDoc?.selectedRoleValue ?? 'Customer'; // Default to 'Customer' if no type is found
+    } catch (error) {
+      console.error('Error fetching user type from database:', error);
+      return 'Customer'; // Default to 'Customer' on error
+    } 
+  };
+
+  async function fetchPendingAppointments(){
+    const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
+    const userType = fetchedUserType === "Provider" ? 'provider':'customer'
+    const fetchedAppointments = await fetchAppointmentsPending(user?.uid, userType); 
+    setAppointments(fetchedAppointments);
+  }
     useEffect(() => {
       console.log(JSON.stringify(userData.subscription.totalCredits));
       console.log(JSON.stringify(userData.subscription.creditsLeft));
@@ -71,6 +90,7 @@ const AppointmentsScreen = () => {
        */
     }, []);
     useEffect(() => {
+      fetchPendingAppointments();
       const unsubscribe = fetchAppointmentsByHairstylistId(user.uid, (fetchedData) => {
         const events = {};
         const agendaItems = {};
@@ -103,7 +123,7 @@ const AppointmentsScreen = () => {
               agendaItems[eventDate].push({
                 name: event.text,
                 appointmentDetails: appointment,
-                hairstylistId: appointment.providerId,
+                floristId: appointment.providerId,
               });
             });
           }
@@ -189,7 +209,7 @@ const AppointmentsScreen = () => {
                     { backgroundColor: tokens.colors.skyBlueColor },
                   ]}
                 />
-                <Text style={ globalStyles.subtitle}>- Not Out Yet</Text>
+                <Text style={ globalStyles.subtitle}>- {appointments?.length} Not Out Yet</Text>
               </View>
             </View>
           </View>

@@ -20,6 +20,8 @@ import {
   fetchHairstylesFromFirestore,
   fetchFloraProvidersFromFirestore,
   fetchUserFromFirestore,
+  fetchAppointmentsPending,
+  fetchAllCustomerImages,
 } from "../../firebase/dbFunctions";
 import SalonItemCard, { locationDetails } from "../../components/SalonItem";
 import PanoramaScrollCarousel from "../../components/PanoramScrollCarousel";
@@ -46,39 +48,86 @@ const promotionImages = [
 ];
 
 const DashboardScreen = ({ navigation }) => {
-  const { user, flowerProvidersData, setHairstylesData, setFloraProvidersData,hairstylesData } =
-    useContext(AuthContext);
-const [modalVisible, setModalVisible] = useState(false);
+  const {
+    user,
+    flowerProvidersData,
+    setHairstylesData,
+    setFloraProvidersData,
+    hairstylesData,
+    setAppointments,
+  } = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
   const [filteredData, setFilteredData] = useState(flowerProvidersData || []);
   const [originalData, setOriginalData] = useState(flowerProvidersData || []);
   const [floraData, setFloraData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [refreshing, setRefreshing] = useState(false); 
-  const [activeTab, setActiveTab] = useState("All"); 
-  const [currentUserlocationDetails, setCurrentUserlocationDetails] = useState<locationDetails>(null);
-const  [currentUserData, setCurrentUserData] = useState<any>({});
-   // Function to fetch data
-   const fetchData = async () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [allCustomerImages, setAllCustomerImages] = useState([]);
+  const [activeTab, setActiveTab] = useState("All");
+  const [currentUserlocationDetails, setCurrentUserlocationDetails] =
+    useState<locationDetails>(null);
+  const [currentUserData, setCurrentUserData] = useState<any>({});
+
+ const fecthAllCustomerImages=async()=>{
+  let images = []
+    await fetchAllCustomerImages().then((data:any)=>{
+      console.log("🚀 ~ awaitfetchAllCustomerImages ~ data:" + data)
+      data.forEach((res)=>{
+        console.log("🚀 ~ data.forEach ~ res:"+ res.images);
+        res.images.forEach((img)=>{
+          console.log("🚀 ~ res.images.forEach ~ img:", img)
+          images.push(img);
+          // alert(img)
+        })
+      })
+      setAllCustomerImages(images)
+    });
+  }
+  // Function to fetch data
+  const fetchData = async () => {
     try {
-        const userdata = await fetchUserFromFirestore(user.uid);
-        setCurrentUserData(userdata);
-        // Here we duplicate the flowerProvidersData to have 10 entries
-    // const duplicatedData = [];
-    // if (flowerProvidersData) { 
-    //   for (let i = 0; i < 4; i++) { 
-    //     duplicatedData.push({ ...flowerProvidersData[i % flowerProvidersData.length], id: `${i}` }); // Ensure each item has a unique id
-    //   }
-    //   setFloraProvidersData(duplicatedData); // Set duplicated data
-    //   setOriginalData(duplicatedData); // Set original data to duplicated as well
-    //   setFilteredData(duplicatedData); // Set filtered data to duplicated as well
-    // }
-    // Here we duplicate the flowerProvidersData to have 10 entries, can remove the code between so i don't duplicate in prod
+      const userdata = await fetchUserFromFirestore(user.uid);
+      setCurrentUserData(userdata);
+      // Here we duplicate the flowerProvidersData to have 10 entries
+      // const duplicatedData = [];
+      // if (flowerProvidersData) {
+      //   for (let i = 0; i < 4; i++) {
+      //     duplicatedData.push({ ...flowerProvidersData[i % flowerProvidersData.length], id: `${i}` }); // Ensure each item has a unique id
+      //   }
+      //   setFloraProvidersData(duplicatedData); // Set duplicated data
+      //   setOriginalData(duplicatedData); // Set original data to duplicated as well
+      //   setFilteredData(duplicatedData); // Set filtered data to duplicated as well
+      // }
+      // Here we duplicate the flowerProvidersData to have 10 entries, can remove the code between so i don't duplicate in prod
     } catch (error) {
       console.error(error);
     }
   };
-  
+
+  // Function to fetch user type from the database
+  const fetchUserTypeFromDatabase = async (uid: string): Promise<string> => {
+    try {
+      const userDoc = await fetchUserFromFirestore(uid);
+      return userDoc?.selectedRoleValue ?? "Customer"; // Default to 'Customer' if no type is found
+    } catch (error) {
+      console.error("Error fetching user type from database:", error);
+      return "Customer"; // Default to 'Customer' on error
+    }
+  };
+
+  async function fetchPendingAppointments() {
+    const fetchedUserType = await fetchUserTypeFromDatabase(user.uid);
+    const userType = fetchedUserType === "Provider" ? "provider" : "customer";
+    const fetchedAppointments = await fetchAppointmentsPending(
+      user?.uid,
+      userType
+    );
+    setAppointments(fetchedAppointments);
+  }
+
   useEffect(() => {
+    fetchPendingAppointments();
+    fecthAllCustomerImages();
     if (flowerProvidersData === null) {
       fetchFloraProvidersFromFirestore().then((data) => {
         setFloraProvidersData(data);
@@ -110,8 +159,10 @@ const  [currentUserData, setCurrentUserData] = useState<any>({});
       title={item.name}
       rating={item.rating}
       description={item.description}
-      currentUserlocationDetails={currentUserlocationDetails || currentUserData.coordinates}
-      floraUserlocationDetails={item.coordinates} 
+      currentUserlocationDetails={
+        currentUserlocationDetails || currentUserData.coordinates
+      }
+      floraUserlocationDetails={item.coordinates}
       joinedOn={formatDate(item.createdAt)}
       floristId={item.id}
       onViewDetails={() => {
@@ -122,13 +173,14 @@ const  [currentUserData, setCurrentUserData] = useState<any>({});
               hairStylistDetails: userdata[0],
             });
           })
-          .catch(() => { });
+          .catch(() => {});
         fetchHairstylesFromFirestore(item.id).then((hairStyles) => {
           setHairstylesData(hairStyles);
-          setFloraData(hairStyles)
+          setFloraData(hairStyles);
         });
-      } }
-      phone={item.phone}   />
+      }}
+      phone={item.phone}
+    />
   );
 
   const filterSalons = (text) => {
@@ -148,11 +200,14 @@ const  [currentUserData, setCurrentUserData] = useState<any>({});
   };
 
   // Array of tab titles
-  const tabTitles = ["All", "Florists", "Plant Sellers", "Nurseries",];
+  const tabTitles = ["All", "Florists", "Plant Sellers", "Nurseries"];
 
   const handleLocationSelect = (locationDetails) => {
-    console.warn('Location Selected', `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`);
-    setCurrentUserlocationDetails(locationDetails)
+    console.warn(
+      "Location Selected",
+      `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`
+    );
+    setCurrentUserlocationDetails(locationDetails);
   };
 
   return flowerProvidersData ? (
@@ -167,11 +222,21 @@ const  [currentUserData, setCurrentUserData] = useState<any>({});
         }
       >
         <View style={globalStyles.dashboard}>
-          <LocationInput showSubTitle={true} label={'Showing Flora near...'} placeholder={'e.g 282 Furrow rd...'} onSearchPress={undefined} onLocationSelect={handleLocationSelect} selectedLocation={currentUserData?.coordinates?.placeName} />
-          <PanoramaScrollCarousel images={promotionImages} onPress={function (): void {
-             setModalVisible(true);
-          } } />
-          <Text style={[globalStyles.title,{marginTop:22}]}>Top Rated</Text>
+          <LocationInput
+            showSubTitle={true}
+            label={"Showing Flora near..."}
+            placeholder={"e.g 282 Furrow rd..."}
+            onSearchPress={undefined}
+            onLocationSelect={handleLocationSelect}
+            selectedLocation={currentUserData?.coordinates?.placeName}
+          />
+          <PanoramaScrollCarousel
+            images={allCustomerImages}
+            onPress={function (): void {
+              setModalVisible(true);
+            } } showUser={false}          />
+          
+          <Text style={[globalStyles.title, { marginTop: 22 }]}>Top Rated</Text>
           <View style={globalStyles.separatorNoColor}></View>
           <ScrollView
             horizontal={true}
@@ -213,68 +278,94 @@ const  [currentUserData, setCurrentUserData] = useState<any>({});
           <View style={globalStyles.separator}></View>
           <Text style={globalStyles.title}>Plant vendors</Text>
           <View style={globalStyles.separatorNoColor}></View>
-          <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-            <Tab 
-              titles={tabTitles} 
-              activeTab={activeTab} 
-              onTabPress={setActiveTab} 
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-around" }}
+          >
+            <Tab
+              titles={tabTitles}
+              activeTab={activeTab}
+              onTabPress={setActiveTab}
             />
           </View>
           <View style={globalStyles.separatorNoColor}></View>
-          {activeTab === "All" && (
-            (filteredData.length ? <FlatList
-              data={filteredData}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={globalStyles.columnWrapper}
-              contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No stores to show"}/>)
-          )}
-          {activeTab === "Florists" && (
-            (filteredData.filter((x)=>x.floraProviderCategory === "Florist").length ? <FlatList
-              data={filteredData.filter((x)=>x.floraProviderCategory === "Florist")}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={globalStyles.columnWrapper}
-              contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Florists to show"}/>)
-          )}
-          {activeTab === "Plant Sellers" && (
-            (filteredData.filter((x)=>x.floraProviderCategory === "Plant Sellers").length ? <FlatList
-              data={filteredData.filter((x)=>x.floraProviderCategory === "Plant Sellers")}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={globalStyles.columnWrapper}
-              contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Plant Sellers to show"}/>)
-          )}
-          {activeTab === "Nurseries" && (
-            (filteredData.filter((x)=>x.floraProviderCategory === "Nurseries").length ? <FlatList
-              data={filteredData.filter((x)=>x.floraProviderCategory === "Nurseries")}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={globalStyles.columnWrapper}
-              contentContainerStyle={globalStyles.gridContainer}
-            />:<PlaceholderComponent text={"No Nurseries to show"}/>)
-          )}
-          
+          {activeTab === "All" &&
+            (filteredData.length ? (
+              <FlatList
+                data={filteredData}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                columnWrapperStyle={globalStyles.columnWrapper}
+                contentContainerStyle={globalStyles.gridContainer}
+              />
+            ) : (
+              <PlaceholderComponent text={"No stores to show"} />
+            ))}
+          {activeTab === "Florists" &&
+            (filteredData.filter((x) => x.floraProviderCategory === "Florist")
+              .length ? (
+              <FlatList
+                data={filteredData.filter(
+                  (x) => x.floraProviderCategory === "Florist"
+                )}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                columnWrapperStyle={globalStyles.columnWrapper}
+                contentContainerStyle={globalStyles.gridContainer}
+              />
+            ) : (
+              <PlaceholderComponent text={"No Florists to show"} />
+            ))}
+          {activeTab === "Plant Sellers" &&
+            (filteredData.filter(
+              (x) => x.floraProviderCategory === "Plant Sellers"
+            ).length ? (
+              <FlatList
+                data={filteredData.filter(
+                  (x) => x.floraProviderCategory === "Plant Sellers"
+                )}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                columnWrapperStyle={globalStyles.columnWrapper}
+                contentContainerStyle={globalStyles.gridContainer}
+              />
+            ) : (
+              <PlaceholderComponent text={"No Plant Sellers to show"} />
+            ))}
+          {activeTab === "Nurseries" &&
+            (filteredData.filter((x) => x.floraProviderCategory === "Nurseries")
+              .length ? (
+              <FlatList
+                data={filteredData.filter(
+                  (x) => x.floraProviderCategory === "Nurseries"
+                )}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                columnWrapperStyle={globalStyles.columnWrapper}
+                contentContainerStyle={globalStyles.gridContainer}
+              />
+            ) : (
+              <PlaceholderComponent text={"No Nurseries to show"} />
+            ))}
+
           {/* Add similar FlatList rendering for other tabs as needed */}
         </View>
-        {modalVisible ? <StoriesModal
-        visible={modalVisible}
-        isSubmititng={null}
-        onClose={function (): void {
-          setModalVisible(false);
-        }}
-        children={<StoriesPreview images={promotionImages}/>}
-        onConfirm={() => {
-          // confirmSettingBooking();
-        }}
-      ></StoriesModal>:null}
+        {modalVisible ? (
+          <StoriesModal
+            visible={modalVisible}
+            isSubmititng={null}
+            onClose={function (): void {
+              setModalVisible(false);
+            }}
+            children={<StoriesPreview images={allCustomerImages} />}
+            onConfirm={() => {
+              // confirmSettingBooking();
+            }}
+          ></StoriesModal>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   ) : (

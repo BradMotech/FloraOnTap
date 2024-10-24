@@ -54,6 +54,25 @@ export const fetchAppointments = async (uid: string, selectedRoleValue: 'provide
   return querySnapshot.docs.map((doc) => doc.data());
 };
 
+// Fetch appointments from Firestore for providers or customers with status "ORDER PLACED"
+export const fetchAppointmentsPending = async (uid: string, selectedRoleValue: 'provider' | 'customer') => {
+  const appointmentsRef = collection(db, 'appointments');
+
+  // Create the query with two conditions: matching user ID and status
+  const q = query(
+    appointmentsRef,
+    where(selectedRoleValue === 'provider' ? 'providerId' : 'customerId', '==', uid),
+    where('appointmentStatus', '==', 'ORDER PLACED') // Filtering by appointment status
+  );
+
+  const querySnapshot = await getDocs(q);
+  // Map through the documents and return the data
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id, // Optionally include the document ID
+    ...doc.data()
+  }));
+};
+
 // Fetch flowerProviders from Firestore
 export const fetchFloraProvidersFromFirestore = async (uid?: string) => {
   try {
@@ -88,14 +107,14 @@ export const fetchFloraProvidersFromFirestore = async (uid?: string) => {
   }
 };
 
-// Fetch Flora from Firestore based on hairstylistId
+// Fetch Flora from Firestore based on floristId
 export const fetchHairstylesFromFirestore = async (uid: string) => {
   try {
     // Define the collection reference
     const hairstylesRef = collection(db, 'Flora');
 
-    // Create a query to filter documents by 'hairstylistId'
-    const q = query(hairstylesRef, where('hairstylistId', '==', uid));
+    // Create a query to filter documents by 'floristId'
+    const q = query(hairstylesRef, where('floristId', '==', uid));
 
     // Get the documents matching the query
     const querySnapshot = await getDocs(q);
@@ -104,7 +123,7 @@ export const fetchHairstylesFromFirestore = async (uid: string) => {
     if (!querySnapshot.empty) {
       return querySnapshot.docs.map(doc => doc.data());
     } else {
-      console.log('No Flora found for the given hairstylistId');
+      console.log('No Flora found for the given floristId');
       return [];
     }
   } catch (error) {
@@ -173,14 +192,14 @@ export const fetchAppointmentsByCustomerId = (customerId: string, callback: (app
   }
 };
 
-// Fetch appointments from Firestore based on hairstylistId within the selectedHairstyle field
-export const fetchAppointmentsByHairstylistId = (hairstylistId: string, onUpdate: (appointments: any[]) => void) => {
+// Fetch appointments from Firestore based on floristId within the selectedHairstyle field
+export const fetchAppointmentsByHairstylistId = (floristId: string, onUpdate: (appointments: any[]) => void) => {
   try {
     // Define the collection reference
     const appointmentsRef = collection(db, 'appointments');
 
-    // Create a query to filter documents where 'selectedHairstyle.hairstylistId' matches the given hairstylistId
-    const q = query(appointmentsRef, where('selectedHairstyle.hairstylistId', '==', hairstylistId));
+    // Create a query to filter documents where 'selectedHairstyle.floristId' matches the given floristId
+    const q = query(appointmentsRef, where('selectedHairstyle.floristId', '==', floristId));
 
     // Set up a real-time listener using onSnapshot
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -189,7 +208,7 @@ export const fetchAppointmentsByHairstylistId = (hairstylistId: string, onUpdate
         // Invoke the callback with the updated data
         onUpdate(appointments);
       } else {
-        console.log('No appointments found for the given hairstylistId');
+        console.log('No appointments found for the given floristId');
         onUpdate([]);
       }
     }, (error) => {
@@ -242,7 +261,7 @@ export const makeBooking = async (
       selectedHairstyle, // Object with hairstylist details and selected style
       appointmentDate,
       userCustomerInfo: userCustomerInfo,
-      providerId: selectedHairstyle.hairstylistId,
+      providerId: selectedHairstyle.floristId,
       appointmentStatus: 'ORDER PLACED', // Set initial status to pending
       events: events, // Events if any
       comments: notes || '', // Optional additional notes
@@ -543,10 +562,10 @@ export const fetchUserFriendsData = async (): Promise<Friend[]> => {
   }
 };
 
-// Function to fetch reviews by hairstylistId
-export const fetchReviews = (hairstylistId: string, callback: (reviews: any[]) => void) => {
+// Function to fetch reviews by floristId
+export const fetchReviews = (floristId: string, callback: (reviews: any[]) => void) => {
   const reviewsRef = collection(db, 'reviews');
-  const reviewsQuery = query(reviewsRef, where('hairstylistId', '==', hairstylistId));
+  const reviewsQuery = query(reviewsRef, where('floristId', '==', floristId));
 
   // Real-time listener
   return onSnapshot(reviewsQuery, (snapshot) => {
@@ -567,7 +586,7 @@ export const addReview = async (review: {
   customerPhone: string,
   rating: number,
   description: string,
-  hairstylistId: string,
+  floristId: string,
 }) => {
   try {
     const reviewsRef = collection(db, 'reviews');
@@ -1226,5 +1245,47 @@ export const deleteNotification = async (id, currentUserId) => {
     }
   } catch (error) {
     console.error('Error deleting notification:', error);
+  }
+};
+
+export const fetchAllCustomerImages = async () => {
+  try {
+    // Get reference to the "CustomerImages" collection
+    const querySnapshot = await getDocs(collection(db, "CustomerImages"));
+    
+    // Map through the querySnapshot to get all documents
+    const customerImages = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    return customerImages;
+  } catch (error) {
+    console.error("Error fetching all customer images: ", error);
+    throw error;
+  }
+};
+
+export const fetchCustomerImagesByFloristId = async (floristId) => {
+  try {
+    // Get reference to the "CustomerImages" collection and apply the filter by floristId
+    const customerImagesQuery = query(
+      collection(db, "CustomerImages"), 
+      where("floristId", "==", floristId)
+    );
+    
+    // Execute the query
+    const querySnapshot = await getDocs(customerImagesQuery);
+    
+    // Map through the querySnapshot to get all documents matching the floristId
+    const customerImages = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    return customerImages;
+  } catch (error) {
+    console.error("Error fetching customer images by floristId: ", error);
+    throw error;
   }
 };

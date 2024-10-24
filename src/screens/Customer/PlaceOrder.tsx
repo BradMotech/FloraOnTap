@@ -86,7 +86,7 @@ const PlaceOrder = () => {
 
   useEffect(() => {
     const unsubscribe = fetchAppointmentsByHairstylistId(
-      floraDetails.hairstylistId,
+      floraDetails.floristId,
       (fetchedData) => {
         const events = {};
         const agendaItems = {};
@@ -119,7 +119,7 @@ const PlaceOrder = () => {
               agendaItems[eventDate].push({
                 name: event.text,
                 appointmentDetails: appointment,
-                hairstylistId: appointment.providerId,
+                floristId: appointment.providerId,
               });
             });
           }
@@ -133,7 +133,7 @@ const PlaceOrder = () => {
 
     // Cleanup the listener on component unmount
     return () => unsubscribe();
-  }, [floraDetails.hairstylistId, makeBookingFlag]);
+  }, [floraDetails.floristId, makeBookingFlag]);
 
   function renderModalChildren(data: any) {
     return (
@@ -296,13 +296,13 @@ const PlaceOrder = () => {
       showToast("successfully placed a booking", "success", "top");
       const details = "Booking made for : "+ floraDetails.name + " " + "R "+ floraDetails.price ;
       const orderTitle = "Order - : "+ floraDetails.name;
-      await updateNotificationReadStatus(data.bookingId,'unread',floraDetails?.hairstylistId,orderTitle,details,user?.uid);
+      await updateNotificationReadStatus(data.bookingId,'unread',floraDetails?.floristId,orderTitle,details,user?.uid);
       updateUserSubscriptionCredits(
-        floraDetails.hairstylistId,
+        floraDetails.floristId,
         10
       );
       updateHairStylistSubscriptionCredits(
-        floraDetails?.hairstylistId,
+        floraDetails?.floristId,
         10
       );
       setIsLoading(false);
@@ -324,7 +324,8 @@ const PlaceOrder = () => {
   }
 
   return !isLoading ? (
-           <KeyboardAvoidingView
+    <ScrollView contentContainerStyle={globalStyles.scroll}>
+    <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       > 
@@ -399,7 +400,7 @@ const PlaceOrder = () => {
           </View>
           <View style={[styles.flexStart, { width: "100%" }]}>
             <PatronsListScreen
-              uid={floraDetails.hairstylistId}
+              uid={floraDetails.floristId}
               onSelectPatron={(data) => {
                 handleSelectedPatron(data);
               }}
@@ -522,6 +523,7 @@ const PlaceOrder = () => {
     </SafeAreaView>
     </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+    </ScrollView>
     
   ) : (
     <LoadingScreen />

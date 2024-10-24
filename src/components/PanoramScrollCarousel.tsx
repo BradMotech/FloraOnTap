@@ -11,10 +11,11 @@ interface ImageItem {
 
 interface PanoramaScrollCarouselProps {
   images: ImageItem[];
+  showUser:boolean;
   onPress:()=> void
 }
 
-const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images,onPress }) => {
+const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images,onPress,showUser = true }) => {
   return (
     <View style={styles.carouselContainer}>
       <ScrollView
@@ -25,29 +26,30 @@ const PanoramaScrollCarousel: React.FC<PanoramaScrollCarouselProps> = ({ images,
         contentContainerStyle={styles.scrollContent}
       >
         {images.map((imageItem, index) => (
-          <TouchableOpacity key={index} activeOpacity={0.8} onPress={onPress}>
-            <Image source={{ uri: imageItem.url }} style={styles.image} />
-            <View
+          <TouchableOpacity style={styles.image} key={index} activeOpacity={0.8} onPress={onPress}>
+            <Image resizeMode='cover' source={{ uri: imageItem.url }} style={{height:'100%',width:'100%',borderRadius:20}} />
+            {showUser && <View
               style={{
                 position: "absolute",
-                bottom: 0,
-                left: 0,
-                marginLeft: 22,
+                bottom: -10,
+                left: -5,
+                marginLeft: 12,
                 display: "flex",
                 flexDirection: "row",
                 justifyContent:'center',
                 alignItems:'center',
                 marginBottom:15,backgroundColor:'#000',
                 padding:6,
-                borderRadius:12
+                borderRadius:30
               }}
             >
               <Image
+                resizeMode="cover"
                 source={{ uri: imageItem.url }}
                 style={{ height: 40, width: 40, borderRadius: 20 }}
               />
-              <Text style={[globalStyles.title,{color:'#fff'}]}>{" Burgeon Flora"}</Text>
-            </View>
+              <Text style={[globalStyles.title,{color:'#fff',fontSize:12}]}>{"  Flora on Tap"}</Text>
+            </View>}
           </TouchableOpacity>
         ))}
       </ScrollView>

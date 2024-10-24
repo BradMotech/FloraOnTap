@@ -22,6 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useToast } from "../../components/ToastContext";
 import globalStyles from "../../styles/globalStyles";
 import { fetchHairstylesFromFirestore } from "../../firebase/dbFunctions";
+import TextAreaComponent from "../../components/TextAreaComponent";
 
 // Update CATEGORIES with credit value
 const CATEGORIES = [
@@ -71,8 +72,9 @@ const CATEGORIES = [
 
 const STOCK_STATUS = ["In Stock", "Out of Stock"]; // Stock status options
 
-const ProductUploadScreen = ({ navigation }) => {
+const AddCustomersImages = ({ navigation }) => {
   const { showToast } = useToast();
+  const [description, setDescription] = useState('');
   const [selectedImages, setSelectedImages] = useState([]);
   const [price, setPrice] = useState("");
   const [title, setTitle] = useState("");
@@ -148,13 +150,13 @@ const ProductUploadScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!price || !duration || !category || selectedImages.length === 0) {
-      Alert.alert(
-        "Error",
-        "Please fill in all fields and select at least one image"
-      );
-      return;
-    }
+    // if (!description || selectedImages.length === 0) {
+    //   Alert.alert(
+    //     "Error",
+    //     "Please fill in all fields and select at least one image"
+    //   );
+    //   return;
+    // }
 
     // Get the credit value based on the selected category
     const selectedCategory = CATEGORIES.find((cat) => cat.name === category);
@@ -167,15 +169,8 @@ const ProductUploadScreen = ({ navigation }) => {
       const imageUrls = await uploadImages();
 
       // Create a new hairstyle object without the id for now
-      const newHairstyle = {
-        name: title,
-        description: title,
-        serviceType: category,
-        price: Number(price),
-        stockStatus: stockStatus,
-        duration,
-        category,
-        creditValue, // Add credit value to newHairstyle
+      const customerImages = {
+        description: description,
         user: {
           id: user.uid,
           email: user.email, // Assuming you want to add email too
@@ -185,13 +180,13 @@ const ProductUploadScreen = ({ navigation }) => {
         createdAt: new Date(),
       };
 
-      // Add the new hairstyle to the Firestore and get the document reference
-      const docRef = await addDoc(collection(db, "Flora"), newHairstyle);
+      // Add the new customer images to the Firestore and get the document reference
+      const docRef = await addDoc(collection(db, "CustomerImages"), customerImages);
 
       // Update the document with its ID
       await updateDoc(docRef, { Id: docRef.id, id: docRef.id });
 
-      showToast("Hairstyle uploaded successfully!", "success", "top");
+      showToast("Images uploaded successfully!", "success", "top");
       fetchData();
       navigation.goBack(); // Navigate back or reset form
     } catch (error) {
@@ -240,78 +235,9 @@ const ProductUploadScreen = ({ navigation }) => {
           />
         )}
 
-        {/* Name Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Title"
-          keyboardType="default"
-          value={title}
-          onChangeText={setTitle}
-        />
-
-        {/* Price Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Price (Rands)"
-          keyboardType="numeric"
-          value={price}
-          onChangeText={setPrice}
-        />
-
-        {/* Duration Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Duration (e.g. 2 hours)"
-          value={duration}
-          onChangeText={setDuration}
-        />
-
-        {/* Category Selection */}
-        <Text style={styles.label}>Category</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {CATEGORIES.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.categoryButton,
-                category === item.name && styles.badgeSelected,
-              ]}
-              onPress={() => setCategory(item.name)}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  category === item.name && styles.badgeSelected,
-                ]}
-              >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Stock Status Selection */}
-        <Text style={styles.label}>Stock Status</Text>
-        <View style={styles.badgeContainer}>
-          {STOCK_STATUS.map((status, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.badge,
-                stockStatus === status && styles.badgeSelected,
-              ]}
-              onPress={() => setStockStatus(status)} // Select only one badge
-            >
-              <Text
-                style={[
-                  styles.badgeText,
-                  stockStatus === status && styles.badgeSelected,
-                ]}
-              >
-                {status}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Description Input */}
+        <View style={{marginTop:18}}>
+        <TextAreaComponent onTextChange={(e)=>setDescription(e)} textValue={undefined}        />
         </View>
 
         {/* Submit Button */}
@@ -432,4 +358,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductUploadScreen;
+export default AddCustomersImages;

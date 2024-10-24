@@ -26,6 +26,7 @@ const tokens = {
     gold:'gold',
     darkBlueColor:'#111637',
     skyBlueColor:'#2d7af1',
+    green:'#7FBF73',
     error: '#e74c3c', // Red color for error
   },
   fontSize: {

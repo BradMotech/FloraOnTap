@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Dimensions, Animated } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, Dimensions, Animated, TouchableOpacity,Image } from "react-native";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import tokens from "../styles/tokens";
 import ButtonComponent from "./buttonComponent";
 import Badge from "./Badge";
 import { PRICINGOPTIONS } from "../screens/Provider/Pricelist";
 import globalStyles from "../styles/globalStyles";
+import UnfoldText from "./UnfoldText";
+import { Ionicons } from '@expo/vector-icons'; 
 
 const CircularProgressWithDetails = ({
   user,
@@ -13,7 +15,8 @@ const CircularProgressWithDetails = ({
   onFinanceProjections,
   onLinkMerchantAccount
 }) => {
-  const { name, email, subscription,merchant } = user;
+  const [isExpanded, setIsExpanded] = useState(false); // State to control expansion
+  const { name, email, subscription, merchant } = user;
 
   const userPlan = PRICINGOPTIONS.find(
     (plan) => plan.name === subscription?.plan
@@ -41,15 +44,14 @@ const CircularProgressWithDetails = ({
   const strokeColor = animatedProgress.interpolate({
     inputRange: [0, 70, 100],
     outputRange: [
-      tokens.colors.circularProgress, // Default color for low progress
-      tokens.colors.circularProgress, // Default color for medium progress
-      creditsLeft === totalCredits ? "green" : "red", // Green if credits are full, red otherwise
+      tokens.colors.circularProgress,
+      tokens.colors.circularProgress,
+      creditsLeft === totalCredits ? "green" : "red",
     ],
     extrapolate: "clamp",
   });
 
   useEffect(() => {
-    console.warn(subscription);
     Animated.timing(animatedProgress, {
       toValue: safeProgress,
       duration: 1000,
@@ -58,114 +60,115 @@ const CircularProgressWithDetails = ({
   }, [safeProgress]);
 
   return (
-    <View style={styles.containerColumn}>
-      <Text
-        style={[
-          globalStyles.subtitle,
-          { marginTop: tokens.spacing.md, marginBottom: tokens.spacing.md },
-        ]}
+    <View style={{flex:1,alignItems:'flex-start',justifyContent:'flex-start'}}>
+      <TouchableOpacity
+        style={styles.toggleButton}
+        onPress={() => setIsExpanded(!isExpanded)}
       >
-        {
-          "To begin receiving payments, please configure your payment settings and link your preferred merchant account. Once done linking your merchant account, configure your subscription by clicking the subscription button below. "
-        }
-        <Text
-          style={{ color: tokens.colors.skyBlueColor }}
-          onPress={onLinkMerchantAccount}
-        >
-          {"Click here"}
+        <View style={{flexDirection:'row',alignItems:'center'}}>
+        <Image style={{height:50,width:50}} source={isExpanded ? require("../../assets/infographicPaste.png"):require("../../assets/Infographic.png")}/>  
+        <Text style={styles.toggleButtonText}>
+          {isExpanded ? " Hide Details " : " Show Financial Analytics "}
+          <Text style={{ color: tokens.colors.skyBlueColor }}>Click here</Text>
         </Text>
-        {" to get started."}
-      </Text>
-      <View style={styles.container}>
-        <View style={styles.progressContainer}>
-          <Svg height={radius * 2} width={radius * 2}>
-            <Circle
-              stroke="#e0e0e0"
-              fill="transparent"
-              strokeWidth={stroke}
-              r={normalizedRadius}
-              cx={radius}
-              cy={radius}
-            />
-            <AnimatedCircle
-              stroke={strokeColor}
-              fill="transparent"
-              strokeWidth={stroke}
-              strokeDasharray={`${circumference} ${circumference}`}
-              strokeDashoffset={animatedStrokeDashoffset}
-              r={normalizedRadius}
-              cx={radius}
-              cy={radius}
-              strokeLinecap="round"
-            />
-            <SvgText
-              x="70%"
-              y="50%"
-              alignmentBaseline="middle"
-              textAnchor="end"
-              fontSize="13"
-              fill="#333"
-            >
-              {`${
-                isNaN(subscription?.totalCreditsUsed)
-                  ? 0
-                  : subscription?.totalCreditsUsed
-              } / ${totalCredits} credits`}
-            </SvgText>
-          </Svg>
         </View>
-        <View style={styles.userDetails}>
-          <Text style={styles.detailText}>
-            <Text style={styles.label}>Credits Used: </Text>
-            {subscription?.totalCreditsUsed && (
-              <Text style={styles.value}>{subscription?.totalCreditsUsed}</Text>
-            )}
-          </Text>
-          <Text style={styles.detailText}>
-            <Text style={styles.label}>Credits Left: </Text>
-            {totalCredits !== creditsLeft ? (
-              <Text style={styles.value}>
-                {totalCredits -
-                  (isNaN(subscription?.totalCreditsUsed)
-                    ? 0
-                    : subscription?.totalCreditsUsed)}
+      </TouchableOpacity>
+
+      {isExpanded && (
+        <View style={styles.containerColumn}>
+          <UnfoldText onLinkMerchantAccount={onLinkMerchantAccount} globalStyles={globalStyles} tokens={tokens} />
+          <View style={styles.container}>
+            <View style={styles.progressContainer}>
+              <Svg height={radius * 2} width={radius * 2}>
+                <Circle
+                  stroke="#e0e0e0"
+                  fill="transparent"
+                  strokeWidth={stroke}
+                  r={normalizedRadius}
+                  cx={radius}
+                  cy={radius}
+                />
+                <AnimatedCircle
+                  stroke={strokeColor}
+                  fill="transparent"
+                  strokeWidth={stroke}
+                  strokeDasharray={`${circumference} ${circumference}`}
+                  strokeDashoffset={animatedStrokeDashoffset}
+                  r={normalizedRadius}
+                  cx={radius}
+                  cy={radius}
+                  strokeLinecap="round"
+                />
+                <SvgText
+                  x="75%"
+                  y="50%"
+                  alignmentBaseline="middle"
+                  textAnchor="end"
+                  fontSize="13"
+                  fill="#333"
+                >
+                  {`${
+                    isNaN(subscription?.totalCreditsUsed)
+                      ? 0
+                      : subscription?.totalCreditsUsed
+                  } / ${totalCredits} credits`}
+                </SvgText>
+              </Svg>
+            </View>
+            <View style={styles.userDetails}>
+              <Text style={styles.detailText}>
+                <Text style={styles.label}>Credits Used: </Text>
+                {subscription?.totalCreditsUsed && (
+                  <Text style={styles.value}>{subscription?.totalCreditsUsed}</Text>
+                )}
               </Text>
-            ) : (
-              <Text style={styles.value}>{totalCredits}</Text>
-            )}
-          </Text>
-          <Text style={styles.detailText}>
-            <Text style={styles.label}>Total Credits: </Text>
-            <Text style={styles.value}>{totalCredits}</Text>
-          </Text>
-          <Text style={styles.detailText}>
-            <Text style={styles.label}>Payment: </Text>
-            <Text style={styles.value}>{merchant?.paymentType}</Text>
-          </Text>
-          <Badge variant="noIcon" text={subscription?.plan} />
+              <Text style={styles.detailText}>
+                <Text style={styles.label}>Credits Left: </Text>
+                {totalCredits !== creditsLeft ? (
+                  <Text style={styles.value}>
+                    {totalCredits -
+                      (isNaN(subscription?.totalCreditsUsed)
+                        ? 0
+                        : subscription?.totalCreditsUsed)}
+                  </Text>
+                ) : (
+                  <Text style={styles.value}>{totalCredits}</Text>
+                )}
+              </Text>
+              <Text style={styles.detailText}>
+                <Text style={styles.label}>Total Credits: </Text>
+                <Text style={styles.value}>{totalCredits}</Text>
+              </Text>
+              <Text style={styles.detailText}>
+                <Text style={styles.label}>Payment: </Text>
+                <Text style={styles.value}>{merchant?.paymentType}</Text>
+              </Text>
+              <Badge variant="noIcon" text={subscription?.plan} />
+            </View>
+          </View>
+          <View style={styles.row}>
+            <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
+              <ButtonComponent
+                buttonColor={tokens.colors.hairduTextColorGreen}
+                onPress={onRenewSubscription}
+                marginTop={10}
+                text={"Subscription"}
+              />
+            </View>
+            <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
+              <ButtonComponent
+                onPress={onFinanceProjections}
+                buttonColor={tokens.colors.background}
+                borderColor={tokens.colors.hairduTextColorGreen}
+                textColor={tokens.colors.darkBlueColor}
+                borderWidth={0.3}
+                marginTop={10}
+                text={"Report"}
+              />
+            </View>
+          </View>
         </View>
-      </View>
-      <View style={styles.row}>
-        <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
-          <ButtonComponent
-            buttonColor={tokens.colors.hairduTextColorGreen}
-            onPress={onRenewSubscription}
-            marginTop={10}
-            text={"Subscription"}
-          />
-        </View>
-        <View style={{ width: Dimensions.get("screen").width / 2.2 }}>
-          <ButtonComponent
-            onPress={onFinanceProjections}
-            buttonColor={tokens.colors.background}
-            borderColor={tokens.colors.hairduTextColorGreen}
-            textColor={tokens.colors.darkBlueColor}
-            borderWidth={0.3}
-            marginTop={10}
-            text={"Report"}
-          />
-        </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -222,6 +225,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     width: "100%",
+  },
+  toggleButton: {
+    backgroundColor: tokens.colors.background,
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: "center",
+    width:'100%'
+  },
+  toggleButtonText: {
+    color: tokens.colors.darkBlueColor,
+    // fontWeight: "bold",
+    alignItems:'flex-start',
+    justifyContent:'flex-start',
+    textAlign:'left',
   },
 });
 

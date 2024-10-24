@@ -20,12 +20,14 @@ type HeaderProps = {
   title: string;
   profileImageUrl: string;
   navigation: any;
+  showCredits:boolean
 };
 
 const Header: React.FC<HeaderProps> = ({
   title,
   profileImageUrl,
   navigation,
+  showCredits
 }) => {
   const insets = useSafeAreaInsets();
   const { userData,user } = useContext(AuthContext);
@@ -75,6 +77,13 @@ const Header: React.FC<HeaderProps> = ({
         >
           {title}
         </Text>
+        {showCredits && <View
+            style={[styles.iconContainer, { marginRight: 10,position:'absolute',right:115,flexDirection:'row' }]}
+          >
+            {/* Notification Icon */}
+            <Text>10 {""}</Text>
+            <Image style={{height:25,width:25}} source={require('../../assets/coin.png')} />
+          </View>}
         <TouchableOpacity onPress={onNotificationsPress}>
           <View
             style={[styles.iconContainer, { marginRight: -100 }]}

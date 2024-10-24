@@ -24,7 +24,7 @@ const AppointmentsScreen = () => {
     flowerProvidersData,
     user,
     setHairstylesData,
-    setFloraProvidersData,
+    setFloraProvidersData,appointments
   } = useContext(AuthContext);
   const [formattedEvents, setFormattedEvents] = useState({
     events: {},
@@ -82,7 +82,7 @@ const AppointmentsScreen = () => {
                 agendaItems[eventDate].push({
                   name: event.text,
                   appointmentDetails: appointment,
-                  hairstylistId: appointment.providerId,
+                  floristId: appointment.providerId,
                 }); // Customize based on your event data
               });
             }
@@ -154,7 +154,7 @@ const AppointmentsScreen = () => {
                     { backgroundColor: tokens.colors.skyBlueColor },
                   ]}
                 />
-                <Text style={ globalStyles.subtitle}>- Not Out Yet</Text>
+                <Text style={ globalStyles.subtitle}>- {appointments?.length} Not Out Yet</Text>
               </View>
             </View>
           </View>

@@ -7,11 +7,11 @@ import tokens from '../styles/tokens';
 import { formatDate, formatTimeToPMAM } from '../utils/dateFormat';
 
 interface ReviewsScreenProps {
-  hairstylistId: string;
+  floristId: string;
   provider: boolean;
 }
 
-const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ hairstylistId,provider }) => {
+const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ floristId,provider }) => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [newReview, setNewReview] = useState('');
   const [rating, setRating] = useState(0);  // Star rating state
@@ -19,12 +19,12 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ hairstylistId,provider })
 
   // Fetch reviews and subscribe to real-time updates
   useEffect(() => {
-    const unsubscribe = fetchReviews(hairstylistId, (fetchedReviews) => {
+    const unsubscribe = fetchReviews(floristId, (fetchedReviews) => {
       setReviews(fetchedReviews);
     });
 
     return () => unsubscribe();  // Clean up the subscription when component unmounts
-  }, [hairstylistId]);
+  }, [floristId]);
 
   // Handle adding a new review
   const handleAddReview = async () => {
@@ -38,7 +38,7 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ hairstylistId,provider })
       customerPhone: '',  // Optional
       description: newReview,
       rating,  // Add rating to the review
-      hairstylistId
+      floristId
     });
 
     setNewReview('');  // Clear the textarea after submitting the review
