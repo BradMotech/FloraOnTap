@@ -216,8 +216,8 @@ const globalStyles = StyleSheet.create({
     resizeMode: "cover", // Or 'contain', depending on your needs
   },
   value: {
-    backgroundColor: "#e3c6c836",
-    color: "#DCB0B3",
+    // backgroundColor: "transparent",
+    color: "#7541CA",
     padding: 2,
     borderRadius: 5,
     fontFamily:'GorditaMedium'

@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from "react-native";
 import ImageGalleryItem from "../../components/ImageGalleryItem";
 import { useRoute } from "@react-navigation/native";
@@ -62,9 +63,17 @@ const PlaceOrder = () => {
   const [receiptData, setReceiptData] = useState(null); // State to hold receipt data
   const [selectedPatron, setSelectedPatron] = useState({});
   const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
+  const [isOutOfCredits, setIsOutOfCredits] = useState(false);
   const [specialMessage, setSpecialMessage] = useState("");
   const [deliverylocationDetails, setDeliverylocationDetails] = useState<locationDetails>(null);
   const [paymentData, setPaymentData] = useState<any>();
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+
+  const plans = [
+    { credits: 10, price: "R79.99",priceInValue:79.99 },
+    { credits: 50, price: "R150.00",priceInValue:150.00 },
+    { credits: 100, price: "R250.00",priceInValue:150.00 },
+  ];
 
   const handleLocationSelect = (locationDetails) => {
     console.warn('Location Selected', `Name: ${locationDetails.placeName}\nCoordinates: (${locationDetails.latitude}, ${locationDetails.longitude})`);
@@ -215,6 +224,15 @@ const PlaceOrder = () => {
     setPaymentModalVisible(false);
   };
 
+  function firstCheckIfCanOrder(){
+    alert(userData?.subscription.totalCredits)
+    if(userData?.subscription.totalCredits > 0){
+      setIsOutOfCredits(true)
+    }else{
+      confirmSettingBooking()
+    }
+  }
+
   function confirmSettingBooking() {
     // alert("floral data : "+JSON.stringify(flowerProvidersDetails))
     if(flowerProvidersDetails.merchant.paymentType !== "Whatsapp"){
@@ -297,6 +315,16 @@ const PlaceOrder = () => {
       const details = "Booking made for : "+ floraDetails.name + " " + "R "+ floraDetails.price ;
       const orderTitle = "Order - : "+ floraDetails.name;
       await updateNotificationReadStatus(data.bookingId,'unread',floraDetails?.floristId,orderTitle,details,user?.uid);
+      // deduct from current user 
+      updateUserSubscriptionCredits(
+        user?.uid,
+        10
+      );
+      updateHairStylistSubscriptionCredits(
+        user?.uid,
+        10
+      );
+      // deduct from florsit
       updateUserSubscriptionCredits(
         floraDetails.floristId,
         10
@@ -321,6 +349,65 @@ const PlaceOrder = () => {
 
   function handleSelectedPatron(data: any) {
     setSelectedPatron(data);
+  }
+
+  function renderOutOfCredits(): React.ReactNode {
+    return (
+      <View style={styles.outOfCreditsContainer}>
+      {/* Centered Header */}
+      <Text style={styles.headerText}>Choose your plan</Text>
+      
+      {/* Displaying message */}
+      <Text style={styles.outOfCreditsText}>
+      Your credits have been used up. By purchasing additional credits, 
+  you help us ensure that your flower orders are processed accurately, 
+  our systems run smoothly, and we continue delivering the best service possible.
+  Thank you for choosing us.
+      </Text>
+
+      {/* Radio list */}
+      <View style={styles.planList}>
+        {plans.map((plan:any, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.planOption}
+            onPress={() => setSelectedPlan(plan.credits)}
+          >
+            {/* Radio button */}
+            <View style={styles.radio}>
+              {selectedPlan === plan.credits && <View style={styles.selected} />}
+            </View>
+
+            {/* Plan details */}
+            <Text style={styles.planText}>
+              {plan.credits} credits - {plan.price}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+    )
+  }
+
+  function acceptCreditPurchase() {
+    setIsOutOfCredits(false);
+    const price = plans.find((x)=> x.credits === selectedPlan)
+    // alert(JSON.stringify(price))
+    const paymentData = {
+      merchant_id: "15553273",
+      merchant_key: "y20wnrvfcrbsk",
+      return_url: "https://google.com",
+      cancel_url: "https://google.com",
+      notify_url: "https://google.com",
+      email_address: "brad@motech.dev",
+      name_first: "bradley",
+      name_last: "mamanyoha",
+      amount: price.priceInValue.toString(),
+      m_payment_id: "000001", 
+      item_name: price.priceInValue.toString(),
+    };
+  setPaymentData(paymentData); 
+  setPaymentModalVisible(true)
   }
 
   return !isLoading ? (
@@ -484,8 +571,12 @@ const PlaceOrder = () => {
             events={formattedEvents.events}
             agendaItems={formattedEvents.agendaItems}
             onBookEvent={function (date: string): void {
-              setSelectedDate(date);
-              setModalVisible(true);
+              if(userData?.subscription.totalCredits === 0){
+                setIsOutOfCredits(true)
+              }else{
+                setSelectedDate(date);
+                setModalVisible(true);
+              }
             } }
             allowBooking={true}
             maskPhone={true} maskTextValue={true}          />
@@ -520,6 +611,8 @@ const PlaceOrder = () => {
         onClose={closeModal}
         paymentData={paymentData}
       />}
+
+      {<CustomModal visible={isOutOfCredits} onClose={()=> setIsOutOfCredits(false)} onConfirm={()=> acceptCreditPurchase()} children={renderOutOfCredits()}/>}
     </SafeAreaView>
     </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -559,6 +652,51 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     paddingLeft: 6,
     paddingRight: 6,
+  },
+  outOfCreditsContainer: {
+    padding: 20,
+    alignItems: "center", // Center the header and content
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  outOfCreditsText: {
+    fontSize: 14,
+    color: "#666",
+    textAlign:'justify',
+    marginBottom: 20,
+  },
+  planList: {
+    width: "100%", // Adjusts to take the full width
+  },
+  planOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  radio: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#00796b",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  selected: {
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+    backgroundColor: "#00796b",
+  },
+  planText: {
+    fontSize: 16,
   },
 });
 

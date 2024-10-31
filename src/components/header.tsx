@@ -14,7 +14,7 @@ import tokens from "../styles/tokens";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthContext } from "../auth/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import {  fetchNotificationsRealtime } from "../firebase/dbFunctions";
+import {  fetchNotificationsRealtime, fetchUserFromFirestore } from "../firebase/dbFunctions";
 
 type HeaderProps = {
   title: string;
@@ -32,6 +32,16 @@ const Header: React.FC<HeaderProps> = ({
   const insets = useSafeAreaInsets();
   const { userData,user } = useContext(AuthContext);
   const [notificationList, setNotificationList] = useState<any>([]);
+
+  // useEffect(() => {
+  //   const fetchUserFriendsData=async()=>{
+  //     const userdata = await fetchUserFromFirestore(user.uid);
+  //     setFetchUserData(userdata);
+  //   }
+
+  //   fetchUserFriendsData()
+  // }, []);
+
   const firstLetter = userData?.name?.charAt(0).toUpperCase();
   function onNotificationsPress(){
     navigation.navigate('Notifications')
@@ -81,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
             style={[styles.iconContainer, { marginRight: 10,position:'absolute',right:115,flexDirection:'row' }]}
           >
             {/* Notification Icon */}
-            <Text>10 {""}</Text>
+            <Text>{userData?.subscription.totalCredits} {""}</Text>
             <Image style={{height:25,width:25}} source={require('../../assets/coin.png')} />
           </View>}
         <TouchableOpacity onPress={onNotificationsPress}>

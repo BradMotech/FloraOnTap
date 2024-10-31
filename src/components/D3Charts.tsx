@@ -78,7 +78,7 @@ const D3Charts: React.FC<BarChartProps> = ({
     .domain([0, d3.max(filledData, (d) => d.value)!])
     .range([chartInnerHeight, 0]);
 
-  const getColor = (value: number) => (value < 10 ? "red" : "#E3C6C8");
+  const getColor = (value: number) => (value < 10 ? "red" : "#7541CA");
 
   const handlePress = (
     label: string,
@@ -198,7 +198,7 @@ const D3Charts: React.FC<BarChartProps> = ({
           <Text style={styles.legendText}>Low Performing</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.colorBox, { backgroundColor: "#E3C6C8" }]} />
+          <View style={[styles.colorBox, { backgroundColor: "#7541CA" }]} />
           <Text style={styles.legendText}>High Performing</Text>
         </View>
       </View>

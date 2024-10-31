@@ -31,7 +31,7 @@ const ImageGalleryItem: React.FC<ImageGalleryItemProps> = ({ uris }) => {
 
   const renderItem = ({ item, index }: { item: { url: string }; index }) => (
     <TouchableOpacity onPress={() => openModal(index)}>
-      <Image source={{ uri: item.url }} style={[styles.image,{width:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100,height:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100}]} />
+      <Image source={{ uri: item.url }} style={[styles.image,{width:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100,height:uris.length <= 3 ? (Dimensions.get('screen').width/2-20) :100},{width:uris.length == 1  ? (Dimensions.get('screen').width-50) :100,height:uris.length === 1 ? (Dimensions.get('screen').width/1.2) :100}]} />
     </TouchableOpacity>
   );
 
